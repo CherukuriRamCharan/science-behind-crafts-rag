@@ -1,2 +1,18 @@
 *.sf
 .sf
+
+# Python caches and test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Temporary review copies
+pending_data_review/
+pending_data_review.zip
+
+# Original research inputs and teammate-provided data
+/data/raw/
