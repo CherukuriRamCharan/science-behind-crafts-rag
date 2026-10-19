@@ -106,33 +106,36 @@ class GroundedGenerator:
         query_terms = set(tokens(question))
         if not query_terms:
             return []
-        content_terms = query_terms - {"bamboo"}
+        content_terms = query_terms - {"bamboo", "wood", "carv"}
         required_matches = min(2, len(content_terms))
         ranked = []
         for passage in passages:
             metadata = passage.get("metadata", {})
-            record_type = metadata.get("record_type", passage.get("record_type", ""))
-            if record_type == "source_document" and metadata.get("relevance_note"):
-                text = str(metadata["relevance_note"])
-            else:
-                text = passage.get("text_chunk", "")
-            for sentence in re.split(r"(?<=[.!?])\s+|[\r\n]+", text):
-                sentence = sentence.strip(" \t-")
-                if not sentence or re.match(
-                    r"^(title|source id|source type|link|questions answered|why theme|"
-                    r"process stage|evidence level|craft applicability)\s*:",
-                    sentence,
-                    re.IGNORECASE,
-                ):
-                    continue
-                sentence_terms = set(tokens(sentence))
-                overlap = query_terms & sentence_terms
-                content_overlap = overlap & content_terms
-                coverage = len(content_overlap) / max(len(content_terms), 1)
-                if len(content_overlap) < required_matches or coverage < 0.6:
-                    continue
-                score = len(content_overlap) / math.sqrt(max(len(sentence_terms), 1))
-                ranked.append((score, passage, sentence))
+            text_fields = [
+                (passage.get("text_chunk", ""), False),
+                (str(metadata.get("relevance_note", "")), True),
+            ]
+            for text, annotation in text_fields:
+                for sentence in re.split(r"(?<=[.!?])\s+|[\r\n]+", text):
+                    sentence = sentence.strip(" \t-")
+                    if not sentence or re.match(
+                        r"^(title|source id|source type|link|questions answered|why theme|"
+                        r"process stage|evidence level|craft applicability)\s*:",
+                        sentence,
+                        re.IGNORECASE,
+                    ):
+                        continue
+                    sentence_terms = set(tokens(sentence))
+                    overlap = query_terms & sentence_terms
+                    content_overlap = overlap & content_terms
+                    coverage = len(content_overlap) / max(len(content_terms), 1)
+                    if len(content_overlap) < required_matches or coverage < 0.5:
+                        continue
+                    specificity = len(content_overlap) / math.sqrt(max(len(sentence_terms), 1))
+                    score = coverage * specificity
+                    if annotation:
+                        score *= 0.85
+                    ranked.append((score, passage, sentence, annotation))
         ranked.sort(key=lambda item: -item[0])
         return ranked
 
@@ -141,17 +144,20 @@ class GroundedGenerator:
         ranked_sentences = ranked_sentences or GroundedGenerator._rank_sentences(question, passages)
         selected = []
         seen_sentences = set()
-        used_sources = set()
-        for _, passage, sentence in ranked_sentences:
+        used_source_kinds = set()
+        for _, passage, sentence, annotation in ranked_sentences:
             normalized = " ".join(sentence.casefold().split())
-            if normalized in seen_sentences or passage["source_id"] in used_sources:
+            source_kind = (passage["source_id"], annotation)
+            if normalized in seen_sentences or source_kind in used_source_kinds:
                 continue
             sentence = sentence[:420].rstrip()
+            if annotation:
+                sentence = f"Repository annotation (not source text): {sentence}"
             selected.append(
                 f"{sentence} [{passage['source_id']} | {passage.get('evidence_level', 'E5')}]"
             )
             seen_sentences.add(normalized)
-            used_sources.add(passage["source_id"])
+            used_source_kinds.add(source_kind)
             if len(selected) >= 3:
                 break
         if not selected:

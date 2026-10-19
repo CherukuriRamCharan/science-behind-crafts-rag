@@ -12,6 +12,25 @@ from .chunk import chunk_records
 from .embed_text import TextEmbedder
 
 
+def _searchable_text(row):
+    metadata = row.get("metadata", {})
+    values = [
+        row.get("text_chunk", ""),
+        metadata.get("title", row.get("title", "")),
+        metadata.get("relevance_note", ""),
+        metadata.get("questions_answered", []),
+        row.get("why_theme", ""),
+        row.get("craft_cluster", ""),
+        row.get("process_stage", ""),
+        row.get("material", ""),
+    ]
+    return " ".join(
+        str(value)
+        for value in values
+        if value and not isinstance(value, dict)
+    )
+
+
 class VectorStore:
     """Small local Chroma adapter; callers depend on this boundary."""
 
@@ -100,7 +119,8 @@ def build_indices(records, config):
     if not chunks:
         raise ValueError("No evidence-eligible passages are available for retrieval.")
     embedder = TextEmbedder(config)
-    all_vectors = embedder.encode([row["text_chunk"] for row in all_chunks])
+    search_texts = [_searchable_text(row) for row in all_chunks]
+    all_vectors = embedder.encode(search_texts, input_type="document")
     if all_vectors.ndim != 2 or all_vectors.shape[0] != len(all_chunks):
         raise ValueError(f"Embedding backend returned an invalid matrix shape: {all_vectors.shape}")
     if not np.isfinite(all_vectors).all():
@@ -123,7 +143,7 @@ def build_indices(records, config):
         faiss_index = faiss.IndexFlatIP(vectors.shape[1])
         faiss_index.add(vectors)
 
-    tokenized = [tokens(row["text_chunk"]) for row in chunks]
+    tokenized = [tokens(_searchable_text(row)) for row in chunks]
     bm25 = BM25Okapi(tokenized) if tokenized and any(tokenized) else None
     metadata_path = Path(index_config.get("metadata_path", artifacts / "chunks.json"))
     faiss_path = Path(index_config.get("faiss_path", artifacts / "dense.faiss"))

@@ -494,6 +494,30 @@ def load_prepared_corpus(config: dict[str, Any]) -> tuple[list[dict[str, Any]], 
             caution="Full-paper text chunk; validate scientific claims against the source.",
         ))
 
+    annotations_by_title: dict[str, dict[str, Any]] = {}
+    for record in records:
+        if record["record_type"] != "source_document":
+            continue
+        annotation = record["metadata"]
+        title_key = _title_key(record["title"])
+        if not title_key:
+            continue
+        existing = annotations_by_title.setdefault(title_key, {})
+        for field in ("relevance_note", "questions_answered", "craft_applicability"):
+            value = annotation.get(field)
+            if value and not existing.get(field):
+                existing[field] = value
+        if record.get("craft_cluster") and not existing.get("craft_cluster"):
+            existing["craft_cluster"] = record["craft_cluster"]
+        if record.get("craft") and not existing.get("craft"):
+            existing["craft"] = record["craft"]
+
+    for record in records:
+        if record["record_type"] == "full_paper_chunk":
+            annotation = annotations_by_title.get(_title_key(record["title"]), {})
+            for field, value in annotation.items():
+                record["metadata"].setdefault(field, value)
+
     report = {
         "prepared_root": str(prepared_root),
         "input_record_counts": {name: len(rows) for name, rows in raw_data.items()},

@@ -50,18 +50,29 @@ class TextEmbedder:
                 )
                 self.backend = "hashing"
 
-    def encode(self, texts):
+    def encode(self, texts, input_type="document"):
         texts = list(texts)
+        if input_type not in {"document", "query"}:
+            raise ValueError("input_type must be 'document' or 'query'.")
+        uses_e5_prefixes = (
+            self.model is not None
+            and "e5" in self.model_name.casefold()
+        )
+        model_texts = texts
+        if uses_e5_prefixes:
+            prefix = "query: " if input_type == "query" else "passage: "
+            model_texts = [prefix + text for text in texts]
         cache_path = None
         if len(texts) > 1:
             cache_key = hashlib.sha256(
                 (
                     self.backend
                     + ("\0hashing-v2" if self.backend == "hashing" else "")
+                    + f"\0{input_type}"
                     + "\0"
                     + self.model_name
                     + "\0"
-                    + "\0".join(texts)
+                    + "\0".join(model_texts)
                 ).encode("utf-8")
             ).hexdigest()
             cache_path = self.cache_dir / f"{cache_key}.npz"
@@ -75,7 +86,7 @@ class TextEmbedder:
         if self.model is not None:
             matrix = np.asarray(
                 self.model.encode(
-                    texts,
+                    model_texts,
                     normalize_embeddings=True,
                     batch_size=self.batch_size,
                     show_progress_bar=False,

@@ -18,12 +18,14 @@ index:
   chroma_collection: sbc_prepared_corpus
 retrieval:
   top_k: 5
-  candidate_k: 20
+  candidate_k: 80
   include_non_evidence: false
   rrf_k: 60
   dense_weight: 1.0
   sparse_weight: 1.0
-  annotation_match_boost: 0.0015
+  minimum_dense_similarity: 0.25
+  annotation_match_boost: 0.02
+  annotation_match_min_coverage: 0.5
   evidence_boost: {E1: 0.003, E2: 0.002, E3: 0.001, E4: 0.0005, E5: 0.0}
   grade_boost: {A: 0.001, B: 0.0005, C: 0.0}
   minimum_score: 0.0001

@@ -39,21 +39,23 @@ class HybridRetriever:
             len(chunks),
             max(limit * 4, self.cfg.get("candidate_k", 10)),
         )
-        query_vector = embedder.encode([query])[0]
+        query_vector = embedder.encode([query], input_type="query")[0]
+        similarities = vectors @ query_vector
         if self.index["faiss"] is not None:
             _, ids = self.index["faiss"].search(
                 query_vector.reshape(1, -1),
                 candidate_count,
             )
-            dense = [chunks[int(index)] for index in ids[0] if index >= 0]
+            dense_positions = [int(index) for index in ids[0] if index >= 0]
         else:
-            similarities = vectors @ query_vector
-            positions = np.argsort(-similarities, kind="stable")[:candidate_count]
-            dense = [chunks[int(index)] for index in positions]
+            dense_positions = np.argsort(-similarities, kind="stable")[:candidate_count].tolist()
         query_tokens = tokens(query)
         if self.index["bm25"] is not None:
             scores = self.index["bm25"].get_scores(query_tokens)
-            positions = np.argsort(-scores, kind="stable")[:candidate_count]
+            positive_positions = np.flatnonzero(scores > 0)
+            positions = positive_positions[
+                np.argsort(-scores[positive_positions], kind="stable")[:candidate_count]
+            ]
             sparse = [chunks[int(index)] for index in positions]
         else:
             term_set = set(query_tokens)
@@ -61,8 +63,21 @@ class HybridRetriever:
                 sum(term in set(document) for term in term_set)
                 for document in self.index["tokenized"]
             ]
-            positions = np.argsort(-np.asarray(overlaps), kind="stable")[:candidate_count]
+            overlap_array = np.asarray(overlaps)
+            positive_positions = np.flatnonzero(overlap_array > 0)
+            positions = positive_positions[
+                np.argsort(-overlap_array[positive_positions], kind="stable")[:candidate_count]
+            ]
             sparse = [chunks[int(index)] for index in positions]
+            scores = overlap_array
+        semantic_backend = self.index["backend_info"]["embedding"] != "hashing"
+        dense_threshold = self.cfg.get("minimum_dense_similarity", 0.25)
+        dense = [
+            chunks[index]
+            for index in dense_positions
+            if scores[index] > 0
+            or (semantic_backend and similarities[index] >= dense_threshold)
+        ]
         fused = rrf_fuse(
             dense,
             sparse,
@@ -79,10 +94,18 @@ class HybridRetriever:
         for chunk_id, score in fused:
             row = dict(by_id[chunk_id])
             metadata = row.get("metadata", {})
-            annotation_terms = set(tokens(metadata.get("relevance_note", "")))
+            annotation_text = " ".join([
+                str(metadata.get("relevance_note", "")),
+                " ".join(str(item) for item in metadata.get("questions_answered", [])),
+            ])
+            annotation_terms = set(tokens(annotation_text))
+            annotation_coverage = (
+                len(query_terms & annotation_terms) / len(query_terms)
+                if query_terms else 0.0
+            )
             annotation_match = (
-                len(query_terms & annotation_terms) * annotation_match_boost
-                if metadata.get("record_type") == "source_document"
+                annotation_coverage * annotation_match_boost
+                if annotation_coverage >= self.cfg.get("annotation_match_min_coverage", 0.5)
                 else 0.0
             )
             adjustment = (
@@ -93,6 +116,7 @@ class HybridRetriever:
             row["retrieval_score"] = score + adjustment
             row["rrf_score"] = score
             row["annotation_match_score"] = annotation_match
+            row["annotation_relevance"] = annotation_coverage
             scored.append(row)
         # Reranker hook: load a cross-encoder here when enabled; left inert to avoid checkpoint downloads.
         scored.sort(key=lambda x:x["retrieval_score"],reverse=True)
@@ -113,7 +137,10 @@ class HybridRetriever:
                 or metadata.get("source_url")
                 or ""
             ).strip()
-            if doi:
+            record_type = metadata.get("record_type", row.get("record_type", ""))
+            if title and record_type in {"source_document", "full_paper_chunk"}:
+                source_key = ("publication", title)
+            elif doi:
                 source_key = ("doi", doi.removeprefix("https://doi.org/"))
             elif link:
                 parsed = urlsplit(link)

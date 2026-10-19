@@ -85,6 +85,11 @@ def test_actual_prepared_datasets_map_records_and_keep_provenance():
     assert paper_chunk["source_id"] in {"WBC-0051", "WBC-2016"}
     assert paper_chunk["metadata"]["provenance"]["dataset"] == "full_paper_chunks"
     assert paper_chunk["metadata"]["provenance"]["chunk_index"] == 1
+    hand_tool_paper = next(
+        record for record in records
+        if record["record_type"] == "full_paper_chunk" and record["source_id"] == "WBC-0051"
+    )
+    assert hand_tool_paper["metadata"]["relevance_note"]
 
     source_card = next(
         record for record in records
@@ -291,6 +296,19 @@ def test_index_build_and_hybrid_retrieval_use_prepared_style_records(tmp_path):
             "text_chunk": "Why does bamboo age affect fibre strength?",
             "evidence_eligible": False,
         },
+        {
+            "source_id": "WBC-1003",
+            "title": "Hand tool ergonomics",
+            "record_id": "r3",
+            "record_type": "source_document",
+            "text_chunk": "The paper discusses ergonomic factors.",
+            "evidence_level": "E3",
+            "metadata": {
+                "record_type": "source_document",
+                "questions_answered": ["How does handle diameter affect grip strength?"],
+                "relevance_note": "Handle diameter affects grip strength.",
+            },
+        },
     ]
 
     index = build_indices(records, config)
@@ -311,6 +329,19 @@ def test_index_build_and_hybrid_retrieval_use_prepared_style_records(tmp_path):
     assert sum(row["source_id"] == "WBC-1001" for row in found) == 1
     assert index["backend_info"]["embedding"] == "hashing"
     assert not HybridRetriever(index, config).retrieve("Why does bamboo age affect fibre strength?", top_k=2)[0]["source_id"].startswith("GAP:")
+    metadata_hit = HybridRetriever(index, config).retrieve(
+        "How does handle diameter affect grip strength?",
+        top_k=1,
+    )
+    assert metadata_hit[0]["source_id"] == "WBC-1003"
+
+
+def test_hashing_retrieval_returns_no_random_dense_collisions():
+    config = load_config()
+    records, _ = load_prepared_corpus(config)
+    index = build_indices(records, config)
+
+    assert HybridRetriever(index, config).retrieve("quantum entanglement") == []
 
 
 def test_real_prepared_corpus_retrieves_and_cites_relevant_sources(tmp_path):
@@ -343,6 +374,7 @@ def test_real_prepared_corpus_retrieves_and_cites_relevant_sources(tmp_path):
         retriever.retrieve("How does hand tool design affect grip strength?"),
     )
     assert "handle diameter" in grip_answer.casefold()
+    assert "repository annotation (not source text)" in grip_answer.casefold()
 
 
 def test_generator_cites_retrieved_evidence_and_rejects_question_records():
@@ -393,6 +425,37 @@ def test_optional_model_backends_fail_with_setup_guidance(monkeypatch):
         GroundedGenerator({"generator": {"backend": "transformers", "model_name": "local-model"}})
 
 
+def test_e5_embeddings_use_query_and_passage_prefixes(tmp_path):
+    config = {
+        "embedding": {
+            "backend": "sentence-transformers",
+            "model_name": "intfloat/multilingual-e5-small",
+            "cache_dir": str(tmp_path),
+        }
+    }
+    embedder = object.__new__(TextEmbedder)
+    embedder.backend = "sentence-transformers"
+    embedder.model_name = config["embedding"]["model_name"]
+    embedder.batch_size = 32
+    embedder.cache_dir = Path(config["embedding"]["cache_dir"])
+    embedder.model = None
+
+    class FakeModel:
+        def __init__(self):
+            self.inputs = []
+
+        def encode(self, texts, **kwargs):
+            self.inputs.append(texts)
+            return [[1.0, 0.0] for _ in texts]
+
+    model = FakeModel()
+    embedder.model = model
+    embedder.encode(["paper excerpt"], input_type="document")
+    embedder.encode(["research question"], input_type="query")
+
+    assert model.inputs == [["passage: paper excerpt"], ["query: research question"]]
+
+
 def test_local_server_status_and_query_api(monkeypatch):
     passage = {
         "source_id": "WBC-0001",
@@ -414,6 +477,8 @@ def test_local_server_status_and_query_api(monkeypatch):
 
     class FakeGenerator:
         def answer(self, question, passages):
+            if "capital of france" in question.casefold():
+                return "Insufficient evidence in the retrieved corpus to answer this question."
             return "Retrieved evidence: Bamboo maturity [WBC-0001 | E3]"
 
     app = {
@@ -447,11 +512,20 @@ def test_local_server_status_and_query_api(monkeypatch):
         )
         with urlopen(request) as response:
             body = json.load(response)
+        unsupported_request = Request(
+            f"{base}/api/query",
+            data=json.dumps({"question": "What is the capital of France?"}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urlopen(unsupported_request) as response:
+            unsupported_body = json.load(response)
         assert status["status"] == "ready"
         assert {"Wood carving", "Bamboo carving"} <= set(filters["craft_clusters"])
         assert body["sources"][0]["source_id"] == "WBC-0001"
         assert body["sources"][0]["source_url"] == "https://example.org/bamboo"
         assert "[WBC-0001 | E3]" in body["answer"]
+        assert unsupported_body["sources"] == []
         assert server.DEFAULT_HOST == "127.0.0.1"
     finally:
         http_server.shutdown()

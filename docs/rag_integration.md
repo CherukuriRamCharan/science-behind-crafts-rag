@@ -89,7 +89,9 @@ The built index, embedding cache, evaluation results, and corpus manifest are wr
 
 ## Current retrieval baseline
 
-The offline hashing smoke checks retrieve and cite WBC-0051 for hand-tool grip strength, WBC-0009 for grain-angle cutting, and WBC-0059 for mature bamboo density. Answers now select short query-matched sentences from paper text or source-card relevance notes; when the corpus does not support a question, the response says so. The latest run over 80 linked prepared questions measured precision@5 0.028, recall@5 0.091, MRR 0.057, and nDCG@5 0.057. These aggregate scores remain weak and do not establish broad retrieval quality. The reported faithfulness and relevancy values are simple deterministic citation/overlap proxies, not expert or LLM judgments. Tune and evaluate the optional multilingual embedding backend with expert-labeled queries before relying on broader retrieval.
+The offline hashing smoke checks retrieve and cite WBC-0051 for hand-tool grip strength, WBC-0009 for grain-angle cutting, and WBC-0059 for mature bamboo density. Answers select short query-matched sentences from paper text or source-card relevance notes; annotation-derived claims are explicitly labeled as repository annotations, not source text. Questions without adequate retrieved evidence receive an insufficient-evidence response without unrelated citations.
+
+The latest run over 80 linked prepared questions, using the configured deterministic hashing backend and `candidate_k: 80`, measured precision@5 0.035, recall@5 0.114, MRR 0.074, and nDCG@5 0.075. Expanding the candidate pool from 20 to 80 improved MRR from 0.063 to 0.074 in the same local evaluation, with other settings held constant. Aggregate retrieval quality remains weak and does not establish broad reliability. The reported faithfulness and relevancy values are deterministic citation/overlap proxies, not expert or LLM judgments. Evaluate semantic embeddings and an expert-labeled query set before relying on broader retrieval.
 
 ## Tests
 
