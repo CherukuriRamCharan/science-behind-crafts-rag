@@ -26,7 +26,7 @@ STOP_WORDS = {
     "their", "them", "then", "there", "these", "they", "this", "those", "through",
     "to", "too", "under", "until", "up", "very", "was", "we", "were", "what",
     "when", "where", "which", "while", "who", "why", "will", "with", "would",
-    "wood", "you", "your",
+    "wood", "you", "your", "affect", "affects", "cause", "causes",
 }
 
 

@@ -120,6 +120,8 @@ class Handler(BaseHTTPRequestHandler):
             filters = {key: data[key] for key in ("craft_cluster", "why_theme") if data.get(key)}
             passages = app["retriever"].retrieve(question, filters=filters)
             answer = app["generator"].answer(question, passages)
+            if answer.startswith("Insufficient evidence"):
+                passages = []
             sources = []
             for passage in passages:
                 meta = passage.get("metadata", {})
