@@ -1,0 +1,6 @@
+PyYAML>=6.0
+numpy>=1.24,<3
+rank-bm25>=0.2.2
+faiss-cpu>=1.7.4
+requests>=2.32
+pytest>=8.0

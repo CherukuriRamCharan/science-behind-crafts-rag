@@ -1,0 +1,37 @@
+data:
+  prepared_root: ..
+  artifact_dir: artifacts
+  ingest_report: artifacts/corpus_manifest.json
+chunking:
+  words: 260
+  overlap: 45
+  max_chars: 1200
+embedding:
+  backend: hashing
+  model_name: intfloat/multilingual-e5-small
+  batch_size: 32
+  cache_dir: artifacts/embedding_cache
+index:
+  faiss_path: artifacts/dense.faiss
+  metadata_path: artifacts/chunks.json
+  chroma_path: artifacts/chroma
+  chroma_collection: sbc_prepared_corpus
+retrieval:
+  top_k: 5
+  candidate_k: 20
+  include_non_evidence: false
+  rrf_k: 60
+  dense_weight: 1.0
+  sparse_weight: 1.0
+  evidence_boost: {E1: 0.003, E2: 0.002, E3: 0.001, E4: 0.0005, E5: 0.0}
+  grade_boost: {A: 0.001, B: 0.0005, C: 0.0}
+  minimum_score: 0.0001
+  reranker_enabled: false
+generator:
+  backend: extractive
+  model_name: Qwen/Qwen2.5-3B-Instruct
+  max_new_tokens: 220
+  minimum_results: 1
+web:
+  allowlist_file: allowlist.yaml
+  delay_seconds: 1.5

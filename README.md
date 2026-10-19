@@ -61,6 +61,10 @@ python src/build_data_readiness_report.py
 
 These scripts are designed to be idempotent and reproducible.
 
+## Prepared-corpus RAG application
+
+The integrated hybrid RAG application uses the prepared JSONL datasets directly. See the [RAG integration guide](docs/rag_integration.md) for environment setup, index building, demos, web use, and tests.
+
 ## Test discovery
 
 Use the repository's root test suite with:
