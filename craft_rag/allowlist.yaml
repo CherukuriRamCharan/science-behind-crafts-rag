@@ -1,0 +1,20 @@
+domains:
+  handicrafts.nic.in: official
+  dsource.in: official
+  fpl.fs.usda.gov: scientific
+  bioresources.cnr.ncsu.edu: scientific
+  ncbi.nlm.nih.gov: scientific
+  sciencedirect.com: scientific
+  researchgate.net: scientific
+  ac.in: official
+  gov.in: official
+  nic.in: official
+  doi.org: scientific
+  exarc.net: scientific
+  youtube.com: general
+  elegant-experiments.net: general
+  woodcraft.com: general
+tier_evidence:
+  official: E2
+  scientific: E3
+  general: E4

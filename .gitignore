@@ -16,3 +16,7 @@ pending_data_review.zip
 
 # Original research inputs and teammate-provided data
 /data/raw/
+
+# Integrated RAG local environment and generated indexes/caches
+/craft_rag/.venv/
+/craft_rag/artifacts/
