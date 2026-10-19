@@ -55,7 +55,14 @@ class TextEmbedder:
         cache_path = None
         if len(texts) > 1:
             cache_key = hashlib.sha256(
-                (self.backend + "\0" + self.model_name + "\0" + "\0".join(texts)).encode("utf-8")
+                (
+                    self.backend
+                    + ("\0hashing-v2" if self.backend == "hashing" else "")
+                    + "\0"
+                    + self.model_name
+                    + "\0"
+                    + "\0".join(texts)
+                ).encode("utf-8")
             ).hexdigest()
             cache_path = self.cache_dir / f"{cache_key}.npz"
             if cache_path.exists():

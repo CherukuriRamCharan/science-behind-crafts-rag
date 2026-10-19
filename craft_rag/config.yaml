@@ -23,6 +23,7 @@ retrieval:
   rrf_k: 60
   dense_weight: 1.0
   sparse_weight: 1.0
+  annotation_match_boost: 0.0015
   evidence_boost: {E1: 0.003, E2: 0.002, E3: 0.001, E4: 0.0005, E5: 0.0}
   grade_boost: {A: 0.001, B: 0.0005, C: 0.0}
   minimum_score: 0.0001

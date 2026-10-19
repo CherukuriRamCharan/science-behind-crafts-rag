@@ -74,6 +74,13 @@ def test_actual_prepared_datasets_map_records_and_keep_provenance():
     assert report["indexed_record_count"] == len(records)
     assert report["quality_issue_count"] > 0
     assert any(record["record_type"] == "research_question" for record in records)
+    clusters = {record["craft_cluster"] for record in records if record["craft_cluster"]}
+    assert {"Wood carving", "Bamboo carving"} <= clusters
+    assert any(
+        record["craft_cluster"] == "Wood carving"
+        and record["craft"] != "Wood carving"
+        for record in records
+    )
     paper_chunk = next(record for record in records if record["record_type"] == "full_paper_chunk")
     assert paper_chunk["source_id"] in {"WBC-0051", "WBC-2016"}
     assert paper_chunk["metadata"]["provenance"]["dataset"] == "full_paper_chunks"
@@ -88,6 +95,15 @@ def test_actual_prepared_datasets_map_records_and_keep_provenance():
     assert source_card["doi"] == "10.1539/joh.16-0136-BR"
     assert source_card["link"] == "https://doi.org/10.1539/joh.16-0136-BR"
     assert source_card["metadata"]["provenance"]["relative_path"].startswith("data\\raw\\")
+    assert source_card["text_chunk"].startswith(source_card["title"])
+    assert len(source_card["text_chunk"]) < 1000
+    assert "Field Entry Source ID" not in source_card["text_chunk"]
+    assert "relevance_note" in source_card["metadata"]
+    assert any(
+        record["metadata"].get("relevance_note")
+        for record in records
+        if record["record_type"] == "source_document"
+    )
 
 
 def test_config_and_actual_corpus_paths_do_not_depend_on_working_directory(tmp_path, monkeypatch):
@@ -320,6 +336,13 @@ def test_real_prepared_corpus_retrieves_and_cites_relevant_sources(tmp_path):
         assert expected_source in {passage["source_id"] for passage in passages}
         answer = generator.answer(question, passages)
         assert f"[{expected_source} | E3]" in answer
+        assert "Field Entry Source ID" not in answer
+        assert len(answer) < 1000
+    grip_answer = generator.answer(
+        "How does hand tool design affect grip strength?",
+        retriever.retrieve("How does hand tool design affect grip strength?"),
+    )
+    assert "handle diameter" in grip_answer.casefold()
 
 
 def test_generator_cites_retrieved_evidence_and_rejects_question_records():
@@ -343,6 +366,16 @@ def test_generator_cites_retrieved_evidence_and_rejects_question_records():
     assert generator.answer("Why does bamboo age affect fibre strength?", [question_record]).startswith(
         "Insufficient evidence"
     )
+    weakly_related = {
+        "source_id": "WBC-0002",
+        "evidence_level": "E3",
+        "text_chunk": "Bamboo fibre strength varies by species.",
+        "metadata": {"record_type": "source_document", "evidence_eligible": True},
+    }
+    assert generator.answer(
+        "What causes bamboo to split along its fibres?",
+        [weakly_related],
+    ).startswith("Insufficient evidence")
 
 
 def test_optional_model_backends_fail_with_setup_guidance(monkeypatch):
@@ -386,7 +419,13 @@ def test_local_server_status_and_query_api(monkeypatch):
     app = {
         "record_count": 2,
         "quality_issue_count": 0,
-        "index": {"backend_info": {"embedding": "hashing"}, "chunks": []},
+        "index": {
+            "backend_info": {"embedding": "hashing"},
+            "chunks": [
+                {"craft_cluster": "Wood carving"},
+                {"craft_cluster": "Bamboo carving"},
+            ],
+        },
         "retriever": FakeRetriever(),
         "generator": FakeGenerator(),
     }
@@ -398,6 +437,8 @@ def test_local_server_status_and_query_api(monkeypatch):
         base = f"http://127.0.0.1:{http_server.server_port}"
         with urlopen(f"{base}/api/status") as response:
             status = json.load(response)
+        with urlopen(f"{base}/api/filters") as response:
+            filters = json.load(response)
         request = Request(
             f"{base}/api/query",
             data=json.dumps({"question": "How does bamboo maturity affect fibres?"}).encode(),
@@ -407,6 +448,7 @@ def test_local_server_status_and_query_api(monkeypatch):
         with urlopen(request) as response:
             body = json.load(response)
         assert status["status"] == "ready"
+        assert {"Wood carving", "Bamboo carving"} <= set(filters["craft_clusters"])
         assert body["sources"][0]["source_id"] == "WBC-0001"
         assert body["sources"][0]["source_url"] == "https://example.org/bamboo"
         assert "[WBC-0001 | E3]" in body["answer"]

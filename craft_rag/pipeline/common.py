@@ -13,6 +13,21 @@ SCHEMA = ("source_id", "craft_cluster", "why_theme", "secondary_theme", "process
           "tool_treatment", "link", "caution")
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = PACKAGE_ROOT.parent
+STOP_WORDS = {
+    "a", "about", "after", "again", "all", "also", "an", "and", "any", "are",
+    "as", "at", "be", "because", "been", "before", "being", "between", "both",
+    "but", "by", "can", "could", "did", "do", "does", "doing", "during", "each",
+    "affect", "affects", "along", "across", "cause", "causes", "for", "from",
+    "further", "had", "has", "have", "having", "he", "her", "here",
+    "hers", "him", "his", "how", "i", "if", "in", "into", "is", "it", "its",
+    "itself", "just", "may", "might", "more", "most", "must", "my", "no", "nor",
+    "not", "of", "on", "once", "only", "or", "other", "our", "out", "over",
+    "own", "same", "she", "should", "so", "some", "such", "than", "that", "the",
+    "their", "them", "then", "there", "these", "they", "this", "those", "through",
+    "to", "too", "under", "until", "up", "very", "was", "we", "were", "what",
+    "when", "where", "which", "while", "who", "why", "will", "with", "would",
+    "wood", "you", "your",
+}
 
 
 def resolve_path(path: str | Path, base: str | Path = PACKAGE_ROOT) -> Path:
@@ -64,7 +79,22 @@ def clean_text(text: str) -> str:
     return re.sub(r"\s+", " ", text or "").strip()
 
 def tokens(text: str) -> list[str]:
-    return re.findall(r"[\w'-]+", text.casefold(), flags=re.UNICODE)
+    normalized = []
+    for token in re.findall(r"[\w'-]+", text.casefold(), flags=re.UNICODE):
+        if token in STOP_WORDS or len(token) < 2:
+            continue
+        if len(token) > 5 and token.endswith("ies"):
+            token = token[:-3] + "y"
+        elif len(token) > 5 and token.endswith("ing"):
+            token = token[:-3]
+            if len(token) > 2 and token[-1] == token[-2]:
+                token = token[:-1]
+        elif len(token) > 4 and token.endswith("ed"):
+            token = token[:-2]
+        elif len(token) > 4 and token.endswith("s") and not token.endswith("ss"):
+            token = token[:-1]
+        normalized.append(token)
+    return normalized
 
 
 def is_evidence_eligible(record: dict[str, Any]) -> bool:

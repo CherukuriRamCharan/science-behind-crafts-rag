@@ -1,6 +1,8 @@
 """Hybrid FAISS/BM25 retrieval with Reciprocal Rank Fusion."""
 from __future__ import annotations
 
+from urllib.parse import urlsplit, urlunsplit
+
 import numpy as np
 
 from .common import tokens
@@ -71,15 +73,26 @@ class HybridRetriever:
         by_id = {row["chunk_id"]: row for row in chunks}
         evidence_boost = self.cfg.get("evidence_boost", {})
         grade_boost = self.cfg.get("grade_boost", {})
+        annotation_match_boost = self.cfg.get("annotation_match_boost", 0.0)
+        query_terms = set(tokens(query))
         scored = []
         for chunk_id, score in fused:
             row = dict(by_id[chunk_id])
+            metadata = row.get("metadata", {})
+            annotation_terms = set(tokens(metadata.get("relevance_note", "")))
+            annotation_match = (
+                len(query_terms & annotation_terms) * annotation_match_boost
+                if metadata.get("record_type") == "source_document"
+                else 0.0
+            )
             adjustment = (
                 evidence_boost.get(row.get("evidence_level"), 0)
                 + grade_boost.get(row.get("grade"), 0)
+                + annotation_match
             )
             row["retrieval_score"] = score + adjustment
             row["rrf_score"] = score
+            row["annotation_match_score"] = annotation_match
             scored.append(row)
         # Reranker hook: load a cross-encoder here when enabled; left inert to avoid checkpoint downloads.
         scored.sort(key=lambda x:x["retrieval_score"],reverse=True)
@@ -93,7 +106,23 @@ class HybridRetriever:
             if filters and any(row.get(key, metadata.get(key)) != value for key, value in filters.items()):
                 continue
             title = " ".join(str(metadata.get("title", "")).split()).casefold()
-            source_key = (str(row["source_id"]).casefold(), title or row.get("record_id", ""))
+            doi = str(row.get("doi") or metadata.get("doi") or "").strip().casefold()
+            link = str(
+                row.get("link")
+                or row.get("source_url")
+                or metadata.get("source_url")
+                or ""
+            ).strip()
+            if doi:
+                source_key = ("doi", doi.removeprefix("https://doi.org/"))
+            elif link:
+                parsed = urlsplit(link)
+                source_key = (
+                    "url",
+                    urlunsplit((parsed.scheme.casefold(), parsed.netloc.casefold(), parsed.path.rstrip("/"), parsed.query, "")),
+                )
+            else:
+                source_key = ("record", str(row["source_id"]).casefold(), title or row.get("record_id", ""))
             if source_key in seen:
                 continue
             selected.append(row)
