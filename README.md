@@ -72,3 +72,30 @@ Use the repository's root test suite with:
 python -m pytest -q tests/
 
 The duplicate test file under `pending_data_review/tests/` is intentionally excluded from the project-level pytest discovery to avoid an import-path mismatch when running from the repo root.
+
+
+## Evaluation Suite
+
+The repository includes a reproducible evaluation benchmark for retrieval and offline extractive generation:
+
+- **Benchmark Dataset**: 45 auto-drafted questions (`data/eval/eval_questions.jsonl`): 33 answerable (54.5% grounded in PDF/DOCX metadata cards) + 12 unanswerable (hard near-domain, teammate unsourced, and out-of-domain baseline).
+  - *Data Quality Warning*: Teammate corpus builder outputs: `Prepared corpus has 62 data-quality issue(s); details are included in the corpus manifest (artifacts/corpus_manifest.json)`.
+  - *Question-to-Quote Overlap*: Average 58.84% across answerable questions (metric definition: $|T_{\text{question}} \cap T_{\text{quote}}| / |T_{\text{question}}|$ with stopwords removed, len > 2), with 22 questions > 50% due to strict single-sentence QA grounding.
+  - *Limitation*: High lexical overlap between questions and gold quotes likely favors BM25; retrieval scores may be optimistic.
+- **Collapsing Rule**: Evaluates retrieval after deduplicating ranked lists by gold record groups (aliases count once; slot $k$ represents $k$ distinct records).
+- **Retrieval Performance (N=33 Answerable)**:
+  - BM25 (Sparse, direct): MRR = 0.8657, HitRate@5 = 0.9091, Recall@5 = 0.9091, nDCG@5 = 0.8716
+  - Dense (Hashing baseline): MRR = 0.6753, HitRate@5 = 0.7273, Recall@5 = 0.7273, nDCG@5 = 0.6765
+  - Hybrid (No dedup): MRR = 0.7996, HitRate@5 = 0.8485, Recall@5 = 0.8485, nDCG@5 = 0.8037
+  - Hybrid (Pipeline with dedup): MRR = 0.8081, HitRate@5 = 0.8788, Recall@5 = 0.8788, nDCG@5 = 0.8261
+  *(Note: N=33 differences between retrievers are within sampling noise; no winner claimed. Teammate title deduplication in pipeline drops relevant chunks for multi-chunk papers).*
+- **Generation & Citation Quality (`--skip-llm` Extractive Mode)**:
+  - Evaluates offline extractive text concatenation; does not generalize to neural LLM generation.
+  - Citation Validity: 100% valid by construction (only cites retrieved chunks).
+  - Evidence Leakage: 0/5 instances (artisan observations not synthesized as proven law).
+  - False Abstention: 0.0% (trivial, as extractive generator never abstains under BM25).
+- **Run Evaluation**:
+  ```bash
+  python src/run_evaluation.py --skip-llm
+  ```
+- **Evaluation Report**: See [`data/metadata/evaluation_report.md`](data/metadata/evaluation_report.md) for full breakdown, case studies, label fix before/after comparisons, and figures.
