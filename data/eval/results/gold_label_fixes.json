@@ -1,0 +1,30 @@
+[
+  {
+    "qid": "q002",
+    "field": "question_type",
+    "old": "scientific_explanation",
+    "new": "process",
+    "reason": "Restored original target distribution (process: 8, scientific_explanation: 7) as tool socket impact mechanics describes craft tool maintenance/use process."
+  },
+  {
+    "qid": "q022",
+    "field": "gold_record_ids & gold_evidence_quote",
+    "old": "IDs: ['WBC-0051::doc0006::0000', 'WBC-0051::doc0006', 'WBC-0051-0004'], Quote: 'Hand is made up of bones, tendons, ligaments, nerves and'",
+    "new": "IDs: ['WBC-0051::doc0005::0000', 'WBC-0051::doc0005', 'WBC-0051-0003'], Quote: 'data on hand grip strength are also meaningful for predicting muscle weakness [7], determining the functional capabilities of'",
+    "reason": "Corrected mislabeled gold chunk: doc0005 is the actual text explaining that grip strength predicts muscle weakness and functional capabilities (doc0006 was hand anatomy)."
+  },
+  {
+    "qid": "q023",
+    "field": "gold_record_ids & gold_evidence_quote",
+    "old": "IDs: ['WBC-0051::doc0007::0000', 'WBC-0051::doc0007', 'WBC-0051-0005'], Quote: 'handle shape, handle material, handle flange, handle inter distance'",
+    "new": "IDs: ['WBC-0051::doc0006::0000', 'WBC-0051::doc0006', 'WBC-0051-0004'], Quote: 'Hand is made up of bones, tendons, ligaments, nerves and'",
+    "reason": "Corrected mislabeled gold chunk: doc0006 contains the actual anatomy text ('Hand is made up of bones, tendons, ligaments, nerves and') whereas doc0007 described handle dimensions."
+  },
+  {
+    "qid": "q031",
+    "field": "question & question_type",
+    "old": "question: 'What quantified mechanical data and node-weakness explanation does the bamboo ScienceDirect review summarize?', question_type: 'scientific_explanation'",
+    "new": "question: 'What explains why bamboo node regions are mechanically weaker than internodes?', question_type: 'card_pointer'",
+    "reason": "Reclassified as 'card_pointer' with natural craft question. Chunk WBC-0003::doc0003::0000 is a literature pointer stating a review has node-weakness data, but does NOT state WHY nodes are weaker. Reporting it separately transparently documents the card-pointer limitation."
+  }
+]
