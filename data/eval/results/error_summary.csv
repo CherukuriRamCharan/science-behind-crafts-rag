@@ -1,0 +1,4 @@
+error_category,component,count
+retrieval_deduplication_drop,retriever,4
+generation_abstention_failure,generator,10
+dense_hashing_capacity_limit,dense_embedder,9

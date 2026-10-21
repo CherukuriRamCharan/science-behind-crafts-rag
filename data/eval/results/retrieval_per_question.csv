@@ -1,0 +1,133 @@
+﻿qid,retriever,question_type,document_type,MRR,HitRate@1,HitRate@3,HitRate@5,HitRate@10,Recall@1,Recall@3,Recall@5,Recall@10,Precision@5,nDCG@5,nDCG@10
+q001,bm25,factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q001,dense (hashing baseline),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q001,hybrid (no dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q001,hybrid (pipeline with dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q002,bm25,process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q002,dense (hashing baseline),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q002,hybrid (no dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q002,hybrid (pipeline with dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q003,bm25,scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q003,dense (hashing baseline),scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q003,hybrid (no dedup),scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q003,hybrid (pipeline with dedup),scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q004,bm25,scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q004,dense (hashing baseline),scientific_explanation,source_document,0.0278,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q004,hybrid (no dedup),scientific_explanation,source_document,0.0714,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q004,hybrid (pipeline with dedup),scientific_explanation,source_document,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q005,bm25,scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q005,dense (hashing baseline),scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q005,hybrid (no dedup),scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q005,hybrid (pipeline with dedup),scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q006,bm25,factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q006,dense (hashing baseline),factual,source_document,0.0833,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q006,hybrid (no dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q006,hybrid (pipeline with dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q007,bm25,factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q007,dense (hashing baseline),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q007,hybrid (no dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q007,hybrid (pipeline with dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q008,bm25,factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q008,dense (hashing baseline),factual,source_document,0.125,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.3155
+q008,hybrid (no dedup),factual,source_document,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q008,hybrid (pipeline with dedup),factual,source_document,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q009,bm25,factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q009,dense (hashing baseline),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q009,hybrid (no dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q009,hybrid (pipeline with dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q010,bm25,process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q010,dense (hashing baseline),process,source_document,0.1,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.2891
+q010,hybrid (no dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q010,hybrid (pipeline with dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q011,bm25,process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q011,dense (hashing baseline),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q011,hybrid (no dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q011,hybrid (pipeline with dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q012,bm25,process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q012,dense (hashing baseline),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q012,hybrid (no dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q012,hybrid (pipeline with dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q013,bm25,factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q013,dense (hashing baseline),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q013,hybrid (no dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q013,hybrid (pipeline with dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q014,bm25,scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q014,dense (hashing baseline),scientific_explanation,source_document,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q014,hybrid (no dedup),scientific_explanation,source_document,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q014,hybrid (pipeline with dedup),scientific_explanation,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q015,bm25,process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q015,dense (hashing baseline),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q015,hybrid (no dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q015,hybrid (pipeline with dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q016,bm25,factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q016,dense (hashing baseline),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q016,hybrid (no dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q016,hybrid (pipeline with dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q017,bm25,factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q017,dense (hashing baseline),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q017,hybrid (no dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q017,hybrid (pipeline with dedup),factual,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q018,bm25,process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q018,dense (hashing baseline),process,source_document,0.125,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.3155
+q018,hybrid (no dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q018,hybrid (pipeline with dedup),process,source_document,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q019,bm25,factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q019,dense (hashing baseline),factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q019,hybrid (no dedup),factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q019,hybrid (pipeline with dedup),factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q020,bm25,factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q020,dense (hashing baseline),factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q020,hybrid (no dedup),factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q020,hybrid (pipeline with dedup),factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q021,bm25,factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q021,dense (hashing baseline),factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q021,hybrid (no dedup),factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q021,hybrid (pipeline with dedup),factual,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q022,bm25,scientific_explanation,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q022,dense (hashing baseline),scientific_explanation,full_paper_chunk,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q022,hybrid (no dedup),scientific_explanation,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q022,hybrid (pipeline with dedup),scientific_explanation,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q023,bm25,factual,full_paper_chunk,0.1111,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.301
+q023,dense (hashing baseline),factual,full_paper_chunk,0.0476,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q023,hybrid (no dedup),factual,full_paper_chunk,0.0909,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q023,hybrid (pipeline with dedup),factual,full_paper_chunk,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q024,bm25,process,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q024,dense (hashing baseline),process,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q024,hybrid (no dedup),process,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q024,hybrid (pipeline with dedup),process,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q025,bm25,scientific_explanation,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q025,dense (hashing baseline),scientific_explanation,full_paper_chunk,0.25,0.0,0.0,1.0,1.0,0.0,0.0,1.0,1.0,0.2,0.4307,0.4307
+q025,hybrid (no dedup),scientific_explanation,full_paper_chunk,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q025,hybrid (pipeline with dedup),scientific_explanation,full_paper_chunk,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q026,bm25,process,full_paper_chunk,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q026,dense (hashing baseline),process,full_paper_chunk,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q026,hybrid (no dedup),process,full_paper_chunk,0.0588,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q026,hybrid (pipeline with dedup),process,full_paper_chunk,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q027,bm25,multi_hop,full_paper_chunk,0.3333,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.5,0.5
+q027,dense (hashing baseline),multi_hop,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q027,hybrid (no dedup),multi_hop,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q027,hybrid (pipeline with dedup),multi_hop,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q028,bm25,multi_hop,full_paper_chunk,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q028,dense (hashing baseline),multi_hop,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q028,hybrid (no dedup),multi_hop,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q028,hybrid (pipeline with dedup),multi_hop,full_paper_chunk,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q029,bm25,factual,process_observation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q029,dense (hashing baseline),factual,process_observation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q029,hybrid (no dedup),factual,process_observation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q029,hybrid (pipeline with dedup),factual,process_observation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q030,bm25,factual,process_observation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q030,dense (hashing baseline),factual,process_observation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q030,hybrid (no dedup),factual,process_observation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q030,hybrid (pipeline with dedup),factual,process_observation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q031,bm25,card_pointer,process_observation,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q031,dense (hashing baseline),card_pointer,process_observation,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q031,hybrid (no dedup),card_pointer,process_observation,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q031,hybrid (pipeline with dedup),card_pointer,process_observation,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q032,bm25,multi_hop,process_observation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.2,1.0,1.0
+q032,dense (hashing baseline),multi_hop,process_observation,0.025,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+q032,hybrid (no dedup),multi_hop,process_observation,0.1667,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.3562
+q032,hybrid (pipeline with dedup),multi_hop,process_observation,0.3333,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.5,0.5
+q033,bm25,multi_hop,process_observation,0.125,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.3155
+q033,dense (hashing baseline),multi_hop,process_observation,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q033,hybrid (no dedup),multi_hop,process_observation,0.5,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.6309,0.6309
+q033,hybrid (pipeline with dedup),multi_hop,process_observation,0.3333,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,0.2,0.5,0.5

@@ -1,0 +1,49 @@
+﻿qid,retriever,question,top_retrieved_id,top_score
+q034,bm25,Why is Udayagiri wood soaked in water for four days specifically before initial shaping?,WBC-0045::doc0001::0000,15.55013
+q034,dense (hashing baseline),Why is Udayagiri wood soaked in water for four days specifically before initial shaping?,WBC-2016::doc0086::0000,0.24951
+q034,hybrid (no dedup),Why is Udayagiri wood soaked in water for four days specifically before initial shaping?,WBC-0028::doc0001::0000,0.03101
+q034,hybrid (pipeline with dedup),Why is Udayagiri wood soaked in water for four days specifically before initial shaping?,WBC-0028::doc0001::0000,0.03201
+q035,bm25,What steam bending minimum curvature radius can be achieved in seasoned teak without outer fiber tensile failure?,WBC-0002::doc0003::0000,14.33104
+q035,dense (hashing baseline),What steam bending minimum curvature radius can be achieved in seasoned teak without outer fiber tensile failure?,WBC-2016::doc0008::0000,0.16514
+q035,hybrid (no dedup),What steam bending minimum curvature radius can be achieved in seasoned teak without outer fiber tensile failure?,WBC-2016::doc0085::0000,0.02879
+q035,hybrid (pipeline with dedup),What steam bending minimum curvature radius can be achieved in seasoned teak without outer fiber tensile failure?,WBC-2016::doc0085::0000,0.02979
+q036,bm25,Why does pressure-impregnating green bamboo culms with aqueous borax and boric acid prevent powder-post beetle (Dinoderus minutus) attacks?,WBC-0060::doc0001::0000,12.90751
+q036,dense (hashing baseline),Why does pressure-impregnating green bamboo culms with aqueous borax and boric acid prevent powder-post beetle (Dinoderus minutus) attacks?,WBC-0035::doc0001::0000,0.32686
+q036,hybrid (no dedup),Why does pressure-impregnating green bamboo culms with aqueous borax and boric acid prevent powder-post beetle (Dinoderus minutus) attacks?,WBC-0053::doc0001::0000,0.03077
+q036,hybrid (pipeline with dedup),Why does pressure-impregnating green bamboo culms with aqueous borax and boric acid prevent powder-post beetle (Dinoderus minutus) attacks?,WBC-0053::doc0001::0000,0.03177
+q037,bm25,What rotational speed in surface feet per minute prevents friction burnishing when turning dense ebony on a manual treadle lathe?,WBC-0051::doc0085::0000,19.92362
+q037,dense (hashing baseline),What rotational speed in surface feet per minute prevents friction burnishing when turning dense ebony on a manual treadle lathe?,WBC-0051::doc0085::0000,0.2454
+q037,hybrid (no dedup),What rotational speed in surface feet per minute prevents friction burnishing when turning dense ebony on a manual treadle lathe?,WBC-0051::doc0085::0000,0.03279
+q037,hybrid (pipeline with dedup),What rotational speed in surface feet per minute prevents friction burnishing when turning dense ebony on a manual treadle lathe?,WBC-0051::doc0085::0000,0.03379
+q038,bm25,How does soaking seasoned walnut in walnut husk tannin broth protect carved ceiling panels against solar ultraviolet photodegradation?,WBC-0039::doc0001::0000,23.73899
+q038,dense (hashing baseline),How does soaking seasoned walnut in walnut husk tannin broth protect carved ceiling panels against solar ultraviolet photodegradation?,WBC-2016::doc0001::0000,0.12553
+q038,hybrid (no dedup),How does soaking seasoned walnut in walnut husk tannin broth protect carved ceiling panels against solar ultraviolet photodegradation?,WBC-0039::doc0001::0000,0.03252
+q038,hybrid (pipeline with dedup),How does soaking seasoned walnut in walnut husk tannin broth protect carved ceiling panels against solar ultraviolet photodegradation?,WBC-0039::doc0001::0000,0.03352
+q039,bm25,What copper sulfate bath concentration prevents sapstain and blue-stain fungal colonization in freshly harvested bamboo culms?,WBC-0060::doc0001::0000,17.13003
+q039,dense (hashing baseline),What copper sulfate bath concentration prevents sapstain and blue-stain fungal colonization in freshly harvested bamboo culms?,WBC-0071::doc0001::0000,0.27864
+q039,hybrid (no dedup),What copper sulfate bath concentration prevents sapstain and blue-stain fungal colonization in freshly harvested bamboo culms?,WBC-0055::doc0001::0000,0.02944
+q039,hybrid (pipeline with dedup),What copper sulfate bath concentration prevents sapstain and blue-stain fungal colonization in freshly harvested bamboo culms?,WBC-0026::doc0003::0000,0.03136
+q040,bm25,What annealing lehr temperature ramp prevents stress-induced shattering in hot-worked borosilicate glass flasks?,WBC-0051::doc0009::0000,5.98664
+q040,dense (hashing baseline),What annealing lehr temperature ramp prevents stress-induced shattering in hot-worked borosilicate glass flasks?,WBC-0066::0000,0.17739
+q040,hybrid (no dedup),What annealing lehr temperature ramp prevents stress-induced shattering in hot-worked borosilicate glass flasks?,WBC-0013::doc0001::0000,0.03101
+q040,hybrid (pipeline with dedup),What annealing lehr temperature ramp prevents stress-induced shattering in hot-worked borosilicate glass flasks?,WBC-0013::doc0001::0000,0.03201
+q041,bm25,What pulse repetition rate and assist gas pressure are required to laser cut optical grade acrylic without edge whitening?,WBC-2016::doc0057::0000,13.02292
+q041,dense (hashing baseline),What pulse repetition rate and assist gas pressure are required to laser cut optical grade acrylic without edge whitening?,WBC-0051::doc0053::0000,0.24216
+q041,hybrid (no dedup),What pulse repetition rate and assist gas pressure are required to laser cut optical grade acrylic without edge whitening?,WBC-0001::doc0001::0000,0.02964
+q041,hybrid (pipeline with dedup),What pulse repetition rate and assist gas pressure are required to laser cut optical grade acrylic without edge whitening?,WBC-0001::doc0001::0000,0.03064
+q042,bm25,What basic chromium sulfate concentration is mandated for heavy bovine sole leather tanning in European standard EN 15987?,WBC-0008::doc0001::0000,10.12464
+q042,dense (hashing baseline),What basic chromium sulfate concentration is mandated for heavy bovine sole leather tanning in European standard EN 15987?,WBC-0037::doc0003::0000,0.21517
+q042,hybrid (no dedup),What basic chromium sulfate concentration is mandated for heavy bovine sole leather tanning in European standard EN 15987?,WBC-2016::doc0002::0000,0.02986
+q042,hybrid (pipeline with dedup),What basic chromium sulfate concentration is mandated for heavy bovine sole leather tanning in European standard EN 15987?,WBC-2016::doc0002::0000,0.03086
+q043,bm25,What tin percentage in 78-22 bell bronze optimizes the acoustic strike note and hum tone decay in cathedral bells?,WBC-0060::doc0001::0000,16.14745
+q043,dense (hashing baseline),What tin percentage in 78-22 bell bronze optimizes the acoustic strike note and hum tone decay in cathedral bells?,WBC-2016::doc0059::0000,0.34112
+q043,hybrid (no dedup),What tin percentage in 78-22 bell bronze optimizes the acoustic strike note and hum tone decay in cathedral bells?,WBC-2016::doc0061::0000,0.03041
+q043,hybrid (pipeline with dedup),What tin percentage in 78-22 bell bronze optimizes the acoustic strike note and hum tone decay in cathedral bells?,WBC-2016::doc0061::0000,0.03141
+q044,bm25,What alum mordant bath concentration maximizes lightfastness of alizarin dye on degummed Bombyx mori silk yarn?,WBC-0008::doc0001::0000,10.12464
+q044,dense (hashing baseline),What alum mordant bath concentration maximizes lightfastness of alizarin dye on degummed Bombyx mori silk yarn?,WBC-0051::doc0093::0000,0.31194
+q044,hybrid (no dedup),What alum mordant bath concentration maximizes lightfastness of alizarin dye on degummed Bombyx mori silk yarn?,WBC-0051::doc0085::0000,0.03058
+q044,hybrid (pipeline with dedup),What alum mordant bath concentration maximizes lightfastness of alizarin dye on degummed Bombyx mori silk yarn?,WBC-0051::doc0085::0000,0.03158
+q045,bm25,What molar ratio of silica to alumina eliminates crazing in cone 10 reduction-fired porcelain glazes?,WBC-0060::doc0001::0000,12.04639
+q045,dense (hashing baseline),What molar ratio of silica to alumina eliminates crazing in cone 10 reduction-fired porcelain glazes?,WBC-2016::doc0009::0000,0.31129
+q045,hybrid (no dedup),What molar ratio of silica to alumina eliminates crazing in cone 10 reduction-fired porcelain glazes?,WBC-2016::doc0053::0000,0.03126
+q045,hybrid (pipeline with dedup),What molar ratio of silica to alumina eliminates crazing in cone 10 reduction-fired porcelain glazes?,WBC-2016::doc0053::0000,0.03226
