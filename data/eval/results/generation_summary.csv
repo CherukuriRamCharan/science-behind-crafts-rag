@@ -1,0 +1,4 @@
+retriever,backend,total_questions,answerable_questions,unanswerable_questions,abstention_accuracy,false_abstention_rate,mean_citation_precision,mean_citation_recall,mean_token_f1,mean_rouge_l,fabricated_citations_count,evidence_status_leakage_count
+bm25,extractive (--skip-llm),45,33,12,0.0,0.0,0.4646,0.5909,0.0792,0.0717,0,0
+dense (hashing baseline),extractive (--skip-llm),45,33,12,0.5,0.0,0.4343,0.5455,0.0793,0.0681,0,0
+hybrid,extractive (--skip-llm),45,33,12,0.1667,0.0,0.3283,0.6364,0.0885,0.0772,0,0
