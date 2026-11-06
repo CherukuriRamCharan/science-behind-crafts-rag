@@ -2,6 +2,7 @@ data:
   prepared_root: ..
   artifact_dir: artifacts
   ingest_report: artifacts/corpus_manifest.json
+  eval_file: data/eval/craft_ground_truth_eval.json
 chunking:
   words: 260
   overlap: 45
@@ -19,6 +20,7 @@ index:
 retrieval:
   top_k: 5
   candidate_k: 80
+  max_per_source: 2
   include_non_evidence: false
   rrf_k: 60
   dense_weight: 1.0

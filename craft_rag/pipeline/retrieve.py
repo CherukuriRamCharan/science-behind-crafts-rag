@@ -22,7 +22,13 @@ class HybridRetriever:
         self.index = index
         self.cfg = config["retrieval"]
 
-    def retrieve(self, query, top_k=None, filters=None):
+    def retrieve(
+        self,
+        query: str,
+        top_k: int | None = None,
+        filters: dict | None = None,
+        max_per_source: int | None = None,
+    ) -> list[dict]:
         if top_k is not None and top_k <= 0:
             raise ValueError("top_k must be a positive integer.")
         if not query.strip():
@@ -35,6 +41,11 @@ class HybridRetriever:
         limit = top_k if top_k is not None else self.cfg.get("top_k", 5)
         if limit <= 0:
             raise ValueError("Configured retrieval top_k must be a positive integer.")
+        max_source_passages = (
+            max_per_source
+            if max_per_source is not None
+            else self.cfg.get("max_per_source", 2)
+        )
         candidate_count = min(
             len(chunks),
             max(limit * 4, self.cfg.get("candidate_k", 10)),
@@ -119,16 +130,35 @@ class HybridRetriever:
             row["annotation_relevance"] = annotation_coverage
             scored.append(row)
         # Reranker hook: load a cross-encoder here when enabled; left inert to avoid checkpoint downloads.
-        scored.sort(key=lambda x:x["retrieval_score"],reverse=True)
+        scored.sort(key=lambda x: x["retrieval_score"], reverse=True)
         floor = self.cfg.get("minimum_score", 0.0)
-        selected = []
-        seen = set()
+        selected: list[dict] = []
+        source_counts: dict[tuple, int] = {}
+        seen_chunks: set[str] = set()
+        seen_texts: set[str] = set()
+
         for row in scored:
             if row["retrieval_score"] < floor:
                 continue
             metadata = row.get("metadata", {})
             if filters and any(row.get(key, metadata.get(key)) != value for key, value in filters.items()):
                 continue
+
+            # Guarantee core identification and content fields
+            row["source_id"] = str(row.get("source_id") or "UNKNOWN")
+            row["chunk_id"] = str(row.get("chunk_id") or row.get("record_id") or "")
+            row["record_id"] = str(row.get("record_id") or row.get("chunk_id") or "")
+            row["text_chunk"] = str(row.get("text_chunk") or "")
+
+            chunk_id = row["chunk_id"]
+            if chunk_id in seen_chunks:
+                continue
+
+            # Filter exact duplicate passage text
+            norm_text = " ".join(row["text_chunk"].split()).casefold()
+            if norm_text and norm_text in seen_texts:
+                continue
+
             title = " ".join(str(metadata.get("title", "")).split()).casefold()
             doi = str(row.get("doi") or metadata.get("doi") or "").strip().casefold()
             link = str(
@@ -150,10 +180,17 @@ class HybridRetriever:
                 )
             else:
                 source_key = ("record", str(row["source_id"]).casefold(), title or row.get("record_id", ""))
-            if source_key in seen:
+
+            current_count = source_counts.get(source_key, 0)
+            if max_source_passages is not None and max_source_passages > 0 and current_count >= max_source_passages:
                 continue
+
             selected.append(row)
-            seen.add(source_key)
+            seen_chunks.add(chunk_id)
+            if norm_text:
+                seen_texts.add(norm_text)
+            source_counts[source_key] = current_count + 1
+
             if len(selected) >= limit:
                 break
         return selected

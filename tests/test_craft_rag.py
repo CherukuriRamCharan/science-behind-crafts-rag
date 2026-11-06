@@ -65,7 +65,7 @@ def test_actual_prepared_datasets_map_records_and_keep_provenance():
     records, report = load_prepared_corpus(load_config())
 
     assert report["input_record_counts"] == {
-        "documents": 66,
+        "documents": 98,  # 66 PDF metadata cards + 32 DOCX tool-data cards
         "gap_analysis_sources": 55,
         "gap_analysis_questions": 95,
         "process_observations": 140,
@@ -99,7 +99,7 @@ def test_actual_prepared_datasets_map_records_and_keep_provenance():
     assert source_card["evidence_level"] == "E3"
     assert source_card["doi"] == "10.1539/joh.16-0136-BR"
     assert source_card["link"] == "https://doi.org/10.1539/joh.16-0136-BR"
-    assert source_card["metadata"]["provenance"]["relative_path"].startswith("data\\raw\\")
+    assert source_card["metadata"]["provenance"]["relative_path"].startswith("data/raw/")
     assert source_card["text_chunk"].startswith(source_card["title"])
     assert len(source_card["text_chunk"]) < 1000
     assert "Field Entry Source ID" not in source_card["text_chunk"]
