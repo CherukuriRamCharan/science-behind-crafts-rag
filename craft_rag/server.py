@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from .pipeline.common import load_config, write_json
+from .pipeline.facets import facet_options
 from .pipeline.generate import GroundedGenerator
 from .pipeline.index_build import build_indices
 from .pipeline.prepared_data import load_prepared_corpus
@@ -79,10 +80,7 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 app = get_engine()
                 chunks = app["index"]["chunks"]
-                def values(key):
-                    return sorted({str(row.get(key) or row.get("metadata", {}).get(key) or "").strip()
-                                   for row in chunks} - {""})
-                return self.respond(200, {"craft_clusters": values("craft_cluster"), "why_themes": values("why_theme")})
+                return self.respond(200, facet_options(chunks))
             except Exception as exc:
                 return self.respond(503, {"error": f"Could not load filters: {type(exc).__name__}: {exc}"})
         if path in ("/", "/index.html"):

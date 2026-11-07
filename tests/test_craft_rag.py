@@ -278,7 +278,7 @@ def test_index_build_and_hybrid_retrieval_use_prepared_style_records(tmp_path):
     ]
 
     index = build_indices(records, config)
-    found = HybridRetriever(index, config).retrieve("How does bamboo age affect fibre strength?", top_k=2)
+    found = HybridRetriever(index, config).retrieve("How does bamboo age affect fibre strength?", top_k=2, max_per_source=1)
 
     assert index["chunks"]
     assert all(
