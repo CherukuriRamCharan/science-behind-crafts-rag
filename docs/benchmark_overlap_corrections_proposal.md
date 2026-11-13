@@ -42,7 +42,7 @@ Each proposed question is intended to preserve the current factual target while 
 - **Expected intent:** Identify torn cell walls and projecting fibre slivers after wetting, with lower density associated with more grain raising.
 - **Evidence check:** The quote states that preparation tears cell walls, wetting makes loose slivers project, and the effect is inversely related to density.
 
-### q006 — 70.0% (7/10)
+### q006 — 66.7% (6/9)
 - **Original question:** What conditions govern the permissible use of adhesives and coatings on food-contact articles?
 - **Gold answer:** Specific legal and regulatory conditions establish when and how adhesives and coatings may be used on food-contact articles.
 - **Gold evidence:** “Establishes the legal/regulatory conditions under which adhesives and coatings may be used on food-contact articles”
