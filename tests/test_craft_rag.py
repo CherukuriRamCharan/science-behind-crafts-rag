@@ -464,7 +464,7 @@ def test_transformers_backend_generates_and_rejects_invalid_citations(monkeypatc
 
     tokenizer.answer = "Unsupported claim. [OTHER-SOURCE | E3]"
     answer = generator.answer("How does bamboo age affect fibre strength?", [passage])
-    assert answer.startswith("Retrieved evidence:")
+    assert "Bamboo age affects fibre strength and material selection." in answer
     assert "[WBC-0001 | E3]" in answer
 
 
