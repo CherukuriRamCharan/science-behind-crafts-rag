@@ -66,7 +66,7 @@ The 2022 World Cup winner, France capital, glass annealing, and sourdough prompt
 - Local Windows `python -m pytest -q tests/ --ignore=tests/test_retrieval.py` — 162 passed, 1 skipped; loopback was enabled for this run.
 - `py -0p` — no Python versions registered; WSL is not installed, so the provided Linux Python 3.12 full-suite result could not be independently rerun in this workspace.
 - `python -m compileall -q craft_rag src tests` and `git diff --check` — passed.
-- `rg -n "128-dim" README.md data/metadata docs` — no matches. (`grep` is not installed in this PowerShell environment.)
+- Search of README, evaluation metadata, and documentation for the deprecated dimension label — no matches. PowerShell lacks `grep`; the equivalent ripgrep search was used.
 
 ## Mentor handover
 
