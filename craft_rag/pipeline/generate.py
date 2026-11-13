@@ -41,6 +41,7 @@ class GroundedGenerator:
         self.cfg = config["generator"]
         self.model = None
         self.tokenizer = None
+        self.fallback_reason = None
         backend = self.cfg.get("backend", "extractive")
         if backend not in {"extractive", "auto", "transformers"}:
             raise ValueError(f"Unsupported generator backend: {backend}")
@@ -68,6 +69,7 @@ class GroundedGenerator:
                 logging.warning(
                     "Transformers is not installed; using extractive evidence summaries instead."
                 )
+                self.fallback_reason = "Transformers dependencies are unavailable; using extractive evidence instead."
             except (OSError, RuntimeError) as exc:
                 if backend == "transformers":
                     raise RuntimeError(
@@ -79,6 +81,7 @@ class GroundedGenerator:
                     self.cfg["model_name"],
                     exc,
                 )
+                self.fallback_reason = f"Generator model {self.cfg['model_name']!r} is unavailable; using extractive evidence instead."
 
     def answer(self, question: str, passages: list[dict]) -> str:
         """Backward-compatible string answer generator."""
@@ -117,6 +120,8 @@ class GroundedGenerator:
                 "question": question,
                 "answer": "Insufficient evidence in the retrieved corpus to answer this question.",
                 "abstained": True,
+                "answer_mode": "abstained",
+                "fallback_reason": self.fallback_reason,
                 "citations": [],
                 "retrieved_chunk_ids": retrieved_chunk_ids,
             }
@@ -127,6 +132,8 @@ class GroundedGenerator:
                 "question": question,
                 "answer": "Insufficient evidence in the retrieved corpus to answer this question.",
                 "abstained": True,
+                "answer_mode": "abstained",
+                "fallback_reason": self.fallback_reason,
                 "citations": [],
                 "retrieved_chunk_ids": retrieved_chunk_ids,
             }
@@ -180,9 +187,16 @@ class GroundedGenerator:
                     "question": question,
                     "answer": model_answer,
                     "abstained": False,
+                    "answer_mode": "generated",
+                    "fallback_reason": None,
                     "citations": model_citations,
                     "retrieved_chunk_ids": retrieved_chunk_ids,
                 }
+
+            self.fallback_reason = (
+                "The configured Transformers model returned no fully valid citations; "
+                "an extractive answer was used instead."
+            )
 
         # Extractive path
         answer_text, citations = self._extractive_structured(evidence, question, ranked_sentences)
@@ -191,6 +205,8 @@ class GroundedGenerator:
                 "question": question,
                 "answer": "Insufficient evidence in the retrieved corpus to answer this question.",
                 "abstained": True,
+                "answer_mode": "abstained",
+                "fallback_reason": self.fallback_reason,
                 "citations": [],
                 "retrieved_chunk_ids": retrieved_chunk_ids,
             }
@@ -198,6 +214,8 @@ class GroundedGenerator:
             "question": question,
             "answer": answer_text,
             "abstained": False,
+            "answer_mode": "fallback" if self.fallback_reason else "extractive",
+            "fallback_reason": self.fallback_reason,
             "citations": citations,
             "retrieved_chunk_ids": retrieved_chunk_ids,
         }

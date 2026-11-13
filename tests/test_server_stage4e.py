@@ -60,6 +60,7 @@ def test_server_query_response_structure(monkeypatch: pytest.MonkeyPatch) -> Non
                 "question": query,
                 "answer": "Bamboo splits cleanly [WBC-0001 | E3]",
                 "abstained": False,
+                "answer_mode": "fallback",
                 "citations": [
                     {
                         "source_id": "WBC-0001",
@@ -110,6 +111,7 @@ def test_server_query_response_structure(monkeypatch: pytest.MonkeyPatch) -> Non
     assert payload["question"] == "Why does bamboo split?"
     assert payload["answer"] == "Bamboo splits cleanly [WBC-0001 | E3]"
     assert payload["abstained"] is False
+    assert payload["answer_mode"] == "fallback"
     assert len(payload["citations"]) == 1
     assert payload["citations"][0]["chunk_id"] == "WBC-0001::0000"
     assert payload["citations"][0]["source_id"] == "WBC-0001"
@@ -186,4 +188,6 @@ def test_static_web_assets_exist_and_readable() -> None:
     assert "source.chunk_id" in app_js
     assert "citations" in app_js
     assert "abstained" in app_js
+    assert "answer_mode" in app_js
+    assert "FALLBACK ANSWER" in app_js
     assert ".badge.chunk" in styles_css

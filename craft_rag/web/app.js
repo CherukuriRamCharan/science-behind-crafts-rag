@@ -117,16 +117,31 @@ async function ask(question) {
     const body = await response.json();
     if (!response.ok) throw new Error(body.error || 'Could not answer that question');
     $('#answer-text').textContent = body.answer;
+    const answerMode = body.answer_mode || (body.abstained ? 'abstained' : 'fallback');
+    const modeNode = $('#answer-mode');
+    if (modeNode) {
+      const labels = {extractive: 'EXTRACTIVE ANSWER', generated: 'GENERATED ANSWER', fallback: 'FALLBACK ANSWER', abstained: 'ABSTAINED'};
+      const reason = answerMode === 'fallback' && body.fallback_reason ? ` · ${body.fallback_reason}` : '';
+      modeNode.textContent = `${labels[answerMode] || 'FALLBACK ANSWER'}${reason}`;
+      modeNode.classList.toggle('fallback', answerMode === 'fallback');
+      modeNode.classList.toggle('abstained', answerMode === 'abstained');
+    }
     $('#result-count').textContent = `${body.sources.length} SOURCES`;
     $('#backend-note').textContent = `LOCAL RAG · ${Object.entries(body.backends).map(([key, value]) => `${key}: ${value}`).join(' · ')}`;
 
     const answerCard = $('.answer-card');
     const answerLabel = $('.answer-label');
-    if (body.abstained) {
+    if (answerMode === 'abstained' || body.abstained) {
       if (answerCard) answerCard.classList.add('abstained');
       if (answerLabel) {
         answerLabel.classList.add('abstained');
         answerLabel.innerHTML = '<span>⚠</span> INSUFFICIENT EVIDENCE (ABSTAINED)';
+      }
+    } else if (answerMode === 'fallback') {
+      if (answerCard) answerCard.classList.remove('abstained');
+      if (answerLabel) {
+        answerLabel.classList.remove('abstained');
+        answerLabel.innerHTML = '<span>↩</span> FALLBACK RESPONSE';
       }
     } else {
       if (answerCard) answerCard.classList.remove('abstained');

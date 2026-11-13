@@ -66,6 +66,7 @@ def test_generate_structured_schema_and_json_serialization(prepared_engine):
     assert isinstance(res["answer"], str)
     assert isinstance(res["abstained"], bool)
     assert res["abstained"] is False
+    assert res["answer_mode"] == "extractive"
     assert isinstance(res["citations"], list)
     assert len(res["citations"]) > 0
     assert isinstance(res["retrieved_chunk_ids"], list)
@@ -125,6 +126,7 @@ def test_abstention_returns_empty_citations_and_abstained_true(prepared_engine):
 
     res = generator.generate_structured(question, empty_passages)
     assert res["abstained"] is True
+    assert res["answer_mode"] == "abstained"
     assert res["answer"] == "Insufficient evidence in the retrieved corpus to answer this question."
     assert res["citations"] == []
     assert res["retrieved_chunk_ids"] == []
@@ -139,6 +141,7 @@ def test_abstention_returns_empty_citations_and_abstained_true(prepared_engine):
     }]
     res_irr = generator.generate_structured(question, irrelevant)
     assert res_irr["abstained"] is True
+    assert res_irr["answer_mode"] == "abstained"
     assert res_irr["citations"] == []
     assert res_irr["retrieved_chunk_ids"] == ["WBC-0001::doc0001::0000"]
 

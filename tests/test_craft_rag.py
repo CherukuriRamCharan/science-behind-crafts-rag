@@ -466,6 +466,9 @@ def test_transformers_backend_generates_and_rejects_invalid_citations(monkeypatc
     answer = generator.answer("How does bamboo age affect fibre strength?", [passage])
     assert "Bamboo age affects fibre strength and material selection." in answer
     assert "[WBC-0001 | E3]" in answer
+    structured = generator.generate_structured("How does bamboo age affect fibre strength?", [passage])
+    assert structured["answer_mode"] == "fallback"
+    assert structured["abstained"] is False
 
 
 def test_e5_embeddings_use_query_and_passage_prefixes(tmp_path):

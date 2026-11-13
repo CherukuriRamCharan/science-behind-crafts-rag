@@ -124,10 +124,14 @@ class Handler(BaseHTTPRequestHandler):
                 structured = generator.generate_structured(question, passages)
                 answer = structured.get("answer", "")
                 abstained = bool(structured.get("abstained", False))
+                answer_mode = structured.get("answer_mode") or ("abstained" if abstained else "fallback")
+                fallback_reason = structured.get("fallback_reason")
                 citations = structured.get("citations", [])
             else:
                 answer = generator.answer(question, passages)
                 abstained = answer.startswith("Insufficient evidence")
+                answer_mode = "abstained" if abstained else "fallback"
+                fallback_reason = "Legacy generator response; generation mode could not be verified."
                 citations = []
 
             if abstained or answer.startswith("Insufficient evidence"):
@@ -158,6 +162,8 @@ class Handler(BaseHTTPRequestHandler):
                 "question": question,
                 "answer": answer,
                 "abstained": abstained,
+                "answer_mode": "abstained" if abstained else answer_mode,
+                "fallback_reason": fallback_reason,
                 "citations": citations,
                 "sources": sources,
                 "backends": app["index"]["backend_info"],
