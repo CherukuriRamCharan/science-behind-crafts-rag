@@ -22,3 +22,13 @@ def test_reference_contains_exact_chunks_and_corpus_hash(tmp_path):
     sidecar = json.loads(path.with_name("searchable_chunks_reference.manifest.json").read_text())
     assert sidecar == manifest
 
+
+def test_reference_hash_is_independent_of_chunk_order(tmp_path):
+    chunks = [
+        {"chunk_id": "b", "source_id": "S2", "text_chunk": "second", "metadata": {}},
+        {"chunk_id": "a", "source_id": "S1", "text_chunk": "first", "metadata": {}},
+    ]
+    _, first = build_reference(chunks, tmp_path / "first.json")
+    _, second = build_reference(chunks[::-1], tmp_path / "second.json")
+    assert first["corpus_sha256"] == second["corpus_sha256"]
+

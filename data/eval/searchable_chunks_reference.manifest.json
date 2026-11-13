@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "corpus_sha256": "1375381d3c24d2edb1995e255308386f15f9e2ff2972e04befa0c341c9404817",
+  "corpus_sha256": "aaa1d0ff746d99a35d8bdadd68784a4ddb0a59a1570353d27da3610bd0821489",
   "chunk_count": 569,
   "source_count": 244,
   "builder": "src.build_searchable_chunk_reference.build_reference"

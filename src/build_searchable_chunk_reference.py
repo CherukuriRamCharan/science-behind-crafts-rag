@@ -31,6 +31,7 @@ def build_reference(
             "evidence_level": chunk.get("evidence_level", ""),
             "text": chunk.get("text_chunk", ""),
         })
+    reference.sort(key=lambda row: str(row.get("chunk_id", "")))
     canonical = json.dumps(reference, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     corpus_hash = hashlib.sha256(canonical).hexdigest()
     for row in reference:
