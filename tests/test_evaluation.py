@@ -5,6 +5,7 @@ functions in src/eval_metrics.py produce exact, mathematically sound outputs.
 """
 from __future__ import annotations
 
+import importlib
 import math
 import pytest
 
@@ -457,3 +458,126 @@ def test_rouge_l_hand_computed():
     gold = "wooden handles split under impact"
     expected_rouge = (2.0 * 0.5 * 0.8) / (0.5 + 0.8)
     assert pytest.approx(rouge_l(pred, gold), rel=1e-5) == expected_rouge
+
+
+# Branch 1 — M26/M27/M28/M29/M35 (already fixed, kept as regression guards)
+# ---------------------------------------------------------------------------
+
+def test_m26_citation_precision_no_prefix_truncation():
+    gold = ["WBC-0051::doc0005::0000"]
+    assert citation_precision(["WBC-0051"], gold) == 1.0
+    assert citation_precision(["WBC-0099"], gold) == 0.0
+
+
+def test_m26_citation_precision_obs_prefix_id():
+    gold = ["OBS:process-observation-4bf00725dc74b4::0000"]
+    assert citation_precision(["OBS:process-observation-4bf00725dc74b4"], gold) == 1.0
+    assert citation_precision(["OBS:process-observation-deadbeef000000"], gold) == 0.0
+
+
+def test_m27_citation_validity_no_substring_match():
+    corpus = {"WBC-0051", "WBC-0099"}
+    retrieved = {"WBC-0051"}
+    result = citation_validity(["WBC-005"], corpus, retrieved)
+    assert result["has_hallucinations"] is True
+    assert "WBC-005" in result["hallucinated_citations"]
+
+
+def test_m27_citation_validity_exact_match_still_works():
+    corpus = {"WBC-0051", "OBS:process-observation-4bf00725dc74b4"}
+    retrieved = {"WBC-0051", "OBS:process-observation-4bf00725dc74b4"}
+    result = citation_validity(
+        ["WBC-0051", "OBS:process-observation-4bf00725dc74b4"], corpus, retrieved
+    )
+    assert result["all_valid"] is True
+    assert result["has_hallucinations"] is False
+
+
+def test_m28_citation_re_exported():
+    m = importlib.import_module("src.eval_metrics")
+    assert hasattr(m, "CITATION_RE"), "CITATION_RE must be exported from eval_metrics"
+    assert hasattr(m.CITATION_RE, "findall"), "CITATION_RE must be a compiled regex"
+
+
+def test_m28_extract_citations_wbc_with_level():
+    assert extract_citations("[WBC-0051 | E3] bamboo fibre") == ["WBC-0051"]
+
+
+def test_m28_extract_citations_obs_colon_id():
+    assert extract_citations("[OBS:process-observation-4bf00725dc74b4 | E5] artisan note") == [
+        "OBS:process-observation-4bf00725dc74b4"
+    ]
+
+
+def test_m28_extract_citations_gap_colon_id():
+    assert extract_citations("[GAP:gap-question-00587206f73d8a | E5] research gap") == [
+        "GAP:gap-question-00587206f73d8a"
+    ]
+
+
+def test_m28_extract_citations_catalog_colon_id():
+    assert extract_citations("[CATALOG:gap-source-50a580f7ddc066 | E5] catalog entry") == [
+        "CATALOG:gap-source-50a580f7ddc066"
+    ]
+
+
+def test_m28_extract_citations_process_observation_bare_id():
+    assert extract_citations("[process-observation-4bf00725dc74b4 | E5] craft note") == [
+        "process-observation-4bf00725dc74b4"
+    ]
+
+
+def test_m28_extract_citations_wbc_chunk_id_with_colons():
+    assert extract_citations("[WBC-0051::doc0005::0000 | E3] grip strength") == [
+        "WBC-0051::doc0005::0000"
+    ]
+
+
+def test_m28_extract_citations_multiple_mixed():
+    text = (
+        "Bamboo fibre [WBC-0051 | E3] is strong. "
+        "Artisan note [OBS:process-observation-4bf00725dc74b4 | E5]. "
+        "See also [WBC-2016::doc0004::0000 | E3]."
+    )
+    assert extract_citations(text) == [
+        "WBC-0051",
+        "OBS:process-observation-4bf00725dc74b4",
+        "WBC-2016::doc0004::0000",
+    ]
+
+
+def test_m28_extract_citations_no_level_suffix():
+    assert extract_citations("[WBC-0051] bamboo") == ["WBC-0051"]
+
+
+def test_m29_leakage_fires_on_extractive_unhedged_artisan_observation():
+    answer = (
+        "Retrieved evidence: Boiling wood in neem oil prevents borer attack. "
+        "[WBC-0001 | E5]"
+    )
+    assert detect_evidence_status_leakage(answer, [], expected_status="artisan observation") is True
+
+
+def test_m29_leakage_does_not_fire_on_hedged_artisan_observation():
+    hedged_answers = [
+        "Artisans observe that boiling wood in neem oil prevents borer attack. [WBC-0001 | E5]",
+        "Traditionally, craftspeople soak bamboo in salt water. [WBC-0002 | E5]",
+        "Reportedly, this technique reduces cracking. [WBC-0003 | E5]",
+        "According to artisans, seasoning timber prevents fungal attack. [WBC-0004 | E5]",
+        "This is a craft practice passed down through generations. [WBC-0005 | E5]",
+        "Anecdotally, artisans prefer aged bamboo. [WBC-0006 | E5]",
+    ]
+    for answer in hedged_answers:
+        assert detect_evidence_status_leakage(
+            answer, [], expected_status="artisan observation"
+        ) is False, f"Should NOT flag hedged answer: {answer!r}"
+
+
+def test_m29_leakage_does_not_fire_on_verified_science_status():
+    answer = "Retrieved evidence: Bamboo fibre strength increases with age. [WBC-0051 | E3]"
+    assert detect_evidence_status_leakage(answer, [], expected_status="verified science") is False
+
+
+def test_m29_leakage_does_not_fire_on_abstention():
+    answer = "Insufficient evidence in the retrieved corpus to answer this question."
+    assert detect_evidence_status_leakage(answer, [], expected_status="artisan observation") is False

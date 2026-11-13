@@ -14,7 +14,6 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -35,6 +34,7 @@ from src.eval_metrics import (
     citation_precision,
     citation_recall,
     citation_validity,
+    CITATION_RE,
     detect_evidence_status_leakage,
     is_abstention,
     rouge_l,
@@ -43,9 +43,8 @@ from src.eval_metrics import (
 
 
 def extract_cited_sources(answer: str) -> list[str]:
-    """Extract source identifiers from [Source ID | Level] markers in answer."""
-    matches = re.findall(r"\[([^\]|]+)\s*\|\s*E[1-5]\]", answer or "")
-    return [m.strip() for m in matches if m.strip()]
+    """Extract source IDs from citation markers using the shared CITATION_RE."""
+    return [m.strip() for m in CITATION_RE.findall(answer or "") if m.strip()]
 
 
 def retrieve_dense(query: str, index_data: dict[str, Any], candidate_k: int = 5) -> list[dict[str, Any]]:

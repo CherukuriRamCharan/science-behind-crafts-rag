@@ -39,6 +39,42 @@ ABSTENTION_PHRASES = (
     "no evidence found",
 )
 
+# Hedging qualifiers that mark an artisan-observation answer as properly attributed.
+# Any non-abstention answer for an artisan_observation question that contains
+# none of these is treated as evidence-status leakage.
+_HEDGING_QUALIFIERS = (
+    "artisans observe",
+    "traditionally",
+    "reportedly",
+    "according to artisans",
+    "craft practice",
+    "anecdotally",
+)
+
+# ---------------------------------------------------------------------------
+# Shared citation regex — built from the ID patterns that actually exist in
+# the corpus (verified against data/eval/eval_questions.jsonl and the live
+# index):
+#
+#   WBC-0051                          bare source ID
+#   WBC-0051::doc0005::0000           chunk_id with :: separators
+#   WBC-0051::doc0005                 chunk_id without chunk-index suffix
+#   WBC-0051-0003                     full_paper_chunk record_id (hyphen)
+#   process-observation-4bf00725dc74b4  bare process-observation record_id
+#   OBS:process-observation-...::0000   OBS:-prefixed chunk_id
+#   GAP:gap-question-...              GAP:-prefixed source_id
+#   CATALOG:gap-source-...            CATALOG:-prefixed source_id
+#   b31f2b23d8a4471c...               64-char hex hash alias
+#
+# The pattern captures everything up to the first whitespace or '|' or ']'
+# inside the brackets, then strips trailing whitespace.
+# ---------------------------------------------------------------------------
+CITATION_RE = re.compile(
+    r"\[\s*"
+    r"([A-Za-z0-9][A-Za-z0-9:._-]*)"
+    r"(?:\s*\|[^\]]*)?\s*\]"
+)
+
 
 def _tokenize_text(text: str) -> list[str]:
     """Simple alphanumeric tokenizer for token F1 and ROUGE-L."""
@@ -185,12 +221,15 @@ def map_score(
 
 
 def extract_citations(text: str) -> list[str]:
-    """Extract citations formatted as [Source ID | Level] or [Source ID]."""
+    """Extract source IDs from citation markers using the shared CITATION_RE.
+
+    Handles all ID formats present in the corpus:
+      [WBC-0051 | E3], [OBS:process-observation-4bf... | E5],
+      [WBC-0051::doc0005::0000 | E3], [WBC-0051] (no level suffix).
+    """
     if not text:
         return []
-    # Match [WBC-0051 | E3] or [WBC-0051]
-    matches = re.findall(r"\[\s*([A-Za-z0-9-_]+)(?:\s*\|\s*[A-Za-z0-9]+)?\s*\]", text)
-    return [m.strip() for m in matches if m.strip()]
+    return [m.strip() for m in CITATION_RE.findall(text) if m.strip()]
 
 
 def citation_precision(
@@ -198,24 +237,31 @@ def citation_precision(
 ) -> float:
     """Fraction of cited source IDs that correspond to gold sources.
 
-    Matches either exact ID, source_id prefix, or normalized ID.
+    A cited ID matches a gold record if:
+      - it is an exact match (case-insensitive), OR
+      - it is the bare source_id prefix of a gold chunk_id
+        (e.g. 'WBC-0051' matches gold 'WBC-0051::doc0005::0000').
+
+    No substring matching: 'WBC-005' must NOT match 'WBC-0051'.
     """
     if not cited_ids:
         return 0.0
     gold_set = {str(gid).strip().lower() for gid in gold_record_ids}
-    # Also include source_id extracted from IDs like 'WBC-0051::doc0001' -> 'wbc-0051'
+    # Expand gold to include the bare source_id prefix of each chunk_id.
+    # 'wbc-0051::doc0005::0000' -> add 'wbc-0051'
+    # 'obs:process-observation-4bf...::0000' -> add 'obs:process-observation-4bf...'
     expanded_gold = set(gold_set)
     for g in gold_set:
-        expanded_gold.add(g.split("::")[0].split("-0")[0])
-        m = re.search(r"\b(wbc[-_]\d+)\b", g)
-        if m:
-            expanded_gold.add(m.group(1))
+        prefix = g.split("::")[0]
+        if prefix != g:
+            expanded_gold.add(prefix)
 
     valid_hits = 0
     for cid in cited_ids:
         cid_norm = str(cid).strip().lower()
-        cid_source = cid_norm.split("::")[0]
-        if cid_norm in expanded_gold or cid_source in expanded_gold:
+        # Also try the bare prefix of the cited ID itself.
+        cid_prefix = cid_norm.split("::")[0]
+        if cid_norm in expanded_gold or cid_prefix in expanded_gold:
             valid_hits += 1
 
     return valid_hits / float(len(cited_ids))
@@ -263,8 +309,9 @@ def citation_validity(
 
     for cid in cited_ids:
         cn = str(cid).strip().lower()
-        in_corpus = cn in corpus_set or any(cn in c for c in corpus_set)
-        in_retrieved = cn in retrieved_set or any(cn in r for r in retrieved_set)
+        # Exact membership only — no substring matching (M27).
+        in_corpus = cn in corpus_set
+        in_retrieved = cn in retrieved_set
 
         if not in_corpus:
             hallucinated.append(cid)
@@ -366,15 +413,10 @@ def detect_evidence_status_leakage(
         return False
 
     if expected_status == "artisan observation":
-        # Check if presented as established science
-        unhedged_markers = (
-            "scientifically proven",
-            "proven scientific fact",
-            "verified science confirms",
-            "established scientific law",
-            "conclusively proven",
-        )
-        if any(marker in ans for marker in unhedged_markers):
+        # Leakage = any non-abstention answer that presents the observation
+        # as fact without a hedging qualifier.  This fires on both LLM-generated
+        # text and plain extractive pastes (M29).
+        if not any(qualifier in ans for qualifier in _HEDGING_QUALIFIERS):
             return True
 
     return False
