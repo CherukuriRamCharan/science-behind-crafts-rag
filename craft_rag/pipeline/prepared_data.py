@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .common import clean_text
-from .ingest import _parse_card
+from .ingest import _parse_card, load_real_sources
 
 LOGGER = logging.getLogger(__name__)
 SOURCE_ID_RE = re.compile(r"\bWBC[-_]\d+\b", re.IGNORECASE)
@@ -493,6 +493,38 @@ def load_prepared_corpus(config: dict[str, Any]) -> tuple[list[dict[str, Any]], 
             review_status=_value(row.get("review_status")),
             caution="Full-paper text chunk; validate scientific claims against the source.",
         ))
+
+    # Tool Data cards are maintained as DOCX files alongside the prepared corpus.
+    # Load only that card directory here; the scientific source PDFs have already
+    # been extracted into documents.jsonl and must not be duplicated.
+    tool_data_dir = prepared_root / "Ishan_BTP" / "Docs" / "Tool Data"
+    if tool_data_dir.is_dir():
+        cards, _, card_manifest = load_real_sources(tool_data_dir)
+        for card in cards:
+            source_id = _value(card.get("source_id"))
+            title = _value(card.get("title")) or source_id
+            record_id = f"tool-card:{source_id}:{_title_key(title)}"
+            records.append(_make_record(
+                source_id=source_id,
+                title=title,
+                text=_value(card.get("text_chunk")),
+                record_id=record_id,
+                record_type="source_document",
+                dataset="tool_data_cards",
+                metadata={
+                    "source_path": card.get("metadata", {}).get("source_path", ""),
+                    "source_paths": card.get("metadata", {}).get("source_paths", []),
+                    "questions_answered": card.get("questions_answered", []),
+                    "craft_applicability": card.get("craft_applicability", ""),
+                    "relevance_note": card.get("relevance_note", ""),
+                },
+                source_url=_value(card.get("link")),
+                evidence_level=_value(card.get("evidence_level")) or "E5",
+                grade=_value(card.get("grade")) or "C",
+                craft=_value(card.get("craft_applicability")),
+                primary_theme=_value(card.get("why_theme")),
+                caution=_value(card.get("caution")),
+            ))
 
     annotations_by_title: dict[str, dict[str, Any]] = {}
     for record in records:
