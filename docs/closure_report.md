@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-13
 **Branch:** `codex/m30-m33-runner-validator`
-**Current committed implementation:** `f6aea4e`
+**Evaluation run code SHA:** `03c8e9aa0c29a6ce3d22cc68eeb2254d96a33089`
 **Dataset:** approved v2, 45 questions (33 answerable, 12 unanswerable); original v1 retained.
 
 ## Finding closure table
@@ -26,37 +26,50 @@
 | H1 real embeddings / E5 | BLOCKED | `python -c "import importlib.util; print({m: bool(importlib.util.find_spec(m)) for m in ['torch','transformers','sentence_transformers','accelerate']})"`; Hugging Face config HEAD request failed with “No such host is known.” | No change; teammate-owned | Ram/Vasanthi: install the embedding stack in a network-enabled environment and verify the actual E5 backend. Config remains hashing. |
 | H3 merged retrieval behavior | DONE | `python -m pytest -q tests/test_retriever_h3_m35.py` (covered in the 58-test regression run); `tests/test_craft_rag.py::test_local_server_status_and_query_api` passes with loopback enabled | merged before this work; label compatibility updated in this commit | The API maps normalized H3 craft IDs to display labels while request normalization remains unchanged. |
 | H6 shared retriever | DONE | `craft_rag/server.py`, `craft_rag/cli.py`, `src/evaluate_generation.py`, and `src/evaluate_retrieval.py` use the shared `HybridRetriever` path; retrieval/evaluation tests pass | merged before this work | Ram/Vasanthi own future changes. |
-| H7 cached index | PARTLY | Embedding cache is configured; `build_indices` still constructs an index during evaluation runs | merged before this work | Ram/Vasanthi: verify and implement persistent index loading if required by the review. |
-| C1 single artifact writer | PARTLY | Current v2 evaluation produced the manifest, CSVs, and charts in `data/eval/results/`; no single README regeneration writer was verified | merged before this work | Ram/Vasanthi: establish and verify a single writer and consistent README regeneration. |
+| H7 cached index | OPEN | Embedding cache is configured; `build_indices` still constructs an index during evaluation runs | merged before this work | Ram and Vasanthi own persistent index loading. |
+| C1 single artifact writer | OPEN | Current v2 evaluation produced the manifest, CSVs, and charts in `data/eval/results/`; no single README regeneration writer was verified | merged before this work | Ram and Vasanthi own a single writer and consistent README regeneration. |
 
 ## Generation and abstention measurements
 
 The latest `python src/run_evaluation.py --skip-llm` run used v2 and the configured hashing backend, with runner default `top_k=5`. Hybrid false abstention remained **25/33 (75.8%)** and unanswerable abstention accuracy was **12/12 (100%)**. BM25 was 27/33 (81.8%); dense hashing was 26/33 (78.8%).
 
-| Hybrid v2 false-abstention cause | Count |
-|---|---:|
-| Generator sentence relevance gate | 25 |
-| `minimum_dense_similarity` | 0 (setting is not applied by the shared retriever) |
-| `minimum_score` | 0 |
-| Other | 0 |
+| Hybrid v2 false-abstention group | Count | Question IDs |
+|---|---:|---|
+| Gold record in hybrid top-5; retrieved but rejected by sentence relevance gate | 20 | q001, q003, q004, q006, q007, q008, q009, q010, q011, q012, q013, q014, q015, q016, q018, q025, q029, q030, q032, q033 |
+| No gold record in hybrid top-5; retrieval miss | 5 | q005, q023, q024, q028, q031 |
+
+Conclusion: Most v2 hybrid false abstentions are sentence-relevance rejections after a gold record is retrieved (20), while five are top-5 retrieval misses.
 
 The 2022 World Cup winner, France capital, glass annealing, and sourdough prompts each returned `answer_mode=abstained`, `abstained=true`, and zero citations/sources. No threshold was changed, and no LLM metrics are reported. The v1-to-v2 retrieval MRR values retained in the detailed evaluation report are BM25 0.7863→0.6059, dense hashing 0.7640→0.4919, hybrid no-dedup 0.7965→0.6361, and hybrid pipeline 0.7680→0.6165 (each version N=33). Paired tests and confidence intervals are in the report; no retriever winner is claimed.
 
+## Known limitations
+
+- Span-check thresholds (50% content-token overlap, or a contiguous 6-token match) are design choices, not from the review, and not validated.
+- `minimum_dense_similarity` is not applied by the shared retriever.
+- `/api/filters` now returns display labels; the retriever normalizes them back (tested).
+- v2 reduces content overlap but adds source-name matching.
+- The strict JSON path has never run with a real LLM.
+- N = 33 answerable questions, one annotator.
+- The dense backend is a hashing baseline, so H1 is open; H2 calibration is blocked on H1.
+
 ## Verification
 
+- `python -m pytest -q tests/test_false_abstention_analysis.py` — 1 passed. `python -m src.analyze_false_abstentions` produced `data/eval/results_v2_final/false_abstention_cause.json` from exact `gold_record_ids` matches in the shared hybrid top-5.
 - `python -m src.validate_eval_dataset` — passed, 0 validation errors.
-- `python src/run_evaluation.py --skip-llm` — passed; generated v2 retrieval/generation tables, four charts, and a manifest for 569 corpus chunks (SHA-256 `aaa1d0ff746d99a35d8bdadd68784a4ddb0a59a1570353d27da3610bd0821489`). Manifest code SHA: `f6aea4e6db5db30821ff792ddd7452fd65fd28e6`.
+- `python src/run_evaluation.py --skip-llm` — passed; generated v2 retrieval/generation tables, four charts, and a manifest for 569 corpus chunks (SHA-256 `aaa1d0ff746d99a35d8bdadd68784a4ddb0a59a1570353d27da3610bd0821489`). Manifest code SHA: `03c8e9aa0c29a6ce3d22cc68eeb2254d96a33089`.
 - `python -m pytest -q tests/test_evaluation.py` — 59 passed.
 - H2 targeted command in the finding table — 19 passed.
 - `python -m pytest -q tests/test_evaluation.py -k 'm26 or m27 or m28 or m29 or m35' tests/test_retriever_h3_m35.py` — 58 passed, 37 deselected.
-- Full suite: 184 passed on Linux Python 3.12 (183 plus this fix); FAISS DLL failure is Windows-only. (Linux result supplied for this closure.)
+- Verified on Linux, Python 3.12: 184 passed, 1 skipped. Command: python -m pytest -q tests/.
+- Colab rerun: <fill in result>
 - Local Windows Python 3.13.7: `python -m pytest -q tests/` is blocked during collection of `tests/test_retrieval.py` because FAISS `_swigfaiss` fails to load (`DLL load failed while importing _swigfaiss`).
-- Local Windows `python -m pytest -q tests/ --ignore=tests/test_retrieval.py` — 161 passed, 1 skipped; loopback was enabled for this run.
+- Local Windows `python -m pytest -q tests/ --ignore=tests/test_retrieval.py` — 162 passed, 1 skipped; loopback was enabled for this run.
 - `py -0p` — no Python versions registered; WSL is not installed, so the provided Linux Python 3.12 full-suite result could not be independently rerun in this workspace.
 - `python -m compileall -q craft_rag src tests` and `git diff --check` — passed.
+- `rg -n "128-dim" README.md data/metadata docs` — no matches. (`grep` is not installed in this PowerShell environment.)
 
 ## Mentor handover
 
 M30–M33 runner/validator work and the dataset entry points are committed. H2 now verifies strict JSON, requires a citation for every answer sentence, checks passage support, retains matched source sentences as citation quotes, strips real PDF page labels from displayed extractive text, exposes `answer_mode`, `fallback_reason`, and confidence, and falls back explicitly on malformed or unsupported output. Ishan's remaining generation work was completed by me because he was unwell.
 
-M30 and H2 remain partial until a real Transformers model can load and generate. H1 remains blocked on E5 dependencies and network. H7 and C1 remain with Ram/Vasanthi; H6 is present and shared. The measured v2 hashing false-abstention rate is high (75.8%) and must not be tuned against hashing. Remaining risks are small N, lexical overlap, and single-annotator labels.
+M30 and H2 remain PARTLY until a real Transformers model can load and generate. H1 is BLOCKED; H7 and C1 are OPEN with Ram and Vasanthi. H2 calibration is blocked on H1; H6 is present and shared. The measured v2 hashing false-abstention rate is high (75.8%) and must not be tuned against hashing. Remaining risks are small N, lexical overlap, and single-annotator labels.
