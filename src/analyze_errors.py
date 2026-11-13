@@ -20,18 +20,22 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 
-def run_error_analysis():
-    with open("data/eval/eval_questions.jsonl", "r", encoding="utf-8") as f:
+def run_error_analysis(results_dir: str | Path = "data/eval/results",
+                       dataset_path: str | Path = "data/eval/eval_questions.jsonl"):
+    results_dir = Path(results_dir)
+    with Path(dataset_path).open("r", encoding="utf-8") as f:
         questions = {q["qid"]: q for q in (json.loads(line) for line in f if line.strip())}
 
-    with open("data/eval/results/retrieval_per_question.csv", "r", encoding="utf-8-sig") as f:
+    with (results_dir / "retrieval_per_question.csv").open("r", encoding="utf-8-sig") as f:
         retrieval_rows = list(csv.DictReader(f))
 
-    with open("data/eval/results/generation_per_question.csv", "r", encoding="utf-8") as f:
+    with (results_dir / "generation_per_question.csv").open("r", encoding="utf-8-sig") as f:
         generation_rows = list(csv.DictReader(f))
 
-    with open("data/eval/results/gold_label_fixes.json", "r", encoding="utf-8") as f:
-        label_fixes = json.load(f)
+    label_fixes_path = results_dir / "gold_label_fixes.json"
+    if label_fixes_path.is_file():
+        with label_fixes_path.open("r", encoding="utf-8") as f:
+            label_fixes = json.load(f)
 
     # Classify each question failure
     failures = []
@@ -115,7 +119,7 @@ def run_error_analysis():
                 )
             })
 
-    out_file = Path("data/eval/results/error_analysis.json")
+    out_file = results_dir / "error_analysis.json"
     with out_file.open("w", encoding="utf-8") as f:
         json.dump(failures, f, indent=2)
 
@@ -124,7 +128,7 @@ def run_error_analysis():
     for f in failures:
         category_counts[f["category"]] = category_counts.get(f["category"], 0) + 1
 
-    summary_file = Path("data/eval/results/error_summary.csv")
+    summary_file = results_dir / "error_summary.csv"
     with summary_file.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["error_category", "component", "count"])

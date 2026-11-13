@@ -6,6 +6,9 @@ functions in src/eval_metrics.py produce exact, mathematically sound outputs.
 from __future__ import annotations
 
 import importlib
+import inspect
+import json
+from pathlib import Path
 import math
 import pytest
 
@@ -581,3 +584,314 @@ def test_m29_leakage_does_not_fire_on_verified_science_status():
 def test_m29_leakage_does_not_fire_on_abstention():
     answer = "Insufficient evidence in the retrieved corpus to answer this question."
     assert detect_evidence_status_leakage(answer, [], expected_status="artisan observation") is False
+
+# Branch 2 — M30/M31/M32/M33  (FAILING before fixes)
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# M30 — _build_parser must exist and --skip-llm must default to False
+# ---------------------------------------------------------------------------
+
+def test_m30_build_parser_is_exported():
+    """M30: run_evaluation must expose _build_parser() so the flag can be
+    tested without running the full pipeline.
+    Currently FAILS because _build_parser does not exist.
+    """
+    import src.run_evaluation as runner
+    assert hasattr(runner, "_build_parser"), (
+        "run_evaluation must expose _build_parser() (M30)"
+    )
+
+
+def test_m30_skip_llm_defaults_to_false():
+    """M30: parsing [] must give skip_llm=False; parsing ['--skip-llm'] must
+    give skip_llm=True.  With default=True both states are unreachable.
+    Currently FAILS because default=True.
+    """
+    import src.run_evaluation as runner
+    args_default = runner._build_parser().parse_args([])
+    assert args_default.skip_llm is False, (
+        "--skip-llm must default to False (M30)"
+    )
+    args_set = runner._build_parser().parse_args(["--skip-llm"])
+    assert args_set.skip_llm is True
+
+
+@pytest.mark.parametrize(
+    ("skip_flag", "expected_backend"),
+    [("--skip-llm", "extractive"), ("--no-skip-llm", "transformers")],
+)
+def test_m30_runner_routes_skip_llm_mode_to_generator(
+    monkeypatch, tmp_path, skip_flag, expected_backend
+):
+    import sys
+    from src import run_evaluation as runner
+    from src import validate_eval_dataset, evaluate_retrieval, evaluate_generation
+    from src import analyze_errors, generate_charts
+
+    results_dir = tmp_path / "results"
+    monkeypatch.setattr(
+        sys, "argv",
+        ["run_evaluation.py", skip_flag, "--retriever", "hybrid", "--results_dir", str(results_dir)],
+    )
+    monkeypatch.setattr(validate_eval_dataset, "validate", lambda _path: True)
+    calls = {}
+    monkeypatch.setattr(
+        evaluate_retrieval,
+        "evaluate_retrieval",
+        lambda **kwargs: calls.setdefault("retrieval", kwargs) or [],
+    )
+
+    def run_generation_evaluation(**kwargs):
+        calls["generation"] = kwargs
+        return {"retriever": "hybrid", "total_questions": 1}, [{"qid": "q001"}]
+
+    monkeypatch.setattr(evaluate_generation, "run_generation_evaluation", run_generation_evaluation)
+    monkeypatch.setattr(analyze_errors, "run_error_analysis", lambda **kwargs: [])
+    monkeypatch.setattr(generate_charts, "generate_all_charts", lambda **kwargs: [])
+    monkeypatch.setattr(runner, "compute_file_md5", lambda _path: "test-md5")
+
+    runner.main()
+
+    assert calls["generation"]["generator_backend"] == expected_backend
+    assert calls["generation"]["top_k"] == 5
+    assert calls["retrieval"]["retriever"] == "hybrid"
+    assert calls["retrieval"]["top_k"] == 5
+    assert results_dir.joinpath("generation_per_question.csv").is_file()
+
+
+@pytest.mark.parametrize("backend", ["extractive", "transformers"])
+def test_m30_generation_evaluation_selects_requested_backend(tmp_path, monkeypatch, backend):
+    from src import evaluate_generation as module
+
+    class Generator:
+        def __init__(self, config):
+            self.backend = config["generator"]["backend"]
+
+        def answer(self, question, passages):
+            return "Insufficient evidence in the retrieved corpus to answer this question."
+
+    class Retriever:
+        def __init__(self, index_data, config):
+            pass
+
+        def retrieve(self, query, top_k):
+            return []
+
+    dataset = tmp_path / "questions.jsonl"
+    dataset.write_text(json.dumps({
+        "qid": "u1", "question": "Outside topic?", "question_type": "unanswerable",
+        "document_type": "unanswerable",
+    }) + "\n", encoding="utf-8")
+    monkeypatch.setattr(module, "load_config", lambda: {"generator": {}})
+    monkeypatch.setattr(module, "GroundedGenerator", Generator)
+    monkeypatch.setattr(module, "load_prepared_corpus", lambda config: ([], None))
+    monkeypatch.setattr(module, "build_indices", lambda corpus, config: {})
+    monkeypatch.setattr(module, "HybridRetriever", Retriever)
+
+    summary, _ = module.run_generation_evaluation(
+        eval_file=str(dataset), results_dir=str(tmp_path / backend),
+        retriever_name="hybrid", generator_backend=backend,
+    )
+    assert summary["backend"] == backend
+
+
+# ---------------------------------------------------------------------------
+# M31 — evaluate_retrieval must accept retriever and top_k
+# ---------------------------------------------------------------------------
+
+def test_m31_evaluate_retrieval_accepts_retriever_and_top_k():
+    """M31: evaluate_retrieval() must have 'retriever' and 'top_k' parameters.
+    Currently FAILS because neither parameter exists.
+    """
+    from src.evaluate_retrieval import evaluate_retrieval
+    sig = inspect.signature(evaluate_retrieval)
+    params = set(sig.parameters.keys())
+    assert "retriever" in params, "evaluate_retrieval must accept 'retriever' (M31)"
+    assert "top_k" in params, "evaluate_retrieval must accept 'top_k' (M31)"
+
+
+def test_m31_selected_retriever_receives_requested_cutoff(tmp_path, monkeypatch):
+    from src import evaluate_retrieval as module
+
+    dataset = tmp_path / "questions.jsonl"
+    dataset.write_text(json.dumps({"qid": "u1", "question": "q", "question_type": "unanswerable"}) + "\n")
+    calls = []
+    monkeypatch.setattr(module, "setup_retrievers", lambda cfg: ({}, object()))
+    monkeypatch.setattr(module, "retrieve_bm25", lambda query, data, candidate_k: calls.append(candidate_k) or [])
+
+    result = module.evaluate_retrieval(
+        dataset_path=str(dataset), output_dir=str(tmp_path / "out"), retriever="bm25", top_k=7
+    )
+
+    assert calls == [7]
+    assert result["n_questions"] == 1
+    assert {row["retriever"] for row in result["summary"]} == set()
+
+
+# ---------------------------------------------------------------------------
+# M32 — run_error_analysis must accept results_dir
+# ---------------------------------------------------------------------------
+
+def test_m32_run_error_analysis_accepts_results_dir():
+    """M32: run_error_analysis must accept a results_dir argument.
+    Currently FAILS because the parameter does not exist.
+    """
+    from src.analyze_errors import run_error_analysis
+    sig = inspect.signature(run_error_analysis)
+    assert "results_dir" in sig.parameters, (
+        "run_error_analysis must accept 'results_dir' (M32)"
+    )
+
+
+def test_m32_error_analysis_reads_and_writes_selected_directory(tmp_path):
+    from src.analyze_errors import run_error_analysis
+
+    dataset = tmp_path / "questions.jsonl"
+    dataset.write_text("", encoding="utf-8")
+    results_dir = tmp_path / "custom-results"
+    results_dir.mkdir()
+    (results_dir / "retrieval_per_question.csv").write_text("qid,retriever,HitRate@5\n", encoding="utf-8")
+    (results_dir / "generation_per_question.csv").write_text("qid,retriever,is_answerable,abstained\n", encoding="utf-8")
+
+    assert run_error_analysis(results_dir=results_dir, dataset_path=dataset) == []
+    assert (results_dir / "error_analysis.json").is_file()
+    assert (results_dir / "error_summary.csv").is_file()
+
+
+# ---------------------------------------------------------------------------
+# M33 — validator must enforce total count == 45
+# ---------------------------------------------------------------------------
+
+def test_m33_validator_enforces_total_count(tmp_path):
+    """M33: validate() must return False when total != 45.
+    Currently FAILS because it prints the count but always returns True.
+    """
+    from src.validate_eval_dataset import validate
+
+    ds = tmp_path / "eval_questions.jsonl"
+    q = {
+        "qid": "q001",
+        "question": "How does bamboo age affect fibre strength?",
+        "gold_record_ids": ["WBC-0051::doc0004::0000"],
+        "gold_record_groups": [["WBC-0051::doc0004::0000"]],
+        "gold_answer": "Bamboo age affects fibre strength.",
+        "gold_evidence_quote": "Strength can be defined as the capacity",
+        "question_type": "factual",
+        "expected_evidence_level": "E3",
+        "document_type": "full_paper_chunk",
+        "craft": "Bamboo",
+        "paraphrase_group": None,
+        "origin": "auto_drafted",
+        "needs_human_review": True,
+        "expected_evidence_status": "verified science",
+    }
+    ds.write_text(json.dumps(q) + "\n", encoding="utf-8")
+
+    result = validate(str(ds), reference_path=str(tmp_path / "no_ref.json"))
+    assert result is False, "validate() must return False when total questions != 45 (M33)"
+
+
+def test_m33_validator_enforces_card_grounding(tmp_path):
+    """M33: validate() must return False when card grounding < 50%.
+    Currently FAILS because the constraint is printed but not enforced.
+    """
+    from src.validate_eval_dataset import validate
+
+    ds = tmp_path / "eval_questions.jsonl"
+    lines = []
+
+    # 33 answerable full_paper_chunk questions — 0% source_document grounding
+    for i in range(1, 34):
+        q = {
+            "qid": f"q{i:03d}",
+            "question": f"Question {i} about bamboo fibre?",
+            "gold_record_ids": [f"WBC-0051::doc{i:04d}::0000"],
+            "gold_record_groups": [[f"WBC-0051::doc{i:04d}::0000"]],
+            "gold_answer": f"Answer {i}.",
+            "gold_evidence_quote": f"quote {i}",
+            "question_type": "factual",
+            "expected_evidence_level": "E3",
+            "document_type": "full_paper_chunk",
+            "craft": "Bamboo",
+            "paraphrase_group": None,
+            "origin": "auto_drafted",
+            "needs_human_review": True,
+            "expected_evidence_status": "verified science",
+        }
+        lines.append(json.dumps(q))
+
+    # 12 unanswerable questions
+    for i in range(34, 46):
+        q = {
+            "qid": f"q{i:03d}",
+            "question": f"Unanswerable question {i}?",
+            "gold_record_ids": [],
+            "gold_record_groups": [],
+            "gold_answer": "Insufficient evidence in the retrieved corpus to answer this question.",
+            "gold_evidence_quote": "",
+            "question_type": "unanswerable",
+            "expected_evidence_level": "None",
+            "document_type": "unanswerable",
+            "craft": "None",
+            "paraphrase_group": None,
+            "origin": "auto_drafted",
+            "needs_human_review": True,
+            "expected_evidence_status": "unanswerable",
+        }
+        lines.append(json.dumps(q))
+
+    ds.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    result = validate(str(ds), reference_path=str(tmp_path / "no_ref.json"))
+    assert result is False, "validate() must return False when card grounding < 50% (M33)"
+
+
+def test_m33_validator_accepts_grounded_dataset_within_constraints(tmp_path):
+    from src.validate_eval_dataset import validate
+
+    dataset = tmp_path / "eval_questions.jsonl"
+    reference = tmp_path / "chunks.json"
+    questions = []
+    chunks = []
+    for i in range(1, 34):
+        record_id = f"record-{i}"
+        doc_type = "source_document" if i <= 17 else "full_paper_chunk"
+        questions.append({
+            "qid": f"q{i:03d}", "question": "How does bamboo fibre strength respond?",
+            "gold_record_ids": [record_id], "gold_record_groups": [[record_id]],
+            "gold_answer": "Thermal cycling changes material dimensions.",
+            "gold_evidence_quote": "Thermal cycling changes material dimensions.",
+            "question_type": "factual", "expected_evidence_level": "E3",
+            "document_type": doc_type, "craft": "Bamboo", "paraphrase_group": None,
+            "origin": "reviewed", "needs_human_review": False,
+        })
+        chunks.append({
+            "chunk_id": record_id, "record_id": record_id, "prov_record_id": record_id,
+            "document_type": doc_type, "text": "Thermal cycling changes material dimensions.",
+        })
+    for i in range(34, 46):
+        questions.append({
+            "qid": f"q{i:03d}", "question": f"Unanswerable question {i}?",
+            "gold_record_ids": [], "gold_record_groups": [],
+            "gold_answer": "Insufficient evidence in the retrieved corpus to answer this question.",
+            "gold_evidence_quote": "", "question_type": "unanswerable",
+            "expected_evidence_level": "None", "document_type": "unanswerable",
+            "craft": "None", "paraphrase_group": None, "origin": "reviewed",
+            "needs_human_review": False,
+        })
+    dataset.write_text("\n".join(json.dumps(q) for q in questions) + "\n", encoding="utf-8")
+    reference.write_text(json.dumps(chunks), encoding="utf-8")
+
+    assert validate(dataset, reference_path=reference) is True
+
+
+def test_m33_overlap_constraint_is_strictly_below_half():
+    from src.validate_eval_dataset import overlap_is_valid
+
+    assert overlap_is_valid(0.4999) is True
+    assert overlap_is_valid(0.50) is False
+    assert overlap_is_valid(0.5001) is False
+
+
+# ===========================================================================

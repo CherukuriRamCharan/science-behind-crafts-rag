@@ -144,7 +144,13 @@ def retrieve_hybrid_no_dedup(
 def evaluate_retrieval(
     dataset_path: str = "data/eval/eval_questions.jsonl",
     output_dir: str = "data/eval/results",
+    retriever: str = "all",
+    top_k: int = 40,
 ) -> dict[str, Any]:
+    if retriever not in {"all", "hybrid", "bm25", "dense"}:
+        raise ValueError(f"Unknown retriever: {retriever}")
+    if top_k < 1:
+        raise ValueError("top_k must be at least 1")
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -152,11 +158,15 @@ def evaluate_retrieval(
     cfg = load_config()
     index_data, app_hybrid = setup_retrievers(cfg)
 
+    available_retrievers = {
+        "bm25": ("bm25", lambda q: retrieve_bm25(q, index_data, candidate_k=top_k)),
+        "dense (hashing baseline)": ("dense", lambda q: retrieve_dense(q, index_data, candidate_k=top_k)),
+        "hybrid (no dedup)": ("hybrid", lambda q: retrieve_hybrid_no_dedup(q, index_data, candidate_k=top_k)),
+        "hybrid (pipeline with dedup)": ("hybrid", lambda q: retrieve_hybrid(q, app_hybrid, candidate_k=top_k)),
+    }
     retrievers = {
-        "bm25": lambda q: retrieve_bm25(q, index_data, candidate_k=40),
-        "dense (hashing baseline)": lambda q: retrieve_dense(q, index_data, candidate_k=40),
-        "hybrid (no dedup)": lambda q: retrieve_hybrid_no_dedup(q, index_data, candidate_k=40),
-        "hybrid (pipeline with dedup)": lambda q: retrieve_hybrid(q, app_hybrid, candidate_k=40),
+        name: fn for name, (kind, fn) in available_retrievers.items()
+        if retriever == "all" or kind == retriever
     }
 
     per_question_rows = []

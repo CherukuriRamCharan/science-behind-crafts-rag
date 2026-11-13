@@ -7,6 +7,7 @@ import json
 import threading
 from pathlib import Path
 from urllib.request import Request, urlopen
+from urllib.error import URLError
 
 import pytest
 
@@ -396,16 +397,21 @@ def test_local_server_status_and_query_api(monkeypatch):
     thread.start()
     try:
         base = f"http://127.0.0.1:{http_server.server_port}"
-        with urlopen(f"{base}/api/status") as response:
-            status = json.load(response)
-        request = Request(
-            f"{base}/api/query",
-            data=json.dumps({"question": "How does bamboo maturity affect fibres?"}).encode(),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urlopen(request) as response:
-            body = json.load(response)
+        try:
+            with urlopen(f"{base}/api/status") as response:
+                status = json.load(response)
+            request = Request(
+                f"{base}/api/query",
+                data=json.dumps({"question": "How does bamboo maturity affect fibres?"}).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urlopen(request) as response:
+                body = json.load(response)
+        except URLError as exc:
+            if isinstance(exc.reason, PermissionError):
+                pytest.skip(f"Loopback sockets are blocked by this environment: {exc.reason}")
+            raise
         assert status["status"] == "ready"
         assert body["sources"][0]["source_id"] == "WBC-0001"
         assert body["sources"][0]["source_url"] == "https://example.org/bamboo"

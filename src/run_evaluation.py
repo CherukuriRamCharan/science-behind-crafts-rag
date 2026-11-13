@@ -34,15 +34,16 @@ def compute_file_md5(filepath: Path) -> str:
     return hasher.hexdigest()
 
 
-def main():
+def _build_parser() -> argparse.ArgumentParser:
+    """Return the argument parser (exposed for testing)."""
     parser = argparse.ArgumentParser(
         description="Run complete evaluation suite for craft RAG system."
     )
     parser.add_argument(
         "--skip-llm",
-        action="store_true",
-        default=True,
-        help="Run offline evaluation without calling external LLM APIs (default: True).",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Run offline extractive evaluation without calling external LLM APIs.",
     )
     parser.add_argument(
         "--retriever",
@@ -62,7 +63,11 @@ def main():
         default="data/eval/results",
         help="Directory to save evaluation artifacts.",
     )
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    args = _build_parser().parse_args()
 
     results_dir = Path(args.results_dir)
     results_dir.mkdir(parents=True, exist_ok=True)
@@ -86,22 +91,40 @@ def main():
     from src.evaluate_retrieval import evaluate_retrieval
     retrieval_summaries = evaluate_retrieval(
         output_dir=str(results_dir),
+        retriever=args.retriever,
+        top_k=args.top_k,
     )
 
     # 3. Generation Evaluation
-    print("\n[Step 3/5] Running generation & citation evaluation (--skip-llm)...")
+    generator_backend = "extractive" if args.skip_llm else "transformers"
+    print(f"\n[Step 3/5] Running generation & citation evaluation ({generator_backend})...")
     from src.evaluate_generation import evaluate_all_generation, run_generation_evaluation
     if args.retriever == "all":
-        gen_summaries = evaluate_all_generation(top_k=args.top_k, results_dir=str(results_dir))
+        gen_summaries = evaluate_all_generation(
+            top_k=args.top_k, results_dir=str(results_dir),
+            generator_backend=generator_backend,
+        )
     else:
         ret_arg = "dense" if args.retriever == "dense" else args.retriever
-        s, _ = run_generation_evaluation(results_dir=str(results_dir), top_k=args.top_k, retriever_name=ret_arg)
+        s, rows = run_generation_evaluation(
+            results_dir=str(results_dir), top_k=args.top_k, retriever_name=ret_arg,
+            generator_backend=generator_backend,
+        )
         gen_summaries = [s]
+        import csv
+        with (results_dir / "generation_per_question.csv").open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(rows)
+        with (results_dir / "generation_summary.csv").open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(s.keys()))
+            writer.writeheader()
+            writer.writerow(s)
 
     # 4. Error Analysis
     print("\n[Step 4/5] Running error analysis & failure classification...")
     from src.analyze_errors import run_error_analysis
-    failures = run_error_analysis()
+    failures = run_error_analysis(results_dir=str(results_dir))
 
     # 5. Chart Generation
     print("\n[Step 5/5] Generating visual performance figures...")

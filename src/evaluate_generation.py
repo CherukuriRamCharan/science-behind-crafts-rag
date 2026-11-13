@@ -109,9 +109,10 @@ def run_generation_evaluation(
     results_dir: str = "data/eval/results",
     top_k: int = 5,
     retriever_name: str = "hybrid",
+    generator_backend: str = "extractive",
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     config = load_config()
-    config["generator"]["backend"] = "extractive"
+    config["generator"]["backend"] = generator_backend
     generator = GroundedGenerator(config)
 
     corpus, _ = load_prepared_corpus(config)
@@ -242,7 +243,7 @@ def run_generation_evaluation(
 
     summary = {
         "retriever": retriever_label,
-        "backend": "extractive (--skip-llm)",
+        "backend": generator_backend,
         "total_questions": len(questions),
         "answerable_questions": answerable_count,
         "unanswerable_questions": unanswerable_count,
@@ -269,11 +270,15 @@ def run_generation_evaluation(
     return summary, per_question_rows
 
 
-def evaluate_all_generation(top_k: int = 5, results_dir: str = "data/eval/results"):
+def evaluate_all_generation(top_k: int = 5, results_dir: str = "data/eval/results",
+                            generator_backend: str = "extractive"):
     summaries = []
     all_per_q = []
     for ret in ["bm25", "dense", "hybrid"]:
-        s, rows = run_generation_evaluation(results_dir=results_dir, top_k=top_k, retriever_name=ret)
+        s, rows = run_generation_evaluation(
+            results_dir=results_dir, top_k=top_k, retriever_name=ret,
+            generator_backend=generator_backend,
+        )
         summaries.append(s)
         all_per_q.extend(rows)
 
