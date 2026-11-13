@@ -1,0 +1,92 @@
+{
+  "manifest_version": 1,
+  "git_sha": "86042e0ee327a4cb0e30b827885b26f97d263eea",
+  "config_sha256": "56404af47ec13706af230089ed8db22cd524acd2888517c4a45709c1c5963a60",
+  "config_snapshot": {
+    "data": {
+      "prepared_root": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag",
+      "artifact_dir": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts",
+      "ingest_report": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\corpus_manifest.json",
+      "eval_file": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\data\\eval\\craft_ground_truth_eval.json"
+    },
+    "chunking": {
+      "words": 260,
+      "overlap": 45,
+      "max_chars": 1200
+    },
+    "embedding": {
+      "backend": "hashing",
+      "model_name": "intfloat/multilingual-e5-small",
+      "batch_size": 32,
+      "cache_dir": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\embedding_cache"
+    },
+    "index": {
+      "faiss_path": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\dense.faiss",
+      "metadata_path": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\chunks.json",
+      "chroma_path": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\chroma",
+      "chroma_collection": "sbc_prepared_corpus"
+    },
+    "retrieval": {
+      "top_k": 5,
+      "candidate_k": 80,
+      "max_per_source": 2,
+      "include_non_evidence": false,
+      "rrf_k": 60,
+      "dense_weight": 1.0,
+      "sparse_weight": 1.0,
+      "minimum_dense_similarity": 0.25,
+      "annotation_match_boost": 0.02,
+      "annotation_match_min_coverage": 0.5,
+      "evidence_boost": {
+        "E1": 0.003,
+        "E2": 0.002,
+        "E3": 0.001,
+        "E4": 0.0005,
+        "E5": 0.0
+      },
+      "grade_boost": {
+        "A": 0.001,
+        "B": 0.0005,
+        "C": 0.0
+      },
+      "minimum_score": 0.0001,
+      "reranker_enabled": false
+    },
+    "generator": {
+      "backend": "extractive",
+      "model_name": "Qwen/Qwen2.5-3B-Instruct",
+      "max_new_tokens": 220,
+      "minimum_results": 1
+    },
+    "web": {
+      "allowlist_file": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\allowlist.yaml",
+      "delay_seconds": 1.5
+    }
+  },
+  "corpus_sha256": "aaa1d0ff746d99a35d8bdadd68784a4ddb0a59a1570353d27da3610bd0821489",
+  "corpus_chunk_count": 569,
+  "package_versions": {
+    "numpy": "2.5.2",
+    "rank-bm25": "0.2.2",
+    "faiss-cpu": "1.15.1",
+    "sentence-transformers": null,
+    "torch": null,
+    "transformers": null,
+    "accelerate": null,
+    "scikit-learn": "1.9.0",
+    "pytest": "9.1.1"
+  },
+  "output_sha256": {
+    "figures/metrics_by_question_type.png": "e625da1ceb062baf8942ccfd560ee345be512679a391ff9c60061907cc9b1b7f",
+    "figures/mrr_comparison.png": "c6bb56f780a15d186d1e3883dc2caab82adba71e64be9632612927697e21bf1f",
+    "figures/recall_at_k.png": "fda7bd23ae836f1e9ae63fbd6222c6ea98be7a7f3545e3686af2a64dac76e9a7",
+    "generation_per_question_bm25.csv": "d19c7022b9012af0d60bd09702bef6685519a9d88ebf4b291caa4027e1aa58d5",
+    "generation_per_question_dense.csv": "267a35bb587a70d1e51df3f7f69f302da797117f4aa01e26d74daecbcf3e1caa",
+    "generation_per_question_hybrid.csv": "28e75a17d1cc399a5286674294282bda24f88667ae2c9a7d7c161d01d16519af",
+    "retrieval_bootstrap_ci.csv": "206ccf14dfddf39482505cf8bc217d2ef4fa009a1609a809f62a062e4f5b3913",
+    "retrieval_paired_tests.csv": "f21874d6fc8cbd157e96fd6da42d6e15ecf8d299fb3efb096c8c8dc41eff075c",
+    "retrieval_per_question.csv": "8513a6ccfa19695d80e2cad165731c2c928f4b0149ae52db385068521831743b",
+    "retrieval_summary.csv": "0ae49bfd88c29f2cd7074bab48cc630b088624210162af9d2bedc941ccfce76c",
+    "retrieval_unanswerable_scores.csv": "16f9c1e78a7e172577dc89e6e1a93d45dd8ebd94823319df5784799b4141f2f0"
+  }
+}

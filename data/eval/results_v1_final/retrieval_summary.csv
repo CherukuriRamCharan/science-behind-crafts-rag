@@ -1,0 +1,37 @@
+﻿retriever,slice,n_questions,MRR,HitRate@1,HitRate@3,HitRate@5,HitRate@10,Recall@1,Recall@3,Recall@5,Recall@10,nDCG@1,nDCG@3,nDCG@5,nDCG@10
+bm25,Overall,33,0.7863,0.7273,0.8182,0.8788,0.8788,0.7273,0.8182,0.8788,0.8788,0.7273,0.7807,0.8068,0.8068
+bm25,document_type:full_paper_chunk,10,0.6583,0.5,0.8,0.9,0.9,0.5,0.8,0.9,0.9,0.5,0.6762,0.7193,0.7193
+bm25,document_type:process_observation,5,0.6143,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6
+bm25,document_type:source_document,18,0.9051,0.8889,0.8889,0.9444,0.9444,0.8889,0.8889,0.9444,0.9444,0.8889,0.8889,0.9128,0.9128
+bm25,question_type:card_pointer,1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+bm25,question_type:factual,14,0.8065,0.7857,0.7857,0.8571,0.8571,0.7857,0.7857,0.8571,0.8571,0.7857,0.7857,0.8165,0.8165
+bm25,question_type:multi_hop,4,0.4554,0.25,0.5,0.75,0.75,0.25,0.5,0.75,0.75,0.25,0.4077,0.5154,0.5154
+bm25,question_type:process,8,0.8542,0.75,1.0,1.0,1.0,0.75,1.0,1.0,1.0,0.75,0.8914,0.8914,0.8914
+bm25,question_type:scientific_explanation,6,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+dense (hashing baseline),Overall,33,0.764,0.697,0.7879,0.7879,0.9091,0.697,0.7879,0.7879,0.9091,0.697,0.7543,0.7543,0.7944
+dense (hashing baseline),document_type:full_paper_chunk,10,0.7714,0.7,0.8,0.8,0.9,0.7,0.8,0.8,0.9,0.7,0.7631,0.7631,0.7964
+dense (hashing baseline),document_type:process_observation,5,0.7074,0.6,0.8,0.8,0.8,0.6,0.8,0.8,0.8,0.6,0.7262,0.7262,0.7262
+dense (hashing baseline),document_type:source_document,18,0.7755,0.7222,0.7778,0.7778,0.9444,0.7222,0.7778,0.7778,0.9444,0.7222,0.7573,0.7573,0.8123
+dense (hashing baseline),question_type:card_pointer,1,0.037,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+dense (hashing baseline),question_type:factual,14,0.645,0.5714,0.6429,0.6429,0.8571,0.5714,0.6429,0.6429,0.8571,0.5714,0.6165,0.6165,0.6873
+dense (hashing baseline),question_type:multi_hop,4,0.875,0.75,1.0,1.0,1.0,0.75,1.0,1.0,1.0,0.75,0.9077,0.9077,0.9077
+dense (hashing baseline),question_type:process,8,0.9375,0.875,1.0,1.0,1.0,0.875,1.0,1.0,1.0,0.875,0.9539,0.9539,0.9539
+dense (hashing baseline),question_type:scientific_explanation,6,0.8571,0.8333,0.8333,0.8333,1.0,0.8333,0.8333,0.8333,1.0,0.8333,0.8333,0.8333,0.8889
+hybrid (no dedup),Overall,33,0.7965,0.7273,0.8788,0.9091,0.9091,0.7273,0.8788,0.9091,0.9091,0.7273,0.811,0.8227,0.8227
+hybrid (no dedup),document_type:full_paper_chunk,10,0.7372,0.6,0.9,0.9,0.9,0.6,0.9,0.9,0.9,0.6,0.7762,0.7762,0.7762
+hybrid (no dedup),document_type:process_observation,5,0.6667,0.6,0.8,0.8,0.8,0.6,0.8,0.8,0.8,0.6,0.7,0.7,0.7
+hybrid (no dedup),document_type:source_document,18,0.8656,0.8333,0.8889,0.9444,0.9444,0.8333,0.8889,0.9444,0.9444,0.8333,0.8611,0.8826,0.8826
+hybrid (no dedup),question_type:card_pointer,1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+hybrid (no dedup),question_type:factual,14,0.7585,0.7143,0.7857,0.8571,0.8571,0.7143,0.7857,0.8571,0.8571,0.7143,0.75,0.7776,0.7776
+hybrid (no dedup),question_type:multi_hop,4,0.7083,0.5,1.0,1.0,1.0,0.5,1.0,1.0,1.0,0.5,0.7827,0.7827,0.7827
+hybrid (no dedup),question_type:process,8,0.9375,0.875,1.0,1.0,1.0,0.875,1.0,1.0,1.0,0.875,0.9539,0.9539,0.9539
+hybrid (no dedup),question_type:scientific_explanation,6,0.8889,0.8333,1.0,1.0,1.0,0.8333,1.0,1.0,1.0,0.8333,0.9167,0.9167,0.9167
+hybrid (pipeline with dedup),Overall,33,0.768,0.6667,0.8788,0.8788,0.9091,0.6667,0.8788,0.8788,0.9091,0.6667,0.7926,0.7926,0.8027
+hybrid (pipeline with dedup),document_type:full_paper_chunk,10,0.7,0.6,0.8,0.8,0.8,0.6,0.8,0.8,0.8,0.6,0.7262,0.7262,0.7262
+hybrid (pipeline with dedup),document_type:process_observation,5,0.7067,0.6,0.8,0.8,0.8,0.6,0.8,0.8,0.8,0.6,0.7262,0.7262,0.7262
+hybrid (pipeline with dedup),document_type:source_document,18,0.8228,0.7222,0.9444,0.9444,1.0,0.7222,0.9444,0.9444,1.0,0.7222,0.8479,0.8479,0.8664
+hybrid (pipeline with dedup),question_type:card_pointer,1,0.0333,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+hybrid (pipeline with dedup),question_type:factual,14,0.7364,0.6429,0.8571,0.8571,0.9286,0.6429,0.8571,0.8571,0.9286,0.6429,0.7594,0.7594,0.7832
+hybrid (pipeline with dedup),question_type:multi_hop,4,0.75,0.5,1.0,1.0,1.0,0.5,1.0,1.0,1.0,0.5,0.8155,0.8155,0.8155
+hybrid (pipeline with dedup),question_type:process,8,0.875,0.75,1.0,1.0,1.0,0.75,1.0,1.0,1.0,0.75,0.9077,0.9077,0.9077
+hybrid (pipeline with dedup),question_type:scientific_explanation,6,0.8333,0.8333,0.8333,0.8333,0.8333,0.8333,0.8333,0.8333,0.8333,0.8333,0.8333,0.8333,0.8333

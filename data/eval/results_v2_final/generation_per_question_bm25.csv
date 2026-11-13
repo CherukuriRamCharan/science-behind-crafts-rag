@@ -1,0 +1,46 @@
+qid,retriever,question_type,document_type,is_answerable,abstained,generated_answer,cited_sources,citation_valid,hallucinated_citations,unretrieved_citations,evidence_status_leakage,citation_precision,citation_recall,token_f1,rouge_l
+q001,bm25,factual,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q002,bm25,process,source_document,True,False,Explains the mechanics of radial wood splitting at handle/socket junctions under impact and shows why reinforcing collars/flanges at the socket reduce failure — directly supporting the artisan practice of fitting an iron ring to the neem handle of the baria. [WBC-0004 | E3],WBC-0004,True,,,False,1.0,0.5,0.4638,0.4058
+q003,bm25,scientific_explanation,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q004,bm25,scientific_explanation,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q005,bm25,scientific_explanation,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q006,bm25,factual,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q007,bm25,factual,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q008,bm25,factual,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q009,bm25,factual,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q010,bm25,process,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q011,bm25,process,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q012,bm25,process,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q013,bm25,factual,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q014,bm25,scientific_explanation,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q015,bm25,process,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q016,bm25,factual,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q017,bm25,factual,source_document,True,False,"Measures personal noise exposure (~80 dBA, peaks near 1–4 kHz) from power tools including drill machines — closely matching the electric Handpiece used in Delhi's fine-detailing phase. [WBC-0023 | E3] Measures personal noise exposure (~80 dBA, peaks near permissible limits) from power tools including drill machines, indicating that the report's proposed power chisels and rotary tools would introduce noise exposure alongside their stated ergonomic benefits. [WBC-0032 | E3]",WBC-0023;WBC-0032,True,,,False,0.5,0.5,0.3226,0.3226
+q018,bm25,process,source_document,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q019,bm25,factual,full_paper_chunk,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q020,bm25,factual,full_paper_chunk,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q021,bm25,factual,full_paper_chunk,True,False,"In industrial ergonomics, information on physical strength is useful for three purposes: 1) hand tool design – as guidelines and references for creating consumer products and industrial hand tools [3], [4]. [WBC-0051 | E3]",3;4;WBC-0051,False,3;4,,False,0.3333,1.0,0.4333,0.4
+q022,bm25,scientific_explanation,full_paper_chunk,True,False,The Influence of Hand Tool Design on Hand Grip Strength: A Review. [WBC-0040 | E3],WBC-0040,True,,,False,0.0,0.0,0.2667,0.2667
+q023,bm25,factual,full_paper_chunk,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q024,bm25,process,full_paper_chunk,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q025,bm25,scientific_explanation,full_paper_chunk,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q026,bm25,process,full_paper_chunk,True,False,"We demonstrate our pipeline on multiple wood carving applications and discuss its limitations, including the need for iterative [WBC-2016 | E3]",WBC-2016,True,,,False,1.0,1.0,0.3243,0.2162
+q027,bm25,multi_hop,full_paper_chunk,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q028,bm25,multi_hop,full_paper_chunk,True,False,"At first, a series of human demonstrations of straight cuts is recorded in a motion capture setup and the network is trained on the extracted parameters. [WBC-2016 | E3]",WBC-2016,True,,,False,1.0,1.0,0.2381,0.2381
+q029,bm25,factual,process_observation,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q030,bm25,factual,process_observation,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q031,bm25,card_pointer,process_observation,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q032,bm25,multi_hop,process_observation,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q033,bm25,multi_hop,process_observation,True,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,0.0,0.0,0.0,0.0
+q034,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q035,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q036,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q037,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q038,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q039,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q040,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q041,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q042,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q043,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q044,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
+q045,bm25,unanswerable,unanswerable,False,True,Insufficient evidence in the retrieved corpus to answer this question.,,True,,,False,,,,
