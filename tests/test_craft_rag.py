@@ -485,6 +485,7 @@ def test_transformers_backend_generates_and_rejects_invalid_citations(monkeypatc
         ('{"answer": "Bamboo age affects fibre strength.", "citations": [{"sentence": "Bamboo age affects fibre strength.", "source_id": "WBC-0001"}], "confidence": 0.9}', "generated", None),
         ('{"answer": "Bamboo cures illness.", "citations": [{"sentence": "Bamboo cures illness.", "source_id": "WBC-0001"}], "confidence": 0.9}', "fallback", "unsupported"),
         ('{"answer": "Bamboo age affects fibre strength. It cures illness.", "citations": [{"sentence": "Bamboo age affects fibre strength.", "source_id": "WBC-0001"}], "confidence": 0.9}', "fallback", "citation"),
+        ('{"answer": "Bamboo age affects fibre strength.", "citations": [{"sentence": "Bamboo age affects fibre strength.", "source_id": "WBC-0001"}], "confidence": 0.9, "extra": true}', "fallback", "schema"),
         ("not json", "fallback", "malformed"),
     ],
 )

@@ -214,6 +214,8 @@ class GroundedGenerator:
             ).strip()
             try:
                 payload = json.loads(model_answer)
+                if not isinstance(payload, dict) or set(payload) != {"answer", "citations", "confidence"}:
+                    raise ValueError("JSON does not match the required answer/citations/confidence schema")
                 answer = payload["answer"]
                 raw_citations = payload["citations"]
                 confidence = payload["confidence"]
