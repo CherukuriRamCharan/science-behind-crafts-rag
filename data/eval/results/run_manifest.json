@@ -1,0 +1,98 @@
+{
+  "manifest_version": 1,
+  "git_sha": "f6aea4e6db5db30821ff792ddd7452fd65fd28e6",
+  "config_sha256": "56404af47ec13706af230089ed8db22cd524acd2888517c4a45709c1c5963a60",
+  "config_snapshot": {
+    "data": {
+      "prepared_root": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag",
+      "artifact_dir": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts",
+      "ingest_report": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\corpus_manifest.json",
+      "eval_file": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\data\\eval\\craft_ground_truth_eval.json"
+    },
+    "chunking": {
+      "words": 260,
+      "overlap": 45,
+      "max_chars": 1200
+    },
+    "embedding": {
+      "backend": "hashing",
+      "model_name": "intfloat/multilingual-e5-small",
+      "batch_size": 32,
+      "cache_dir": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\embedding_cache"
+    },
+    "index": {
+      "faiss_path": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\dense.faiss",
+      "metadata_path": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\chunks.json",
+      "chroma_path": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\artifacts\\chroma",
+      "chroma_collection": "sbc_prepared_corpus"
+    },
+    "retrieval": {
+      "top_k": 5,
+      "candidate_k": 80,
+      "max_per_source": 2,
+      "include_non_evidence": false,
+      "rrf_k": 60,
+      "dense_weight": 1.0,
+      "sparse_weight": 1.0,
+      "minimum_dense_similarity": 0.25,
+      "annotation_match_boost": 0.02,
+      "annotation_match_min_coverage": 0.5,
+      "evidence_boost": {
+        "E1": 0.003,
+        "E2": 0.002,
+        "E3": 0.001,
+        "E4": 0.0005,
+        "E5": 0.0
+      },
+      "grade_boost": {
+        "A": 0.001,
+        "B": 0.0005,
+        "C": 0.0
+      },
+      "minimum_score": 0.0001,
+      "reranker_enabled": false
+    },
+    "generator": {
+      "backend": "extractive",
+      "model_name": "Qwen/Qwen2.5-3B-Instruct",
+      "max_new_tokens": 220,
+      "minimum_results": 1
+    },
+    "web": {
+      "allowlist_file": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\allowlist.yaml",
+      "delay_seconds": 1.5
+    }
+  },
+  "corpus_sha256": "aaa1d0ff746d99a35d8bdadd68784a4ddb0a59a1570353d27da3610bd0821489",
+  "corpus_chunk_count": 569,
+  "package_versions": {
+    "numpy": "2.5.2",
+    "rank-bm25": "0.2.2",
+    "faiss-cpu": "1.15.1",
+    "sentence-transformers": null,
+    "torch": null,
+    "transformers": null,
+    "accelerate": null,
+    "scikit-learn": "1.9.0",
+    "pytest": "9.1.1"
+  },
+  "output_sha256": {
+    "error_analysis.json": "690ca6b2cea7ee105fe7863f55b9f26c85573014aab8e3dbaf8026e203a14b3b",
+    "error_summary.csv": "596b5945c3b352243343e0b6fdf59ca45dcefe08d59f2e275942918a832286e2",
+    "figures/error_category_breakdown.png": "d9d5fd12c02e9c22ed4548ca2939ae0509ae567b3b3c56c03e21e42710a43960",
+    "figures/metrics_by_question_type.png": "402da3c95d05cc3b50dcba610156391507d87d60da4c48300301147ce8d2391a",
+    "figures/mrr_comparison.png": "b52528d105918b73363d5bb5c54888d276c5040c796ca6a971715bb73bce4569",
+    "figures/recall_at_k.png": "c3146f62ac45f6344a55253e00ab9139a1ee255df0cb9e02456c9ef481a68aab",
+    "generation_per_question.csv": "03fc1754a14ac53ef1995603753cc9ef41a6016492001cebc9c42b825d67835b",
+    "generation_per_question_bm25.csv": "d19c7022b9012af0d60bd09702bef6685519a9d88ebf4b291caa4027e1aa58d5",
+    "generation_per_question_dense.csv": "267a35bb587a70d1e51df3f7f69f302da797117f4aa01e26d74daecbcf3e1caa",
+    "generation_per_question_hybrid.csv": "28e75a17d1cc399a5286674294282bda24f88667ae2c9a7d7c161d01d16519af",
+    "generation_summary.csv": "e89686dfa6fd8cb744270d967d286f4eabd234152d47b34314e489b6adf870a4",
+    "gold_label_fixes.json": "6af8f4233e903121639c117c42db40058651b0274c9ee78d375d380e15bc0859",
+    "retrieval_bootstrap_ci.csv": "7b36b5c27c2f69589d04fc3377af56dd8dec9e225575bcc24813d9aea012deea",
+    "retrieval_paired_tests.csv": "ee97ed070e312c1fa8a0713c3fa3eaa99f8ced6bddb9c414c2bfd0c242a6fdc3",
+    "retrieval_per_question.csv": "8232ba74eeb76c49bb87c376ee195d02f6f6ea44d5b3401178ef9daa328d8a21",
+    "retrieval_summary.csv": "5076603c53400a478ffd839ec0c35cec676b3dec31eb652be7dd1e7f2fc79325",
+    "retrieval_unanswerable_scores.csv": "3a1a4e9cafb5b52bf6512566068fa231c5d0de639fed6bf584609f00ebb4044d"
+  }
+}

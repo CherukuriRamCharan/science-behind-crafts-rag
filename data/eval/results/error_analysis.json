@@ -1,7 +1,99 @@
 [
   {
-    "qid": "q023",
+    "qid": "q001",
+    "category": "dense_embedding_miss",
+    "component": "retriever",
+    "question": "In the wood-dust sanding study, how should the mechanized observation inform expectations for later hand-process exposure, and what caveat remains?",
+    "question_type": "factual",
+    "document_type": "source_document",
+    "gold_ids": [
+      "WBC-0005::doc0001::0000",
+      "WBC-0005::doc0001",
+      "b31f2b23d8a4471c4855dac3187ae1b6038e7fe6b22f7ad919db3fa078b1ba62"
+    ],
+    "gold_quote": "This study directly measures exposure from powered handheld sanding, closely matching the machine-finishing stage; it serves as a reasonable but indirect proxy for the subsequent manual hand-sanding stage, where dust generation is expected to be lower but has not been separately measured.",
+    "severity": "medium",
+    "description": "BM25 retrieved gold at rank 1 while dense retrieval missed it using the measured 384-dim hashing configuration (ranks: bm25=1, dense=miss, hybrid_no_dedup=1, hybrid_pipeline=5).",
+    "remedy": "Review the embedding model, corpus representation, and query-document similarity.",
+    "measured_ranks": {
+      "bm25": 1,
+      "dense": null,
+      "hybrid_no_dedup": 1,
+      "hybrid_pipeline": 5
+    }
+  },
+  {
+    "qid": "q005",
     "category": "retrieval_deduplication_drop",
+    "component": "retriever",
+    "question": "In the wood grain-raising study, why do loosened fibres lift after dampening, and how does species density alter the effect?",
+    "question_type": "scientific_explanation",
+    "document_type": "source_document",
+    "gold_ids": [
+      "WBC-0010::doc0001::0000",
+      "WBC-0010::doc0001",
+      "4ba03f5e9dc332b34af3241b2cb338370435afc7dfe08c24e25136545a58a527"
+    ],
+    "gold_quote": "Shows that sanding tears cell walls to create loosely bonded fibre slivers that project after wetting, and that grain raising is inversely related to wood density",
+    "severity": "high",
+    "description": "Gold ranked within top 5 before deduplication but not in the pipeline result (ranks: bm25=2, dense=miss, hybrid_no_dedup=3, hybrid_pipeline=miss).",
+    "remedy": "Inspect the deduplication decision for the measured gold record and its competing records.",
+    "measured_ranks": {
+      "bm25": 2,
+      "dense": null,
+      "hybrid_no_dedup": 3,
+      "hybrid_pipeline": null
+    }
+  },
+  {
+    "qid": "q016",
+    "category": "dense_embedding_miss",
+    "component": "retriever",
+    "question": "Is some variation between repeated precision hand movements a normal human trait?",
+    "question_type": "factual",
+    "document_type": "source_document",
+    "gold_ids": [
+      "WBC-0022::doc0001::0000",
+      "WBC-0022::doc0001",
+      "e6e833ee307166a7cc3c3cdad53e01e3a140540083aae974e570944385106f08"
+    ],
+    "gold_quote": "Confirms motor variability is an inherent, measurable feature of human repetitive manual precision tasks",
+    "severity": "medium",
+    "description": "BM25 retrieved gold at rank 1 while dense retrieval missed it using the measured 384-dim hashing configuration (ranks: bm25=1, dense=miss, hybrid_no_dedup=1, hybrid_pipeline=1).",
+    "remedy": "Review the embedding model, corpus representation, and query-document similarity.",
+    "measured_ranks": {
+      "bm25": 1,
+      "dense": null,
+      "hybrid_no_dedup": 1,
+      "hybrid_pipeline": 1
+    }
+  },
+  {
+    "qid": "q019",
+    "category": "retrieval_miss_all_systems",
+    "component": "retriever",
+    "question": "In \"The Influence of Hand Tool Design on Hand Grip Strength: A Review,\" what physical output defines strength when a person contracts muscles voluntarily?",
+    "question_type": "factual",
+    "document_type": "full_paper_chunk",
+    "gold_ids": [
+      "WBC-0051::doc0004::0000",
+      "WBC-0051::doc0004",
+      "WBC-0051-0002"
+    ],
+    "gold_quote": "Strength can be defined as the capacity of body parts to produce force or torque with voluntary muscle contraction",
+    "severity": "high",
+    "description": "No gold record was retrieved by any evaluated system (ranks: bm25=miss, dense=miss, hybrid_no_dedup=miss, hybrid_pipeline=miss).",
+    "remedy": "Review corpus coverage, chunking, and the question's gold evidence mapping.",
+    "measured_ranks": {
+      "bm25": null,
+      "dense": null,
+      "hybrid_no_dedup": null,
+      "hybrid_pipeline": null
+    }
+  },
+  {
+    "qid": "q023",
+    "category": "retrieval_miss_all_systems",
     "component": "retriever",
     "question": "Which anatomical structures make up the human hand?",
     "question_type": "factual",
@@ -13,341 +105,128 @@
     ],
     "gold_quote": "Hand is made up of bones, tendons, ligaments, nerves and",
     "severity": "high",
-    "description": "Hybrid retriever failed to include gold chunk in top 5 (HitRate@5 = 0.0). Gold chunk was ranked high in BM25/Dense, but teammate's deduplication on (source_id, title) dropped subsequent chunks from the same document.",
-    "remedy": "Deduplicate by chunk_id or record_id instead of (source_id, title) when retrieving from multi-chunk papers (e.g. WBC-2016, WBC-0051)."
+    "description": "No gold record was retrieved by any evaluated system (ranks: bm25=miss, dense=miss, hybrid_no_dedup=miss, hybrid_pipeline=miss).",
+    "remedy": "Review corpus coverage, chunking, and the question's gold evidence mapping.",
+    "measured_ranks": {
+      "bm25": null,
+      "dense": null,
+      "hybrid_no_dedup": null,
+      "hybrid_pipeline": null
+    }
   },
   {
-    "qid": "q025",
-    "category": "retrieval_deduplication_drop",
+    "qid": "q024",
+    "category": "retrieval_miss_all_systems",
     "component": "retriever",
-    "question": "What limitation exists regarding conventional CAM tools in non-standard manufacturing?",
-    "question_type": "scientific_explanation",
+    "question": "In the robot wood-carving learning study, what method represented the demonstrated motions?",
+    "question_type": "process",
     "document_type": "full_paper_chunk",
     "gold_ids": [
-      "WBC-2016::doc0003::0000",
-      "WBC-2016::doc0003",
-      "WBC-2016-0003"
+      "WBC-2016::doc0004::0000",
+      "WBC-2016::doc0004",
+      "WBC-2016-0004"
     ],
-    "gold_quote": "However, conventional CAM tools are tailored for standard manufacturing processes",
+    "gold_quote": "we perform a case study on robot wood carving with hand tools, in which we integrate probabilistic movement primitives (ProMPs)",
     "severity": "high",
-    "description": "Hybrid retriever failed to include gold chunk in top 5 (HitRate@5 = 0.0). Gold chunk was ranked high in BM25/Dense, but teammate's deduplication on (source_id, title) dropped subsequent chunks from the same document.",
-    "remedy": "Deduplicate by chunk_id or record_id instead of (source_id, title) when retrieving from multi-chunk papers (e.g. WBC-2016, WBC-0051)."
+    "description": "No gold record was retrieved by any evaluated system (ranks: bm25=miss, dense=miss, hybrid_no_dedup=miss, hybrid_pipeline=miss).",
+    "remedy": "Review corpus coverage, chunking, and the question's gold evidence mapping.",
+    "measured_ranks": {
+      "bm25": null,
+      "dense": null,
+      "hybrid_no_dedup": null,
+      "hybrid_pipeline": null
+    }
   },
   {
-    "qid": "q026",
-    "category": "retrieval_deduplication_drop",
+    "qid": "q027",
+    "category": "retrieval_miss_all_systems",
     "component": "retriever",
-    "question": "What limitation was discussed regarding the robotic wood carving pipeline across multiple applications?",
-    "question_type": "process",
-    "document_type": "full_paper_chunk",
-    "gold_ids": [
-      "WBC-2016::doc0005::0000",
-      "WBC-2016::doc0005",
-      "WBC-2016-0005"
-    ],
-    "gold_quote": "multiple wood carving applications and discuss its limitations, including the need for iterative toolpath adjustments to address inaccuracies.",
-    "severity": "high",
-    "description": "Hybrid retriever failed to include gold chunk in top 5 (HitRate@5 = 0.0). Gold chunk was ranked high in BM25/Dense, but teammate's deduplication on (source_id, title) dropped subsequent chunks from the same document.",
-    "remedy": "Deduplicate by chunk_id or record_id instead of (source_id, title) when retrieving from multi-chunk papers (e.g. WBC-2016, WBC-0051)."
-  },
-  {
-    "qid": "q031",
-    "category": "retrieval_deduplication_drop",
-    "component": "retriever",
-    "question": "What explains why bamboo node regions are mechanically weaker than internodes?",
-    "question_type": "card_pointer",
-    "document_type": "process_observation",
-    "gold_ids": [
-      "WBC-0003::doc0003::0000",
-      "WBC-0003::doc0003",
-      "process-observation-e60332eefdad8d"
-    ],
-    "gold_quote": "ScienceDirect review with quantified MOE/MOR/tensile data and node-weakness explanation; strong evidence for engineering-based sustainability claims.",
-    "severity": "high",
-    "description": "Hybrid retriever failed to include gold chunk in top 5 (HitRate@5 = 0.0). Gold chunk was ranked high in BM25/Dense, but teammate's deduplication on (source_id, title) dropped subsequent chunks from the same document.",
-    "remedy": "Deduplicate by chunk_id or record_id instead of (source_id, title) when retrieving from multi-chunk papers (e.g. WBC-2016, WBC-0051)."
-  },
-  {
-    "qid": "q034",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "Why is Udayagiri wood soaked in water for four days specifically before initial shaping?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'Why is Udayagiri wood soaked in water for four days specifically before initial shaping?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q035",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "What steam bending minimum curvature radius can be achieved in seasoned teak without outer fiber tensile failure?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'What steam bending minimum curvature radius can be achieved in seasoned teak without outer fiber tensile failure?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q036",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "Why does pressure-impregnating green bamboo culms with aqueous borax and boric acid prevent powder-post beetle (Dinoderus minutus) attacks?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'Why does pressure-impregnating green bamboo culms with aqueous borax and boric acid prevent powder-post beetle (Dinoderus minutus) attacks?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q037",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "What rotational speed in surface feet per minute prevents friction burnishing when turning dense ebony on a manual treadle lathe?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'What rotational speed in surface feet per minute prevents friction burnishing when turning dense ebony on a manual treadle lathe?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q038",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "How does soaking seasoned walnut in walnut husk tannin broth protect carved ceiling panels against solar ultraviolet photodegradation?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'How does soaking seasoned walnut in walnut husk tannin broth protect carved ceiling panels against solar ultraviolet photodegradation?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q039",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "What copper sulfate bath concentration prevents sapstain and blue-stain fungal colonization in freshly harvested bamboo culms?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'What copper sulfate bath concentration prevents sapstain and blue-stain fungal colonization in freshly harvested bamboo culms?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q041",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "What pulse repetition rate and assist gas pressure are required to laser cut optical grade acrylic without edge whitening?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'What pulse repetition rate and assist gas pressure are required to laser cut optical grade acrylic without edge whitening?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q042",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "What basic chromium sulfate concentration is mandated for heavy bovine sole leather tanning in European standard EN 15987?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'What basic chromium sulfate concentration is mandated for heavy bovine sole leather tanning in European standard EN 15987?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q043",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "What tin percentage in 78-22 bell bronze optimizes the acoustic strike note and hum tone decay in cathedral bells?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'What tin percentage in 78-22 bell bronze optimizes the acoustic strike note and hum tone decay in cathedral bells?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q045",
-    "category": "generation_abstention_failure",
-    "component": "generator",
-    "question": "What molar ratio of silica to alumina eliminates crazing in cone 10 reduction-fired porcelain glazes?",
-    "question_type": "unanswerable",
-    "document_type": "unanswerable",
-    "gold_ids": [],
-    "gold_quote": "",
-    "severity": "medium",
-    "description": "Generator failed to abstain on unanswerable question 'What molar ratio of silica to alumina eliminates crazing in cone 10 reduction-fired porcelain glazes?'. Retriever returned craft passages with incidental word overlap, passing the len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check.",
-    "remedy": "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based verification before generating an answer from retrieved passages."
-  },
-  {
-    "qid": "q004",
-    "category": "dense_hashing_capacity_limit",
-    "component": "dense_embedder",
-    "question": "How does the angle of the wood grain relative to a cutting tool path explain torn-grain defects?",
-    "question_type": "scientific_explanation",
-    "document_type": "source_document",
-    "gold_ids": [
-      "WBC-0009::doc0001::0000",
-      "WBC-0009::doc0001",
-      "c431b9dc3d0a97f2931032e67d70fa91dd4ceef57224668055e01a67a8eb07ac"
-    ],
-    "gold_quote": "Directly measures how grain angle relative to the tool path governs strain and cleavage ahead of the cutting edge, providing a mechanical explanation for the torn-grain and fuzzy-g",
-    "severity": "low",
-    "description": "Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for 'How does the angle of the wood grain relative to a cutting tool path explain torn-grain defects?' (HitRate@5 = 0.0), while BM25 retrieved it at rank 1.",
-    "remedy": "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model (e.g. BGE-small-en-v1.5 or E5-small)."
-  },
-  {
-    "qid": "q006",
-    "category": "dense_hashing_capacity_limit",
-    "component": "dense_embedder",
-    "question": "What conditions govern the permissible use of adhesives and coatings on food-contact articles?",
-    "question_type": "factual",
-    "document_type": "source_document",
-    "gold_ids": [
-      "WBC-0011::doc0001::0000",
-      "WBC-0011::doc0001",
-      "5e999f20d68e2410163ad1296e67b0683e93690eb2ff12fbcd578a332cf4d771"
-    ],
-    "gold_quote": "Establishes the legal/regulatory conditions under which adhesives and coatings may be used on food-contact articles",
-    "severity": "low",
-    "description": "Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for 'What conditions govern the permissible use of adhesives and coatings on food-contact articles?' (HitRate@5 = 0.0), while BM25 retrieved it at rank 1.",
-    "remedy": "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model (e.g. BGE-small-en-v1.5 or E5-small)."
-  },
-  {
-    "qid": "q008",
-    "category": "dense_hashing_capacity_limit",
-    "component": "dense_embedder",
-    "question": "Which handle design features most strongly affect grip strength and muscle fatigue in hand tools?",
-    "question_type": "factual",
-    "document_type": "source_document",
-    "gold_ids": [
-      "WBC-0003::doc0001::0000",
-      "WBC-0003::doc0001",
-      "2684ef47ae47d5defd80b19f1b20b4578a961aed4d4859783f583b106d22bc38"
-    ],
-    "gold_quote": "The review synthesizes multiple studies showing handle diameter and material as the most significant hand-tool design factors affecting grip strength and fatigue",
-    "severity": "low",
-    "description": "Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for 'Which handle design features most strongly affect grip strength and muscle fatigue in hand tools?' (HitRate@5 = 0.0), while BM25 retrieved it at rank 1.",
-    "remedy": "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model (e.g. BGE-small-en-v1.5 or E5-small)."
-  },
-  {
-    "qid": "q010",
-    "category": "dense_hashing_capacity_limit",
-    "component": "dense_embedder",
-    "question": "How do prolonged heat and time exposure affect the chemical properties of virgin coconut oil?",
-    "question_type": "process",
-    "document_type": "source_document",
-    "gold_ids": [
-      "WBC-0014::doc0001::0000",
-      "WBC-0014::doc0001",
-      "02c14b1c1931c53f6f8b1be4f9b3c0b04904360ae7808f88bbfce3dfa66a6b13"
-    ],
-    "gold_quote": "Directly measures that virgin coconut oil's free fatty acid content and peroxide value increase significantly with prolonged heat/time exposure",
-    "severity": "low",
-    "description": "Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for 'How do prolonged heat and time exposure affect the chemical properties of virgin coconut oil?' (HitRate@5 = 0.0), while BM25 retrieved it at rank 1.",
-    "remedy": "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model (e.g. BGE-small-en-v1.5 or E5-small)."
-  },
-  {
-    "qid": "q018",
-    "category": "dense_hashing_capacity_limit",
-    "component": "dense_embedder",
-    "question": "How does the angle at which veneer layers are stacked affect strain and dimensional stability in plywood under load?",
-    "question_type": "process",
-    "document_type": "source_document",
-    "gold_ids": [
-      "WBC-0020::doc0001::0000",
-      "WBC-0020::doc0001",
-      "564cab6bdd3c6695318e1d556bcba2728f663280f990f7caea4bf0c5d1c3b17d"
-    ],
-    "gold_quote": "Shows that veneer layup angle and layer arrangement directly govern strain distribution and dimensional stability under load",
-    "severity": "low",
-    "description": "Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for 'How does the angle at which veneer layers are stacked affect strain and dimensional stability in plywood under load?' (HitRate@5 = 0.0), while BM25 retrieved it at rank 1.",
-    "remedy": "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model (e.g. BGE-small-en-v1.5 or E5-small)."
-  },
-  {
-    "qid": "q023",
-    "category": "dense_hashing_capacity_limit",
-    "component": "dense_embedder",
-    "question": "Which anatomical structures make up the human hand?",
-    "question_type": "factual",
-    "document_type": "full_paper_chunk",
-    "gold_ids": [
-      "WBC-0051::doc0006::0000",
-      "WBC-0051::doc0006",
-      "WBC-0051-0004"
-    ],
-    "gold_quote": "Hand is made up of bones, tendons, ligaments, nerves and",
-    "severity": "low",
-    "description": "Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for 'Which anatomical structures make up the human hand?' (HitRate@5 = 0.0), while BM25 retrieved it at rank 1.",
-    "remedy": "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model (e.g. BGE-small-en-v1.5 or E5-small)."
-  },
-  {
-    "qid": "q026",
-    "category": "dense_hashing_capacity_limit",
-    "component": "dense_embedder",
-    "question": "What limitation was discussed regarding the robotic wood carving pipeline across multiple applications?",
-    "question_type": "process",
-    "document_type": "full_paper_chunk",
-    "gold_ids": [
-      "WBC-2016::doc0005::0000",
-      "WBC-2016::doc0005",
-      "WBC-2016-0005"
-    ],
-    "gold_quote": "multiple wood carving applications and discuss its limitations, including the need for iterative toolpath adjustments to address inaccuracies.",
-    "severity": "low",
-    "description": "Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for 'What limitation was discussed regarding the robotic wood carving pipeline across multiple applications?' (HitRate@5 = 0.0), while BM25 retrieved it at rank 1.",
-    "remedy": "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model (e.g. BGE-small-en-v1.5 or E5-small)."
-  },
-  {
-    "qid": "q031",
-    "category": "dense_hashing_capacity_limit",
-    "component": "dense_embedder",
-    "question": "What explains why bamboo node regions are mechanically weaker than internodes?",
-    "question_type": "card_pointer",
-    "document_type": "process_observation",
-    "gold_ids": [
-      "WBC-0003::doc0003::0000",
-      "WBC-0003::doc0003",
-      "process-observation-e60332eefdad8d"
-    ],
-    "gold_quote": "ScienceDirect review with quantified MOE/MOR/tensile data and node-weakness explanation; strong evidence for engineering-based sustainability claims.",
-    "severity": "low",
-    "description": "Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for 'What explains why bamboo node regions are mechanically weaker than internodes?' (HitRate@5 = 0.0), while BM25 retrieved it at rank 1.",
-    "remedy": "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model (e.g. BGE-small-en-v1.5 or E5-small)."
-  },
-  {
-    "qid": "q032",
-    "category": "dense_hashing_capacity_limit",
-    "component": "dense_embedder",
-    "question": "What key relationship concerning bamboo mechanical properties is compiled in the literature bibliography?",
+    "question": "In \"The Influence of Hand Tool Design on Hand Grip Strength: A Review,\" which part of the upper limb supplies the measured grip force?",
     "question_type": "multi_hop",
+    "document_type": "full_paper_chunk",
+    "gold_ids": [
+      "WBC-0051::doc0005::0000",
+      "WBC-0051::doc0005",
+      "WBC-0051-0003"
+    ],
+    "gold_quote": "Grip strength is a magnitude of muscle strength generated by the hand and forearm muscles while gripping an object.",
+    "severity": "high",
+    "description": "No gold record was retrieved by any evaluated system (ranks: bm25=miss, dense=miss, hybrid_no_dedup=miss, hybrid_pipeline=miss).",
+    "remedy": "Review corpus coverage, chunking, and the question's gold evidence mapping.",
+    "measured_ranks": {
+      "bm25": null,
+      "dense": null,
+      "hybrid_no_dedup": null,
+      "hybrid_pipeline": null
+    }
+  },
+  {
+    "qid": "q028",
+    "category": "retrieval_miss_all_systems",
+    "component": "retriever",
+    "question": "In the robot-carving study, how did researchers record human wood-carving demonstration motions?",
+    "question_type": "multi_hop",
+    "document_type": "full_paper_chunk",
+    "gold_ids": [
+      "WBC-2016::doc0004::0000",
+      "WBC-2016::doc0004",
+      "WBC-2016-0004"
+    ],
+    "gold_quote": "Human demonstrations of different wood carving cuts are recorded via kinesthetic",
+    "severity": "high",
+    "description": "No gold record was retrieved by any evaluated system (ranks: bm25=miss, dense=miss, hybrid_no_dedup=miss, hybrid_pipeline=miss).",
+    "remedy": "Review corpus coverage, chunking, and the question's gold evidence mapping.",
+    "measured_ranks": {
+      "bm25": null,
+      "dense": null,
+      "hybrid_no_dedup": null,
+      "hybrid_pipeline": null
+    }
+  },
+  {
+    "qid": "q029",
+    "category": "dense_embedding_miss",
+    "component": "retriever",
+    "question": "In the horizontal-splitter note, what authoritative wood handbook is recommended for product-design decisions?",
+    "question_type": "factual",
     "document_type": "process_observation",
     "gold_ids": [
-      "WBC-0005::doc0003::0000",
-      "WBC-0005::doc0003",
-      "process-observation-f84b864836da02"
+      "WBC-0001::doc0003::0000",
+      "WBC-0001::doc0003",
+      "process-observation-4bf00725dc74b4"
     ],
-    "gold_quote": "Annotated bibliography aggregating multiple bamboo mechanical-property studies incl. the moisture-strength relationship",
-    "severity": "low",
-    "description": "Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for 'What key relationship concerning bamboo mechanical properties is compiled in the literature bibliography?' (HitRate@5 = 0.0), while BM25 retrieved it at rank 1.",
-    "remedy": "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model (e.g. BGE-small-en-v1.5 or E5-small)."
+    "gold_quote": "Authoritative USDA Forest Products Laboratory handbook covering mechanical/physical properties of wood \u2014 core reference for product shape, thickness and durability Why-questions.",
+    "severity": "medium",
+    "description": "BM25 retrieved gold at rank 2 while dense retrieval missed it using the measured 384-dim hashing configuration (ranks: bm25=2, dense=miss, hybrid_no_dedup=2, hybrid_pipeline=2).",
+    "remedy": "Review the embedding model, corpus representation, and query-document similarity.",
+    "measured_ranks": {
+      "bm25": 2,
+      "dense": null,
+      "hybrid_no_dedup": 2,
+      "hybrid_pipeline": 2
+    }
+  },
+  {
+    "qid": "q031",
+    "category": "retrieval_miss_all_systems",
+    "component": "retriever",
+    "question": "What explains why bamboo node regions are mechanically weaker than internodes?",
+    "question_type": "card_pointer",
+    "document_type": "process_observation",
+    "gold_ids": [
+      "WBC-0003::doc0003::0000",
+      "WBC-0003::doc0003",
+      "process-observation-e60332eefdad8d"
+    ],
+    "gold_quote": "ScienceDirect review with quantified MOE/MOR/tensile data and node-weakness explanation; strong evidence for engineering-based sustainability claims.",
+    "severity": "high",
+    "description": "No gold record was retrieved by any evaluated system (ranks: bm25=miss, dense=miss, hybrid_no_dedup=miss, hybrid_pipeline=miss).",
+    "remedy": "Review corpus coverage, chunking, and the question's gold evidence mapping.",
+    "measured_ranks": {
+      "bm25": null,
+      "dense": null,
+      "hybrid_no_dedup": null,
+      "hybrid_pipeline": null
+    }
   }
 ]
