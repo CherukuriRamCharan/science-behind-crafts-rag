@@ -121,14 +121,18 @@ class HybridRetriever:
         scored.sort(key=lambda row: (-row["retrieval_score"], row["chunk_id"]))
 
         floor = self.cfg.get("minimum_score", 0.0)
-        selected, per_source = [], Counter()
+        selected, per_source, seen_texts = [], Counter(), set()
         for row in scored:
             if row["retrieval_score"] < floor:
+                continue
+            normalized_text = " ".join(str(row.get("text_chunk", "")).split()).casefold()
+            if normalized_text in seen_texts:
                 continue
             source = str(row["source_id"]).casefold()
             if max_per_source is not None and per_source[source] >= max_per_source:
                 continue
             per_source[source] += 1
+            seen_texts.add(normalized_text)
             selected.append(row)
             if len(selected) >= limit:
                 break
