@@ -1,0 +1,39 @@
+{
+  "retriever": "hybrid pipeline",
+  "top_k": 5,
+  "retrieved_but_rejected": {
+    "count": 20,
+    "question_ids": [
+      "q001",
+      "q003",
+      "q004",
+      "q006",
+      "q007",
+      "q008",
+      "q009",
+      "q010",
+      "q011",
+      "q012",
+      "q013",
+      "q014",
+      "q015",
+      "q016",
+      "q018",
+      "q025",
+      "q029",
+      "q030",
+      "q032",
+      "q033"
+    ]
+  },
+  "retrieval_miss": {
+    "count": 5,
+    "question_ids": [
+      "q005",
+      "q023",
+      "q024",
+      "q028",
+      "q031"
+    ]
+  }
+}

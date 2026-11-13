@@ -34,6 +34,10 @@ def generate_all_charts(results_dir: str = "data/eval/results") -> list[str]:
     with summary_file.open("r", encoding="utf-8-sig") as f:
         rows = list(csv.DictReader(f))
 
+    def sample_count(slice_name: str) -> int:
+        match = next((row for row in rows if row["slice"] == slice_name), None)
+        return int(match["n_questions"]) if match else 0
+
     # 1. Recall@k vs k across retrievers (Overall)
     overall_rows = {r["retriever"]: r for r in rows if r["slice"] == "Overall"}
     if overall_rows:
@@ -52,11 +56,14 @@ def generate_all_charts(results_dir: str = "data/eval/results") -> list[str]:
                 y = [float(overall_rows[ret][f"Recall@{k}"]) for k in ks]
                 plt.plot(ks, y, label=style["label"], color=style["color"], marker=style["marker"], linewidth=2, markersize=7)
 
-        plt.title("Recall@k Comparison on Unified Corpus (N=33)", fontsize=12, fontweight="bold", pad=12)
+        plt.title(
+            f"Recall@k Comparison on Unified Corpus (N={sample_count('Overall')})",
+            fontsize=12, fontweight="bold", pad=12,
+        )
         plt.xlabel("k (Distinct Records Retrieved)", fontsize=10)
         plt.ylabel("Recall@k", fontsize=10)
         plt.xticks(ks)
-        plt.ylim(0.5, 1.05)
+        plt.ylim(0, 1.05)
         plt.grid(True, linestyle="--", alpha=0.5)
         plt.legend(frameon=True, facecolor="white", edgecolor="none", fontsize=9)
         plt.tight_layout()
@@ -68,7 +75,12 @@ def generate_all_charts(results_dir: str = "data/eval/results") -> list[str]:
 
     # 2. MRR by Document Type
     doc_slices = ["Overall", "document_type:source_document", "document_type:full_paper_chunk", "document_type:process_observation"]
-    slice_labels = ["Overall\n(N=33)", "Source Doc Card\n(N=18)", "Full Paper Chunk\n(N=10)", "Process Obs\n(N=5)"]
+    slice_labels = [
+        f"Overall\n(N={sample_count('Overall')})",
+        f"Source Doc Card\n(N={sample_count('document_type:source_document')})",
+        f"Full Paper Chunk\n(N={sample_count('document_type:full_paper_chunk')})",
+        f"Process Obs\n(N={sample_count('document_type:process_observation')})",
+    ]
 
     retrievers_to_plot = ["bm25", "dense (hashing baseline)", "hybrid (no dedup)", "hybrid (pipeline with dedup)"]
     colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
@@ -111,7 +123,12 @@ def generate_all_charts(results_dir: str = "data/eval/results") -> list[str]:
         "question_type:multi_hop",
         "question_type:card_pointer",
     ]
-    qtype_labels = ["Factual\n(N=14)", "Process\n(N=8)", "Scientific Expl\n(N=6)", "Multi-hop\n(N=4)", "Card Pointer\n(N=1)"]
+    qtype_names = ["factual", "process", "scientific_explanation", "multi_hop", "card_pointer"]
+    qtype_display = ["Factual", "Process", "Scientific Expl", "Multi-hop", "Card Pointer"]
+    qtype_labels = [
+        f"{display}\n(N={sample_count(f'question_type:{kind}')})"
+        for display, kind in zip(qtype_display, qtype_names)
+    ]
 
     hit5_data = {ret: [] for ret in retrievers_to_plot}
     for s in qtype_slices:
@@ -162,7 +179,7 @@ def generate_all_charts(results_dir: str = "data/eval/results") -> list[str]:
         plt.title("Failure Breakdown by Category", fontsize=12, fontweight="bold", pad=12)
         plt.xlabel("Failure Mode Category", fontsize=10)
         plt.ylabel("Number of Failures Observed", fontsize=10)
-        plt.ylim(0, max(counts) + 3)
+        plt.ylim(0, max(counts, default=0) + 3)
         plt.grid(axis="y", linestyle="--", alpha=0.5)
         plt.tight_layout()
 

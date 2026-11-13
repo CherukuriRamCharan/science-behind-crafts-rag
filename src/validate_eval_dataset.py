@@ -14,6 +14,7 @@ Verifies:
 from __future__ import annotations
 
 import json
+import argparse
 import re
 import sys
 from collections import Counter
@@ -39,6 +40,7 @@ STOPWORDS = frozenset(
     "that this which what how why does do did can could would should it its "
     "as into through during under between across".split()
 )
+MAX_QUESTION_QUOTE_OVERLAP = 0.50
 
 def get_content_tokens(text: str) -> set[str]:
     words = re.findall(r"[a-z0-9]+", text.lower())
@@ -50,6 +52,10 @@ def compute_overlap(question: str, quote: str) -> float:
     if not t_q:
         return 0.0
     return len(t_q & t_g) / len(t_q)
+
+def overlap_is_valid(overlap: float) -> bool:
+    """The documented constraint is strictly below 50 percent."""
+    return overlap < MAX_QUESTION_QUOTE_OVERLAP
 
 def validate(dataset_path: str | Path = "data/eval/eval_questions.jsonl",
              reference_path: str | Path = "data/eval/searchable_chunks_reference.json") -> bool:
@@ -67,11 +73,10 @@ def validate(dataset_path: str | Path = "data/eval/eval_questions.jsonl",
         # Load directly from corpus pipeline
         from craft_rag.pipeline.common import load_config
         from craft_rag.pipeline.prepared_data import load_prepared_corpus
-        from craft_rag.pipeline.index_build import build_indices
+        from craft_rag.pipeline.chunk import chunk_records
         cfg = load_config()
         corpus, _ = load_prepared_corpus(cfg)
-        index_data = build_indices(corpus, cfg)
-        raw_chunks = index_data["chunks"]
+        raw_chunks = chunk_records(corpus, **cfg.get("chunking", {}))
         chunks = []
         for c in raw_chunks:
             meta = c.get("metadata", {})
@@ -124,6 +129,7 @@ def validate(dataset_path: str | Path = "data/eval/eval_questions.jsonl",
     evidence_levels = Counter()
     overlaps = []
     high_overlaps = []
+    card_grounded_qids = set()
 
     for line_no, q in questions:
         qid = q.get("qid")
@@ -186,22 +192,15 @@ def validate(dataset_path: str | Path = "data/eval/eval_questions.jsonl",
                 errors.append(f"{qid}: Answerable question has empty gold_answer")
 
             # Check existence and substring grounding
-            found_chunk = None
-            for gid in gold_ids:
-                if gid in chunks_by_id:
-                    found_chunk = chunks_by_id[gid]
-                    break
-
-            if not found_chunk:
+            matching_chunks = [chunks_by_id[gid] for gid in gold_ids if gid in chunks_by_id]
+            if any(chunk.get("document_type") == "source_document" for chunk in matching_chunks):
+                card_grounded_qids.add(qid)
+            if not matching_chunks:
                 errors.append(f"{qid}: None of gold_record_ids {gold_ids} exist in corpus")
-            else:
-                # Substring check
-                if quote not in found_chunk["text"]:
-                    errors.append(
-                        f"{qid}: gold_evidence_quote is NOT an exact substring of chunk {found_chunk['chunk_id']}!\n"
-                        f"Quote: '{quote[:80]}...'\n"
-                        f"Chunk preview: '{found_chunk['text'][:120]}...'"
-                    )
+            elif not any(quote in str(chunk.get("text", "")) for chunk in matching_chunks):
+                errors.append(
+                    f"{qid}: gold_evidence_quote is not an exact substring of any referenced gold chunk"
+                )
 
             # Check gold_record_groups consistency
             flattened_group_ids = [idx for grp in gold_groups for idx in grp]
@@ -212,7 +211,7 @@ def validate(dataset_path: str | Path = "data/eval/eval_questions.jsonl",
             # Overlap check
             ov = compute_overlap(q_text, quote)
             overlaps.append(ov)
-            if ov > 0.50:
+            if not overlap_is_valid(ov):
                 high_overlaps.append((qid, ov, q_text))
 
     # Report errors if any
@@ -228,6 +227,28 @@ def validate(dataset_path: str | Path = "data/eval/eval_questions.jsonl",
     total_q = len(questions)
     ans_q = total_q - q_types["unanswerable"]
     unans_q = q_types["unanswerable"]
+    if total_q != 45:
+        errors.append(f"Total question count is {total_q}; expected exactly 45")
+    if ans_q != 33:
+        errors.append(f"Answerable question count is {ans_q}; expected exactly 33")
+    if unans_q != 12:
+        errors.append(f"Unanswerable question count is {unans_q}; expected exactly 12")
+    card_docs = len(card_grounded_qids)
+    card_ratio = (card_docs / ans_q) if ans_q else 0.0
+    if card_ratio < 0.50:
+        errors.append(f"Card grounding is {card_ratio:.1%}; expected at least 50% of answerable questions")
+    if high_overlaps:
+        errors.extend(
+            f"{qid}: question-to-quote overlap {ov:.1%} must be below 50%"
+            for qid, ov, _ in high_overlaps
+        )
+    if errors:
+        print("\n" + "=" * 60)
+        print(f"VALIDATION FAILED WITH {len(errors)} ERROR(S):")
+        for err in errors:
+            print(f"  [x] {err}")
+        print("=" * 60)
+        return False
 
     print("\n" + "=" * 60)
     print("DATASET VALIDATION PASSED SUCCESSFULLY (0 errors)")
@@ -239,8 +260,7 @@ def validate(dataset_path: str | Path = "data/eval/eval_questions.jsonl",
     print(f"  Unanswerable Questions:   {unans_q} (Target: 12)")
     print(f"  Sum Check:                {ans_q} + {unans_q} = {ans_q + unans_q} (Match: {ans_q + unans_q == total_q})")
 
-    card_docs = doc_types.get("source_document", 0)
-    card_ratio = (card_docs / ans_q) * 100 if ans_q > 0 else 0
+    card_ratio *= 100
     print(f"\n2. PDF/DOCX CARD GROUNDING (Answerable only):")
     print(f"  Grounded in Cards:        {card_docs} / {ans_q} ({card_ratio:.1f}%) [Requirement: >= 50%]")
 
@@ -265,15 +285,29 @@ def validate(dataset_path: str | Path = "data/eval/eval_questions.jsonl",
     print(f"  Metric Definition:        |tokens(question) & tokens(quote)| / |tokens(question)|")
     print(f"                            (lowercase alphanumeric, stopwords removed, len > 2)")
     print(f"  Average Overlap:          {avg_overlap * 100:.2f}% (N={len(overlaps)} answerable questions)")
-    print(f"  Questions > 50% overlap:  {len(high_overlaps)}")
+    print(f"  Questions at/above 50% overlap: {len(high_overlaps)}")
     if high_overlaps:
-        print(f"\n  [!] WARNING: {len(high_overlaps)} questions exceed 50% token overlap threshold:")
+        print(f"\n  [!] WARNING: {len(high_overlaps)} questions do not meet the below-50% token overlap constraint:")
         for qid, ov, qtext in sorted(high_overlaps, key=lambda x: x[1], reverse=True):
             print(f"      - {qid} ({ov * 100:.1f}%): '{qtext}'")
-        print("      Note: Non-fatal warning. Elevated overlap is a direct consequence of strict single-sentence QA grounding.")
 
     return True
 
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Validate an evaluation dataset against the searchable corpus.")
+    parser.add_argument(
+        "--dataset",
+        default="data/eval/eval_questions_v2.jsonl",
+        help="Evaluation dataset JSONL (default: eval v2).",
+    )
+    parser.add_argument(
+        "--reference",
+        default="data/eval/searchable_chunks_reference.json",
+        help="Searchable corpus reference JSON.",
+    )
+    args = parser.parse_args(argv)
+    return 0 if validate(args.dataset, args.reference) else 1
+
+
 if __name__ == "__main__":
-    success = validate()
-    sys.exit(0 if success else 1)
+    sys.exit(main())

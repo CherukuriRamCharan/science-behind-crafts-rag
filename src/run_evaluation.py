@@ -9,6 +9,7 @@ Unified entry point supporting:
 Usage:
   python src/run_evaluation.py --skip-llm
   python src/run_evaluation.py --skip-llm --retriever hybrid --top_k 5
+  python src/run_evaluation.py --skip-llm --dataset data/eval/eval_questions.jsonl
 """
 from __future__ import annotations
 
@@ -34,15 +35,16 @@ def compute_file_md5(filepath: Path) -> str:
     return hasher.hexdigest()
 
 
-def main():
+def _build_parser() -> argparse.ArgumentParser:
+    """Return the argument parser (exposed for testing)."""
     parser = argparse.ArgumentParser(
         description="Run complete evaluation suite for craft RAG system."
     )
     parser.add_argument(
         "--skip-llm",
-        action="store_true",
-        default=True,
-        help="Run offline evaluation without calling external LLM APIs (default: True).",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Run offline extractive evaluation without calling external LLM APIs.",
     )
     parser.add_argument(
         "--retriever",
@@ -62,7 +64,17 @@ def main():
         default="data/eval/results",
         help="Directory to save evaluation artifacts.",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="data/eval/eval_questions_v2.jsonl",
+        help="Evaluation dataset JSONL (default: eval v2).",
+    )
+    return parser
+
+
+def main():
+    args = _build_parser().parse_args()
 
     results_dir = Path(args.results_dir)
     results_dir.mkdir(parents=True, exist_ok=True)
@@ -76,7 +88,7 @@ def main():
     # 1. Dataset Validation
     print("\n[Step 1/5] Validating evaluation dataset schema and integrity...")
     from src.validate_eval_dataset import validate
-    validation_ok = validate("data/eval/eval_questions.jsonl")
+    validation_ok = validate(args.dataset)
     if not validation_ok:
         print("ERROR: Evaluation dataset validation failed. Aborting.")
         sys.exit(1)
@@ -85,29 +97,61 @@ def main():
     print("\n[Step 2/5] Running retrieval evaluation...")
     from src.evaluate_retrieval import evaluate_retrieval
     retrieval_summaries = evaluate_retrieval(
+        dataset_path=args.dataset,
         output_dir=str(results_dir),
+        retriever=args.retriever,
+        top_k=args.top_k,
     )
 
     # 3. Generation Evaluation
-    print("\n[Step 3/5] Running generation & citation evaluation (--skip-llm)...")
+    generator_backend = "extractive" if args.skip_llm else "transformers"
+    print(f"\n[Step 3/5] Running generation & citation evaluation ({generator_backend})...")
     from src.evaluate_generation import evaluate_all_generation, run_generation_evaluation
     if args.retriever == "all":
-        gen_summaries = evaluate_all_generation(top_k=args.top_k, results_dir=str(results_dir))
+        gen_summaries = evaluate_all_generation(
+            top_k=args.top_k, results_dir=str(results_dir),
+            generator_backend=generator_backend, eval_file=args.dataset,
+        )
     else:
         ret_arg = "dense" if args.retriever == "dense" else args.retriever
-        s, _ = run_generation_evaluation(results_dir=str(results_dir), top_k=args.top_k, retriever_name=ret_arg)
+        s, rows = run_generation_evaluation(
+            eval_file=args.dataset,
+            results_dir=str(results_dir), top_k=args.top_k, retriever_name=ret_arg,
+            generator_backend=generator_backend,
+        )
         gen_summaries = [s]
+        import csv
+        with (results_dir / "generation_per_question.csv").open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(rows)
+        with (results_dir / "generation_summary.csv").open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(s.keys()))
+            writer.writeheader()
+            writer.writerow(s)
 
     # 4. Error Analysis
     print("\n[Step 4/5] Running error analysis & failure classification...")
     from src.analyze_errors import run_error_analysis
-    failures = run_error_analysis()
+    failures = run_error_analysis(
+        results_dir=str(results_dir), dataset_path=args.dataset
+    )
 
     # 5. Chart Generation
     print("\n[Step 5/5] Generating visual performance figures...")
     from src.generate_charts import generate_all_charts
     chart_paths = generate_all_charts(results_dir=str(results_dir))
     print(f"Generated {len(chart_paths)} figures in {results_dir / 'figures'}")
+
+    from craft_rag.pipeline.common import load_config
+    from craft_rag.pipeline.prepared_data import load_prepared_corpus
+    from craft_rag.pipeline.chunk import chunk_records
+    from src.run_manifest import write_run_manifest
+    config = load_config()
+    config["generator"]["backend"] = generator_backend
+    records, _ = load_prepared_corpus(config)
+    chunks = chunk_records(records, **config.get("chunking", {}))
+    write_run_manifest(results_dir, config=config, corpus_chunks=chunks)
 
     print("\n" + "=" * 70)
     print("EVALUATION RUN COMPLETE")

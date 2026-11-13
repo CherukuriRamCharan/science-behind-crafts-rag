@@ -14,7 +14,6 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -35,6 +34,7 @@ from src.eval_metrics import (
     citation_precision,
     citation_recall,
     citation_validity,
+    CITATION_RE,
     detect_evidence_status_leakage,
     is_abstention,
     rouge_l,
@@ -43,9 +43,8 @@ from src.eval_metrics import (
 
 
 def extract_cited_sources(answer: str) -> list[str]:
-    """Extract source identifiers from [Source ID | Level] markers in answer."""
-    matches = re.findall(r"\[([^\]|]+)\s*\|\s*E[1-5]\]", answer or "")
-    return [m.strip() for m in matches if m.strip()]
+    """Extract source IDs from citation markers using the shared CITATION_RE."""
+    return [m.strip() for m in CITATION_RE.findall(answer or "") if m.strip()]
 
 
 def retrieve_dense(query: str, index_data: dict[str, Any], candidate_k: int = 5) -> list[dict[str, Any]]:
@@ -57,18 +56,18 @@ def retrieve_dense(query: str, index_data: dict[str, Any], candidate_k: int = 5)
     faiss_index = index_data.get("faiss")
 
     if faiss_index is not None:
-        scores, ids = faiss_index.search(q_vec.reshape(1, -1), min(candidate_k, len(chunks)))
+        scores, ids = faiss_index.search(q_vec.reshape(1, -1), len(chunks))
         results = []
         for score, idx in zip(scores[0], ids[0]):
             if idx >= 0:
                 item = dict(chunks[int(idx)])
                 item["score"] = float(score)
                 results.append(item)
-        return results
+        return sorted(results, key=lambda item: (-item["score"], item["chunk_id"]))[:candidate_k]
     else:
         vectors = index_data["vectors"]
         sims = vectors @ q_vec
-        pos = np.argsort(-sims, kind="stable")[:candidate_k]
+        pos = sorted(range(len(chunks)), key=lambda p: (-float(sims[p]), chunks[p]["chunk_id"]))[:candidate_k]
         results = []
         for p in pos:
             item = dict(chunks[int(p)])
@@ -86,7 +85,7 @@ def retrieve_bm25(query: str, index_data: dict[str, Any], candidate_k: int = 5) 
 
     if bm25 is not None:
         scores = bm25.get_scores(q_tokens)
-        positions = np.argsort(-scores, kind="stable")[:candidate_k]
+        positions = sorted(range(len(chunks)), key=lambda p: (-float(scores[p]), chunks[p]["chunk_id"]))[:candidate_k]
         results = []
         for p in positions:
             item = dict(chunks[int(p)])
@@ -96,7 +95,7 @@ def retrieve_bm25(query: str, index_data: dict[str, Any], candidate_k: int = 5) 
     else:
         term_set = set(q_tokens)
         overlaps = [sum(t in term_set for t in doc) for doc in index_data["tokenized"]]
-        positions = np.argsort(-np.asarray(overlaps), kind="stable")[:candidate_k]
+        positions = sorted(range(len(chunks)), key=lambda p: (-overlaps[p], chunks[p]["chunk_id"]))[:candidate_k]
         results = []
         for p in positions:
             item = dict(chunks[int(p)])
@@ -106,13 +105,14 @@ def retrieve_bm25(query: str, index_data: dict[str, Any], candidate_k: int = 5) 
 
 
 def run_generation_evaluation(
-    eval_file: str = "data/eval/eval_questions.jsonl",
+    eval_file: str = "data/eval/eval_questions_v2.jsonl",
     results_dir: str = "data/eval/results",
     top_k: int = 5,
     retriever_name: str = "hybrid",
+    generator_backend: str = "extractive",
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     config = load_config()
-    config["generator"]["backend"] = "extractive"
+    config["generator"]["backend"] = generator_backend
     generator = GroundedGenerator(config)
 
     corpus, _ = load_prepared_corpus(config)
@@ -243,7 +243,7 @@ def run_generation_evaluation(
 
     summary = {
         "retriever": retriever_label,
-        "backend": "extractive (--skip-llm)",
+        "backend": generator_backend,
         "total_questions": len(questions),
         "answerable_questions": answerable_count,
         "unanswerable_questions": unanswerable_count,
@@ -267,14 +267,23 @@ def run_generation_evaluation(
         writer.writeheader()
         writer.writerows(per_question_rows)
 
+    from src.run_manifest import write_run_manifest
+    corpus_chunks = index_data.get("all_chunks") or index_data.get("chunks")
+    write_run_manifest(out_dir, config=config, corpus_chunks=corpus_chunks)
+
     return summary, per_question_rows
 
 
-def evaluate_all_generation(top_k: int = 5, results_dir: str = "data/eval/results"):
+def evaluate_all_generation(top_k: int = 5, results_dir: str = "data/eval/results",
+                            generator_backend: str = "extractive",
+                            eval_file: str = "data/eval/eval_questions_v2.jsonl"):
     summaries = []
     all_per_q = []
     for ret in ["bm25", "dense", "hybrid"]:
-        s, rows = run_generation_evaluation(results_dir=results_dir, top_k=top_k, retriever_name=ret)
+        s, rows = run_generation_evaluation(
+            eval_file=eval_file, results_dir=results_dir, top_k=top_k, retriever_name=ret,
+            generator_backend=generator_backend,
+        )
         summaries.append(s)
         all_per_q.extend(rows)
 
@@ -291,6 +300,11 @@ def evaluate_all_generation(top_k: int = 5, results_dir: str = "data/eval/result
         writer.writeheader()
         writer.writerows(all_per_q)
 
+    from src.run_manifest import write_run_manifest
+    config = load_config()
+    config["generator"]["backend"] = generator_backend
+    write_run_manifest(out_dir, config=config)
+
     return summaries
 
 
@@ -298,17 +312,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate generation and citation quality.")
     parser.add_argument("--retriever", choices=["all", "hybrid", "bm25", "dense"], default="all")
     parser.add_argument("--top_k", type=int, default=5)
+    parser.add_argument("--dataset", default="data/eval/eval_questions_v2.jsonl")
     args = parser.parse_args()
 
     if args.retriever == "all":
-        summaries = evaluate_all_generation(top_k=args.top_k)
+        summaries = evaluate_all_generation(top_k=args.top_k, eval_file=args.dataset)
         print("\n" + "=" * 60)
         print("ALL GENERATION EVALUATIONS COMPLETED (--skip-llm mode)")
         print("=" * 60)
         for s in summaries:
             print(f"[{s['retriever']}] CitPrec: {s['mean_citation_precision']} | CitRec: {s['mean_citation_recall']} | AbstAcc: {s['abstention_accuracy']} | FalseAbst: {s['false_abstention_rate']}")
     else:
-        summary, rows = run_generation_evaluation(top_k=args.top_k, retriever_name=args.retriever)
+        summary, rows = run_generation_evaluation(
+            eval_file=args.dataset, top_k=args.top_k, retriever_name=args.retriever
+        )
         print("\n" + "=" * 60)
         print(f"GENERATION EVALUATION COMPLETED (--skip-llm mode, retriever={args.retriever})")
         print("=" * 60)

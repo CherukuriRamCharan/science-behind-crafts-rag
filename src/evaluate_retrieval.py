@@ -19,6 +19,7 @@ aliases of the same record count once (keep first occurrence) and k means k dist
 from __future__ import annotations
 
 import csv
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -47,7 +48,7 @@ from src.eval_metrics import (
 K_VALUES = (1, 3, 5, 10)
 
 
-def load_eval_dataset(eval_path: str = "data/eval/eval_questions.jsonl") -> list[dict[str, Any]]:
+def load_eval_dataset(eval_path: str = "data/eval/eval_questions_v2.jsonl") -> list[dict[str, Any]]:
     questions = []
     with open(eval_path, "r", encoding="utf-8") as f:
         for line in f:
@@ -75,18 +76,18 @@ def retrieve_dense(query: str, index_data: dict[str, Any], candidate_k: int = 40
     faiss_index = index_data.get("faiss")
 
     if faiss_index is not None:
-        scores, ids = faiss_index.search(q_vec.reshape(1, -1), min(candidate_k, len(chunks)))
+        scores, ids = faiss_index.search(q_vec.reshape(1, -1), len(chunks))
         results = []
         for score, idx in zip(scores[0], ids[0]):
             if idx >= 0:
                 item = dict(chunks[int(idx)])
                 item["score"] = float(score)
                 results.append(item)
-        return results
+        return sorted(results, key=lambda item: (-item["score"], item["chunk_id"]))[:candidate_k]
     else:
         vectors = index_data["vectors"]
         sims = vectors @ q_vec
-        pos = np.argsort(-sims, kind="stable")[:candidate_k]
+        pos = sorted(range(len(chunks)), key=lambda p: (-float(sims[p]), chunks[p]["chunk_id"]))[:candidate_k]
         results = []
         for p in pos:
             item = dict(chunks[int(p)])
@@ -104,7 +105,7 @@ def retrieve_bm25(query: str, index_data: dict[str, Any], candidate_k: int = 40)
 
     if bm25 is not None:
         scores = bm25.get_scores(q_tokens)
-        positions = np.argsort(-scores, kind="stable")[:candidate_k]
+        positions = sorted(range(len(chunks)), key=lambda p: (-float(scores[p]), chunks[p]["chunk_id"]))[:candidate_k]
         results = []
         for p in positions:
             item = dict(chunks[int(p)])
@@ -114,7 +115,7 @@ def retrieve_bm25(query: str, index_data: dict[str, Any], candidate_k: int = 40)
     else:
         term_set = set(q_tokens)
         overlaps = [sum(t in term_set for t in doc) for doc in index_data["tokenized"]]
-        positions = np.argsort(-np.asarray(overlaps), kind="stable")[:candidate_k]
+        positions = sorted(range(len(chunks)), key=lambda p: (-overlaps[p], chunks[p]["chunk_id"]))[:candidate_k]
         return [dict(chunks[int(p)]) for p in positions]
 
 
@@ -137,14 +138,20 @@ def retrieve_hybrid_no_dedup(
         cid = item["chunk_id"]
         chunk_map[cid] = item
         rrf_scores[cid] = rrf_scores.get(cid, 0.0) + (1.0 / (rrf_k + rank))
-    sorted_cids = sorted(rrf_scores.keys(), key=lambda c: rrf_scores[c], reverse=True)
+    sorted_cids = sorted(rrf_scores.keys(), key=lambda c: (-rrf_scores[c], c))
     return [dict(chunk_map[cid], score=rrf_scores[cid]) for cid in sorted_cids[:candidate_k]]
 
 
 def evaluate_retrieval(
-    dataset_path: str = "data/eval/eval_questions.jsonl",
+    dataset_path: str = "data/eval/eval_questions_v2.jsonl",
     output_dir: str = "data/eval/results",
+    retriever: str = "all",
+    top_k: int = 40,
 ) -> dict[str, Any]:
+    if retriever not in {"all", "hybrid", "bm25", "dense"}:
+        raise ValueError(f"Unknown retriever: {retriever}")
+    if top_k < 1:
+        raise ValueError("top_k must be at least 1")
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -152,11 +159,15 @@ def evaluate_retrieval(
     cfg = load_config()
     index_data, app_hybrid = setup_retrievers(cfg)
 
+    available_retrievers = {
+        "bm25": ("bm25", lambda q: retrieve_bm25(q, index_data, candidate_k=top_k)),
+        "dense (hashing baseline)": ("dense", lambda q: retrieve_dense(q, index_data, candidate_k=top_k)),
+        "hybrid (no dedup)": ("hybrid", lambda q: retrieve_hybrid_no_dedup(q, index_data, candidate_k=top_k)),
+        "hybrid (pipeline with dedup)": ("hybrid", lambda q: retrieve_hybrid(q, app_hybrid, candidate_k=top_k)),
+    }
     retrievers = {
-        "bm25": lambda q: retrieve_bm25(q, index_data, candidate_k=40),
-        "dense (hashing baseline)": lambda q: retrieve_dense(q, index_data, candidate_k=40),
-        "hybrid (no dedup)": lambda q: retrieve_hybrid_no_dedup(q, index_data, candidate_k=40),
-        "hybrid (pipeline with dedup)": lambda q: retrieve_hybrid(q, app_hybrid, candidate_k=40),
+        name: fn for name, (kind, fn) in available_retrievers.items()
+        if retriever == "all" or kind == retriever
     }
 
     per_question_rows = []
@@ -189,6 +200,10 @@ def evaluate_retrieval(
                 m_prec = {k: precision_at_k(collapsed, k) for k in K_VALUES}
                 m_ndcg = {k: ndcg_at_k(collapsed, k, n_relevant=n_rel) for k in K_VALUES}
                 q_mrr = mrr(collapsed)
+                gold_rank = next(
+                    (rank for rank, (_, group_index) in enumerate(collapsed, 1) if group_index is not None),
+                    None,
+                )
 
                 # Check for zero hits at k=10
                 if m_hit[10] == 0.0:
@@ -206,6 +221,7 @@ def evaluate_retrieval(
                     "retriever": mode_name,
                     "question_type": q_type,
                     "document_type": doc_type,
+                    "gold_rank": gold_rank,
                     "MRR": round(q_mrr, 4),
                     "HitRate@1": round(m_hit[1], 4),
                     "HitRate@3": round(m_hit[3], 4),
@@ -297,17 +313,39 @@ def evaluate_retrieval(
             writer.writeheader()
             writer.writerows(summary_rows)
 
+    from src.eval_statistics import bootstrap_and_paired_tests
+    ci_rows, paired_rows = bootstrap_and_paired_tests(per_question_rows)
+    for filename, rows in (("retrieval_bootstrap_ci.csv", ci_rows), ("retrieval_paired_tests.csv", paired_rows)):
+        if rows:
+            with (out_dir / filename).open("w", encoding="utf-8-sig", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+                writer.writeheader()
+                writer.writerows(rows)
+
+    from src.run_manifest import write_run_manifest
+    corpus_chunks = index_data.get("all_chunks") or index_data.get("chunks")
+    write_run_manifest(out_dir, config=cfg, corpus_chunks=corpus_chunks)
+
     print(f"Saved retrieval results to {per_q_path} and {summary_path}")
     return {
         "summary": summary_rows,
         "zero_hits": zero_hits,
         "n_questions": len(questions),
-        "n_answerable": len(questions) - 12,
+        "n_answerable": sum(q.get("question_type") != "unanswerable" for q in questions),
     }
 
 
 if __name__ == "__main__":
-    res = evaluate_retrieval()
+    parser = argparse.ArgumentParser(description="Evaluate retrieval on a benchmark JSONL dataset.")
+    parser.add_argument("--dataset", default="data/eval/eval_questions_v2.jsonl")
+    parser.add_argument("--output_dir", default="data/eval/results")
+    parser.add_argument("--retriever", choices=["all", "hybrid", "bm25", "dense"], default="all")
+    parser.add_argument("--top_k", type=int, default=40)
+    args = parser.parse_args()
+    res = evaluate_retrieval(
+        dataset_path=args.dataset, output_dir=args.output_dir,
+        retriever=args.retriever, top_k=args.top_k,
+    )
     print("\nRETRIEVAL EVALUATION SUMMARY:")
     for r in res["summary"]:
         if r["slice"] == "Overall":

@@ -39,7 +39,8 @@ function renderSources(sources) {
     const title = document.createElement('b');
     title.textContent = source.title || 'Untitled source';
     const cluster = document.createElement('small');
-    cluster.textContent = `${source.source_id || 'UNKNOWN'}${source.craft_cluster ? ` · ${source.craft_cluster}` : ''}`;
+    const chunkLabel = source.chunk_id ? ` · ${source.chunk_id}` : '';
+    cluster.textContent = `${source.source_id || 'UNKNOWN'}${chunkLabel}${source.craft_cluster ? ` · ${source.craft_cluster}` : ''}`;
     const summary = document.createElement('button');
     summary.type = 'button';
     summary.className = 'source-summary';
@@ -52,7 +53,8 @@ function renderSources(sources) {
     name.append(title, cluster);
     const badges = document.createElement('span');
     badges.className = 'badges';
-    badges.innerHTML = `<span class="badge">${escapeHtml(source.evidence_level || 'E5')}</span><span class="badge grade">${escapeHtml(source.grade || 'C')}</span>`;
+    const chunkBadge = source.chunk_id ? `<span class="badge chunk" title="Chunk ID">${escapeHtml(source.chunk_id)}</span>` : '';
+    badges.innerHTML = `<span class="badge" title="Evidence level">${escapeHtml(source.evidence_level || 'E5')}</span><span class="badge grade" title="Grade">${escapeHtml(source.grade || 'C')}</span>${chunkBadge}`;
     const arrow = document.createElement('span');
     arrow.className = 'expand';
     arrow.textContent = '⌄';
@@ -115,8 +117,63 @@ async function ask(question) {
     const body = await response.json();
     if (!response.ok) throw new Error(body.error || 'Could not answer that question');
     $('#answer-text').textContent = body.answer;
+    const answerMode = body.answer_mode || (body.abstained ? 'abstained' : 'fallback');
+    const modeNode = $('#answer-mode');
+    if (modeNode) {
+      const labels = {extractive: 'EXTRACTIVE ANSWER', generated: 'GENERATED ANSWER', fallback: 'FALLBACK ANSWER', abstained: 'ABSTAINED'};
+      const reason = answerMode === 'fallback' && body.fallback_reason ? ` · ${body.fallback_reason}` : '';
+      modeNode.textContent = `${labels[answerMode] || 'FALLBACK ANSWER'}${reason}`;
+      modeNode.classList.toggle('fallback', answerMode === 'fallback');
+      modeNode.classList.toggle('abstained', answerMode === 'abstained');
+    }
     $('#result-count').textContent = `${body.sources.length} SOURCES`;
     $('#backend-note').textContent = `LOCAL RAG · ${Object.entries(body.backends).map(([key, value]) => `${key}: ${value}`).join(' · ')}`;
+
+    const answerCard = $('.answer-card');
+    const answerLabel = $('.answer-label');
+    if (answerMode === 'abstained' || body.abstained) {
+      if (answerCard) answerCard.classList.add('abstained');
+      if (answerLabel) {
+        answerLabel.classList.add('abstained');
+        answerLabel.innerHTML = '<span>⚠</span> INSUFFICIENT EVIDENCE (ABSTAINED)';
+      }
+    } else if (answerMode === 'fallback') {
+      if (answerCard) answerCard.classList.remove('abstained');
+      if (answerLabel) {
+        answerLabel.classList.remove('abstained');
+        answerLabel.innerHTML = '<span>↩</span> FALLBACK RESPONSE';
+      }
+    } else {
+      if (answerCard) answerCard.classList.remove('abstained');
+      if (answerLabel) {
+        answerLabel.classList.remove('abstained');
+        answerLabel.innerHTML = '<span>✦</span> GROUNDED RESPONSE';
+      }
+    }
+
+    const citBox = $('#citations-container');
+    if (citBox) {
+      citBox.replaceChildren();
+      if (body.citations && body.citations.length > 0) {
+        citBox.classList.remove('hidden');
+        const citTitle = document.createElement('b');
+        citTitle.textContent = `VERIFIED PROVENANCE CITATIONS (${body.citations.length})`;
+        citBox.append(citTitle);
+        body.citations.forEach((cit) => {
+          const item = document.createElement('div');
+          item.className = 'citation-item';
+          const code = document.createElement('code');
+          code.textContent = `[${cit.source_id} | ${cit.chunk_id || 'doc'} | ${cit.evidence_level || 'E5'}]`;
+          const quote = document.createElement('span');
+          quote.textContent = ` "${cit.quote || ''}"`;
+          item.append(code, quote);
+          citBox.append(item);
+        });
+      } else {
+        citBox.classList.add('hidden');
+      }
+    }
+
     renderSources(body.sources);
     answerPanel.classList.remove('hidden');
     setStatus('ready', 'Research corpus online');

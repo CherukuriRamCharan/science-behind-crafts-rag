@@ -1,0 +1,1921 @@
+{
+  "metadata": {
+    "total_queries": 28,
+    "answerable_queries": 22,
+    "abstention_queries": 6,
+    "top_k": 5,
+    "max_per_source": 2,
+    "benchmark_file": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\data\\eval\\craft_ground_truth_eval.json"
+  },
+  "overall_metrics": {
+    "retrieval": {
+      "precision@1": 0.7727,
+      "precision@3": 0.4848,
+      "precision@5": 0.3364,
+      "recall@1": 0.2097,
+      "recall@3": 0.3815,
+      "recall@5": 0.4421,
+      "mrr": 0.8788,
+      "ndcg@1": 0.7727,
+      "ndcg@3": 0.5919,
+      "ndcg@5": 0.5553,
+      "citation_precision": 0.4318,
+      "citation_recall": 0.1903,
+      "citation_source_precision": 0.4318,
+      "citation_source_recall": 0.3864
+    },
+    "abstention_accuracy": 1.0
+  },
+  "category_breakdowns": {
+    "Adhesives, Finishing & Preservation": {
+      "total_queries": 4,
+      "precision@1": 0.25,
+      "precision@3": 0.3333,
+      "precision@5": 0.25,
+      "recall@5": 0.5,
+      "mrr": 0.5833,
+      "ndcg@5": 0.4333,
+      "citation_precision": 0.25,
+      "citation_recall": 0.125
+    },
+    "Bamboo Structural & Splitting Mechanics": {
+      "total_queries": 5,
+      "precision@1": 0.8,
+      "precision@3": 0.4,
+      "precision@5": 0.28,
+      "recall@5": 0.5667,
+      "mrr": 0.9,
+      "ndcg@5": 0.5864,
+      "citation_precision": 0.5,
+      "citation_recall": 0.2167
+    },
+    "Hallucination & Adversarial Probes": {
+      "total_queries": 3,
+      "abstention_accuracy": 1.0
+    },
+    "Insufficient Evidence & Out-of-Domain Probes": {
+      "total_queries": 3,
+      "abstention_accuracy": 1.0
+    },
+    "Multi-Source Craft Process Synthesis": {
+      "total_queries": 3,
+      "precision@1": 1.0,
+      "precision@3": 0.5556,
+      "precision@5": 0.4,
+      "recall@5": 0.3398,
+      "mrr": 1.0,
+      "ndcg@5": 0.6012,
+      "citation_precision": 0.0,
+      "citation_recall": 0.0
+    },
+    "Tool Ergonomics, Posture & Body Mechanics": {
+      "total_queries": 5,
+      "precision@1": 1.0,
+      "precision@3": 0.6,
+      "precision@5": 0.4,
+      "recall@5": 0.2579,
+      "mrr": 1.0,
+      "ndcg@5": 0.5665,
+      "citation_precision": 0.6,
+      "citation_recall": 0.2206
+    },
+    "Wood Carving Mechanics & Species Properties": {
+      "total_queries": 5,
+      "precision@1": 0.8,
+      "precision@3": 0.5333,
+      "precision@5": 0.36,
+      "recall@5": 0.5167,
+      "mrr": 0.9,
+      "ndcg@5": 0.5829,
+      "citation_precision": 0.6,
+      "citation_recall": 0.3
+    }
+  },
+  "query_details": [
+    {
+      "id": "Q01",
+      "category": "Wood Carving Mechanics & Species Properties",
+      "query": "How do cutting forces vary with grain angle during orthogonal wood cutting?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-2001::0000",
+        "WBC-2003::0000",
+        "WBC-0009::doc0001::0000",
+        "WBC-2002::0000",
+        "WBC-2004::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-2001",
+        "WBC-2003",
+        "WBC-0009",
+        "WBC-2002",
+        "WBC-2004"
+      ],
+      "target_chunk_ids": [
+        "WBC-2001::0000",
+        "WBC-2003::0000",
+        "WBC-0009::doc0001::0000",
+        "WBC-0009::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-2001",
+        "WBC-2003",
+        "WBC-0009"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-2001",
+          "chunk_id": "WBC-2001::0000",
+          "evidence_level": "E3",
+          "quote": "Peer-reviewed force model for orthogonal wood cutting; shows cutting/thrust forces vary systematically with grain angle, rake angle and depth of cut."
+        },
+        {
+          "source_id": "WBC-0009",
+          "chunk_id": "WBC-0009::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Effect of Grain Angle on the Strain Distribution During Orthogonal Cutting of Hinoki (Chamaecyparis obtusa) Measured Using a Digital Image Correlation Method."
+        },
+        {
+          "source_id": "WBC-2003",
+          "chunk_id": "WBC-2003::0000",
+          "evidence_level": "E3",
+          "quote": "Peer-reviewed (BioResources) high-speed-imaging study: a 50-70 degree angle between cutting direction and grain gives the best compromise between low force and clean, non-splintering chips."
+        }
+      ],
+      "answer_preview": "Peer-reviewed force model for orthogonal wood cutting; shows cutting/thrust forces vary systematically with grain angle, rake angle and depth of cut. [WBC-2001 | E3] Effect of Grai",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.25,
+        "ndcg@1": 1.0,
+        "precision@3": 1.0,
+        "recall@3": 0.75,
+        "ndcg@3": 1.0,
+        "precision@5": 0.6,
+        "recall@5": 0.75,
+        "ndcg@5": 0.8319
+      },
+      "citation_metrics": {
+        "citation_precision": 1.0,
+        "citation_recall": 0.75,
+        "cited_chunks_count": 3,
+        "target_chunks_count": 4,
+        "citation_source_precision": 1.0,
+        "citation_source_recall": 1.0
+      }
+    },
+    {
+      "id": "Q02",
+      "category": "Wood Carving Mechanics & Species Properties",
+      "query": "How does moisture content control dimensional changes and shrinkage during wood seasoning?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0037::doc0001::0000",
+        "WBC-0018::doc0001::0000",
+        "WBC-0049::doc0001::0000",
+        "WBC-0065::doc0001::0000",
+        "WBC-0038::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0037",
+        "WBC-0018",
+        "WBC-0049",
+        "WBC-0065",
+        "WBC-0038"
+      ],
+      "target_chunk_ids": [
+        "WBC-0018::doc0001::0000",
+        "WBC-0018::doc0003::0000",
+        "WBC-0065::doc0001::0000",
+        "WBC-0065::doc0002::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0018",
+        "WBC-0065"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0037",
+          "chunk_id": "WBC-0037::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Drying and Control of Moisture Content and Dimensional Changes."
+        },
+        {
+          "source_id": "WBC-0049",
+          "chunk_id": "WBC-0049::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Explains that wood continuously exchanges moisture with its environment and that inadequate seasoning leads to post-carving dimensional change and cracking, directly supporting the report's own statement that wood is exposed to sun and rain for 2–3 months to prevent later cracking."
+        },
+        {
+          "source_id": "WBC-0037",
+          "chunk_id": "WBC-0037::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Repository annotation (not source text): Explains that wood continuously exchanges moisture with its environment and that inadequate seasoning before use leads to post-installation dimensional change, directly supporting the report's warning that unseasoned wood will shrink post-installation, causing joints to separate."
+        }
+      ],
+      "answer_preview": "Drying and Control of Moisture Content and Dimensional Changes. [WBC-0037 | E3] Explains that wood continuously exchanges moisture with its environment and that inadequate seasonin",
+      "retrieval_metrics": {
+        "mrr": 0.5,
+        "precision@1": 0.0,
+        "recall@1": 0.0,
+        "ndcg@1": 0.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.25,
+        "ndcg@3": 0.2961,
+        "precision@5": 0.4,
+        "recall@5": 0.5,
+        "ndcg@5": 0.4144
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 2,
+        "target_chunks_count": 4,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q03",
+      "category": "Wood Carving Mechanics & Species Properties",
+      "query": "What is the particle size distribution of wood dust during handheld sanding operations?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0005::doc0001::0000",
+        "WBC-0056::doc0001::0000",
+        "WBC-0031::doc0001::0000",
+        "WBC-0055::doc0001::0000",
+        "WBC-0017::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0005",
+        "WBC-0056",
+        "WBC-0031",
+        "WBC-0055",
+        "WBC-0017"
+      ],
+      "target_chunk_ids": [
+        "WBC-0005::doc0001::0000",
+        "WBC-0005::doc0003::0000",
+        "WBC-0031::doc0001::0000",
+        "WBC-0031::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0005",
+        "WBC-0031"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0005",
+          "chunk_id": "WBC-0005::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Generation Rate and Particle Size Distribution of Wood Dust by Handheld Sanding Operation."
+        }
+      ],
+      "answer_preview": "Generation Rate and Particle Size Distribution of Wood Dust by Handheld Sanding Operation. [WBC-0005 | E3]",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.25,
+        "ndcg@1": 1.0,
+        "precision@3": 0.6667,
+        "recall@3": 0.5,
+        "ndcg@3": 0.7039,
+        "precision@5": 0.4,
+        "recall@5": 0.5,
+        "ndcg@5": 0.5856
+      },
+      "citation_metrics": {
+        "citation_precision": 1.0,
+        "citation_recall": 0.25,
+        "cited_chunks_count": 1,
+        "target_chunks_count": 4,
+        "citation_source_precision": 1.0,
+        "citation_source_recall": 0.5
+      }
+    },
+    {
+      "id": "Q04",
+      "category": "Wood Carving Mechanics & Species Properties",
+      "query": "How does tool steel composition affect tribological wear during timber machining?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0019::doc0001::0000",
+        "WBC-2022::0000",
+        "WBC-0002::doc0001::0000",
+        "WBC-0058::doc0001::0000",
+        "WBC-0030::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0019",
+        "WBC-2022",
+        "WBC-0002",
+        "WBC-0058",
+        "WBC-0030"
+      ],
+      "target_chunk_ids": [
+        "WBC-0019::doc0001::0000",
+        "WBC-0019::doc0003::0000",
+        "WBC-2005::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0019",
+        "WBC-2005"
+      ],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.3333,
+        "ndcg@1": 1.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.3333,
+        "ndcg@3": 0.4693,
+        "precision@5": 0.2,
+        "recall@5": 0.3333,
+        "ndcg@5": 0.4693
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 0,
+        "target_chunks_count": 3,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q05",
+      "category": "Wood Carving Mechanics & Species Properties",
+      "query": "What methods are used for the plastification of solid wood before bending?",
+      "expected_abstention": false,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0028::doc0001::0000",
+        "WBC-0054::doc0001::0000",
+        "WBC-2004::0000",
+        "WBC-2011::0000",
+        "WBC-2001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0028",
+        "WBC-0054",
+        "WBC-2004",
+        "WBC-2011",
+        "WBC-2001"
+      ],
+      "target_chunk_ids": [
+        "WBC-0028::doc0001::0000",
+        "WBC-0028::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0028"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0028",
+          "chunk_id": "WBC-0028::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Comparative Analysis of Methods for Plastification of Solid Wood."
+        }
+      ],
+      "answer_preview": "Comparative Analysis of Methods for Plastification of Solid Wood. [WBC-0028 | E3]",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.5,
+        "ndcg@1": 1.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.5,
+        "ndcg@3": 0.6131,
+        "precision@5": 0.2,
+        "recall@5": 0.5,
+        "ndcg@5": 0.6131
+      },
+      "citation_metrics": {
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "cited_chunks_count": 1,
+        "target_chunks_count": 2,
+        "citation_source_precision": 1.0,
+        "citation_source_recall": 1.0
+      }
+    },
+    {
+      "id": "Q06",
+      "category": "Bamboo Structural & Splitting Mechanics",
+      "query": "How do mechanical physical properties and density vary from base to top along a bamboo culm?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0059::doc0001::0000",
+        "WBC-0060::doc0002::0000",
+        "WBC-0007::doc0003::0000",
+        "WBC-0002::doc0003::0000",
+        "WBC-2009::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0059",
+        "WBC-0060",
+        "WBC-0007",
+        "WBC-0002",
+        "WBC-2009"
+      ],
+      "target_chunk_ids": [
+        "WBC-0059::doc0001::0000",
+        "WBC-0059::doc0002::0000",
+        "WBC-2008::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0059",
+        "WBC-2008"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0059",
+          "chunk_id": "WBC-0059::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Mechanical Properties of Bamboo Through Measurement of Culm Physical Properties for Composite Fabrication of Structural Concrete Reinforcement."
+        }
+      ],
+      "answer_preview": "Mechanical Properties of Bamboo Through Measurement of Culm Physical Properties for Composite Fabrication of Structural Concrete Reinforcement. [WBC-0059 | E3]",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.3333,
+        "ndcg@1": 1.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.3333,
+        "ndcg@3": 0.4693,
+        "precision@5": 0.2,
+        "recall@5": 0.3333,
+        "ndcg@5": 0.4693
+      },
+      "citation_metrics": {
+        "citation_precision": 1.0,
+        "citation_recall": 0.3333,
+        "cited_chunks_count": 1,
+        "target_chunks_count": 3,
+        "citation_source_precision": 1.0,
+        "citation_source_recall": 0.5
+      }
+    },
+    {
+      "id": "Q07",
+      "category": "Bamboo Structural & Splitting Mechanics",
+      "query": "What governs the cleavage and longitudinal splitting mechanics along bamboo culm fibres?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-2015::0000",
+        "WBC-2010::0000",
+        "WBC-2008::0000",
+        "WBC-2009::0000",
+        "WBC-2021::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-2015",
+        "WBC-2010",
+        "WBC-2008",
+        "WBC-2009",
+        "WBC-2021"
+      ],
+      "target_chunk_ids": [
+        "WBC-2009::0000",
+        "WBC-2010::0000"
+      ],
+      "target_source_ids": [
+        "WBC-2009",
+        "WBC-2010"
+      ],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "retrieval_metrics": {
+        "mrr": 0.5,
+        "precision@1": 0.0,
+        "recall@1": 0.0,
+        "ndcg@1": 0.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.5,
+        "ndcg@3": 0.3869,
+        "precision@5": 0.4,
+        "recall@5": 1.0,
+        "ndcg@5": 0.6509
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 0,
+        "target_chunks_count": 2,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q08",
+      "category": "Bamboo Structural & Splitting Mechanics",
+      "query": "How does culm age affect fungal hyphae penetration and decay resistance in bamboo?",
+      "expected_abstention": false,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0060::doc0001::0000",
+        "WBC-0063::doc0001::0000",
+        "WBC-0050::doc0001::0000",
+        "WBC-0033::doc0001::0000",
+        "WBC-0006::doc0003::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0060",
+        "WBC-0063",
+        "WBC-0050",
+        "WBC-0033",
+        "WBC-0006"
+      ],
+      "target_chunk_ids": [
+        "WBC-0060::doc0001::0000",
+        "WBC-0060::doc0002::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0060"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0060",
+          "chunk_id": "WBC-0060::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "The Decay Resistance and Hyphae Penetration of Bamboo Gigantochloa scortechinii Decayed by White and Brown Rot Fungi."
+        },
+        {
+          "source_id": "WBC-0060",
+          "chunk_id": "WBC-0060::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Repository annotation (not source text): Found that decay resistance to fungal rot increases significantly with bamboo age due to higher lignin, silica content and density in older culms, directly supporting the report's requirement that only mature bamboo root (minimum 3 years) be selected to avoid cracking, decay or insect damage."
+        }
+      ],
+      "answer_preview": "The Decay Resistance and Hyphae Penetration of Bamboo Gigantochloa scortechinii Decayed by White and Brown Rot Fungi. [WBC-0060 | E3] Repository annotation (not source text): Found",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.5,
+        "ndcg@1": 1.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.5,
+        "ndcg@3": 0.6131,
+        "precision@5": 0.2,
+        "recall@5": 0.5,
+        "ndcg@5": 0.6131
+      },
+      "citation_metrics": {
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "cited_chunks_count": 1,
+        "target_chunks_count": 2,
+        "citation_source_precision": 1.0,
+        "citation_source_recall": 1.0
+      }
+    },
+    {
+      "id": "Q09",
+      "category": "Bamboo Structural & Splitting Mechanics",
+      "query": "What thermo-mechanical processes are used for the densification of bamboo?",
+      "expected_abstention": false,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0064::doc0001::0000",
+        "WBC-2015::0000",
+        "WBC-0011::doc0001::0000",
+        "WBC-2031::0000",
+        "WBC-0026::doc0003::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0064",
+        "WBC-2015",
+        "WBC-0011",
+        "WBC-2031",
+        "WBC-0026"
+      ],
+      "target_chunk_ids": [
+        "WBC-0064::doc0001::0000",
+        "WBC-0064::doc0002::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0064"
+      ],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.5,
+        "ndcg@1": 1.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.5,
+        "ndcg@3": 0.6131,
+        "precision@5": 0.2,
+        "recall@5": 0.5,
+        "ndcg@5": 0.6131
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 0,
+        "target_chunks_count": 2,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q10",
+      "category": "Bamboo Structural & Splitting Mechanics",
+      "query": "How do dust emission and mass concentration during bamboo sanding compare to wood?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0055::doc0001::0000",
+        "WBC-0031::doc0001::0000",
+        "WBC-0056::doc0001::0000",
+        "WBC-0005::doc0001::0000",
+        "WBC-0036::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0055",
+        "WBC-0031",
+        "WBC-0056",
+        "WBC-0005",
+        "WBC-0036"
+      ],
+      "target_chunk_ids": [
+        "WBC-0056::doc0001::0000",
+        "WBC-0056::doc0002::0000",
+        "WBC-0055::doc0001::0000",
+        "WBC-0055::doc0002::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0056",
+        "WBC-0055"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0031",
+          "chunk_id": "WBC-0031::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Wood Dust Particle and Mass Concentrations and Filtration Efficiency in Sanding of Wood Materials."
+        },
+        {
+          "source_id": "WBC-0055",
+          "chunk_id": "WBC-0055::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "This bamboo-industry-specific study found sanding operations produced the highest dust emission and associated respiratory ailments among workers, directly matching the report's two-stage sandpaper process (150 grit then 320 grit) as a key dust-generating step."
+        }
+      ],
+      "answer_preview": "Wood Dust Particle and Mass Concentrations and Filtration Efficiency in Sanding of Wood Materials. [WBC-0031 | E3] This bamboo-industry-specific study found sanding operations prod",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.25,
+        "ndcg@1": 1.0,
+        "precision@3": 0.6667,
+        "recall@3": 0.5,
+        "ndcg@3": 0.7039,
+        "precision@5": 0.4,
+        "recall@5": 0.5,
+        "ndcg@5": 0.5856
+      },
+      "citation_metrics": {
+        "citation_precision": 0.5,
+        "citation_recall": 0.25,
+        "cited_chunks_count": 2,
+        "target_chunks_count": 4,
+        "citation_source_precision": 0.5,
+        "citation_source_recall": 0.5
+      }
+    },
+    {
+      "id": "Q11",
+      "category": "Tool Ergonomics, Posture & Body Mechanics",
+      "query": "How does hand tool handle diameter and grip span influence maximum hand grip strength?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0051::doc0087::0000",
+        "WBC-0051::doc0088::0000",
+        "WBC-0003::doc0001::0000",
+        "WBC-0044::doc0001::0000",
+        "WBC-0025::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0051",
+        "WBC-0051",
+        "WBC-0003",
+        "WBC-0044",
+        "WBC-0025"
+      ],
+      "target_chunk_ids": [
+        "WBC-0051::doc0001::0000",
+        "WBC-0051::doc0002::0000",
+        "WBC-0051::doc0003::0000",
+        "WBC-0051::doc0004::0000",
+        "WBC-0051::doc0005::0000",
+        "WBC-0051::doc0006::0000",
+        "WBC-0051::doc0007::0000",
+        "WBC-0051::doc0008::0000",
+        "WBC-0051::doc0009::0000",
+        "WBC-0051::doc0010::0000",
+        "WBC-0051::doc0011::0000",
+        "WBC-0051::doc0012::0000",
+        "WBC-0051::doc0013::0000",
+        "WBC-0051::doc0014::0000",
+        "WBC-0051::doc0015::0000",
+        "WBC-0051::doc0016::0000",
+        "WBC-0051::doc0017::0000",
+        "WBC-0051::doc0018::0000",
+        "WBC-0051::doc0019::0000",
+        "WBC-0051::doc0020::0000",
+        "WBC-0051::doc0021::0000",
+        "WBC-0051::doc0022::0000",
+        "WBC-0051::doc0023::0000",
+        "WBC-0051::doc0024::0000",
+        "WBC-0051::doc0025::0000",
+        "WBC-0051::doc0026::0000",
+        "WBC-0051::doc0027::0000",
+        "WBC-0051::doc0028::0000",
+        "WBC-0051::doc0029::0000",
+        "WBC-0051::doc0030::0000",
+        "WBC-0051::doc0031::0000",
+        "WBC-0051::doc0032::0000",
+        "WBC-0051::doc0033::0000",
+        "WBC-0051::doc0034::0000",
+        "WBC-0051::doc0035::0000",
+        "WBC-0051::doc0036::0000",
+        "WBC-0051::doc0037::0000",
+        "WBC-0051::doc0038::0000",
+        "WBC-0051::doc0039::0000",
+        "WBC-0051::doc0040::0000",
+        "WBC-0051::doc0041::0000",
+        "WBC-0051::doc0042::0000",
+        "WBC-0051::doc0043::0000",
+        "WBC-0051::doc0044::0000",
+        "WBC-0051::doc0045::0000",
+        "WBC-0051::doc0046::0000",
+        "WBC-0051::doc0047::0000",
+        "WBC-0051::doc0048::0000",
+        "WBC-0051::doc0049::0000",
+        "WBC-0051::doc0050::0000",
+        "WBC-0051::doc0051::0000",
+        "WBC-0051::doc0052::0000",
+        "WBC-0051::doc0053::0000",
+        "WBC-0051::doc0054::0000",
+        "WBC-0051::doc0055::0000",
+        "WBC-0051::doc0056::0000",
+        "WBC-0051::doc0057::0000",
+        "WBC-0051::doc0058::0000",
+        "WBC-0051::doc0059::0000",
+        "WBC-0051::doc0060::0000",
+        "WBC-0051::doc0061::0000",
+        "WBC-0051::doc0062::0000",
+        "WBC-0051::doc0063::0000",
+        "WBC-0051::doc0064::0000",
+        "WBC-0051::doc0065::0000",
+        "WBC-0051::doc0066::0000",
+        "WBC-0051::doc0067::0000",
+        "WBC-0051::doc0068::0000",
+        "WBC-0051::doc0069::0000",
+        "WBC-0051::doc0070::0000",
+        "WBC-0051::doc0071::0000",
+        "WBC-0051::doc0072::0000",
+        "WBC-0051::doc0073::0000",
+        "WBC-0051::doc0074::0000",
+        "WBC-0051::doc0075::0000",
+        "WBC-0051::doc0076::0000",
+        "WBC-0051::doc0077::0000",
+        "WBC-0051::doc0078::0000",
+        "WBC-0051::doc0079::0000",
+        "WBC-0051::doc0080::0000",
+        "WBC-0051::doc0081::0000",
+        "WBC-0051::doc0082::0000",
+        "WBC-0051::doc0083::0000",
+        "WBC-0051::doc0084::0000",
+        "WBC-0051::doc0085::0000",
+        "WBC-0051::doc0086::0000",
+        "WBC-0051::doc0087::0000",
+        "WBC-0051::doc0088::0000",
+        "WBC-0051::doc0089::0000",
+        "WBC-0051::doc0090::0000",
+        "WBC-0051::doc0091::0000",
+        "WBC-0051::doc0092::0000",
+        "WBC-0051::doc0093::0000",
+        "WBC-0051::doc0094::0000",
+        "WBC-0051::doc0095::0000",
+        "WBC-0051::doc0096::0000",
+        "WBC-0051::doc0097::0000",
+        "WBC-0051::doc0098::0000",
+        "WBC-0051::doc0099::0000",
+        "WBC-2026::0000",
+        "WBC-2027::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0051",
+        "WBC-2026",
+        "WBC-2027"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0051",
+          "chunk_id": "WBC-0051::doc0087::0000",
+          "evidence_level": "E3",
+          "quote": "Hand strength: the influence of grip span and grip type."
+        },
+        {
+          "source_id": "WBC-0003",
+          "chunk_id": "WBC-0003::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "The Influence of Hand Tool Design on Hand Grip Strength: A Review."
+        },
+        {
+          "source_id": "WBC-0044",
+          "chunk_id": "WBC-0044::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Confirms handle diameter, material and surface texture are significant hand-tool design factors affecting grip strength, directly explaining the artisan-made Tagi Batali handle wrap documented in the tool annexure as improving grip during rough shaping."
+        }
+      ],
+      "answer_preview": "Hand strength: the influence of grip span and grip type. [WBC-0051 | E3] The Influence of Hand Tool Design on Hand Grip Strength: A Review. [WBC-0003 | E3] Confirms handle diameter",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.0099,
+        "ndcg@1": 1.0,
+        "precision@3": 0.6667,
+        "recall@3": 0.0198,
+        "ndcg@3": 0.7654,
+        "precision@5": 0.4,
+        "recall@5": 0.0198,
+        "ndcg@5": 0.5531
+      },
+      "citation_metrics": {
+        "citation_precision": 0.3333,
+        "citation_recall": 0.0099,
+        "cited_chunks_count": 3,
+        "target_chunks_count": 101,
+        "citation_source_precision": 0.3333,
+        "citation_source_recall": 0.3333
+      }
+    },
+    {
+      "id": "Q12",
+      "category": "Tool Ergonomics, Posture & Body Mechanics",
+      "query": "What are the risk factors for musculoskeletal disorders among floor-sitting precision handicraft workers?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0015::doc0001::0000",
+        "WBC-0007::doc0001::0000",
+        "WBC-0034::doc0001::0000",
+        "WBC-0026::doc0001::0000",
+        "WBC-0053::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0015",
+        "WBC-0007",
+        "WBC-0034",
+        "WBC-0026",
+        "WBC-0053"
+      ],
+      "target_chunk_ids": [
+        "WBC-0007::doc0001::0000",
+        "WBC-0007::doc0003::0000",
+        "WBC-0015::doc0001::0000",
+        "WBC-0015::doc0003::0000",
+        "WBC-0026::doc0001::0000",
+        "WBC-0026::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0007",
+        "WBC-0015",
+        "WBC-0026"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0015",
+          "chunk_id": "WBC-0015::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Risk Factors Associated with Work-Related Musculoskeletal Disorders Among Floor-Sitting Precision Handicraft Workers."
+        },
+        {
+          "source_id": "WBC-0007",
+          "chunk_id": "WBC-0007::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Confirms high MSD prevalence (neck 61.6%, lower back 74.8%, knee 54.7%) among floor-sitting Indian precision handicraft workers, and identifies sustained awkward posture, prolonged hours, and lack of breaks as key risk factors — directly applicable to the close, seated hand-carving posture documented for Udayagiri artisans."
+        }
+      ],
+      "answer_preview": "Risk Factors Associated with Work-Related Musculoskeletal Disorders Among Floor-Sitting Precision Handicraft Workers. [WBC-0015 | E3] Confirms high MSD prevalence (neck 61.6%, lowe",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.1667,
+        "ndcg@1": 1.0,
+        "precision@3": 0.6667,
+        "recall@3": 0.3333,
+        "ndcg@3": 0.7654,
+        "precision@5": 0.6,
+        "recall@5": 0.5,
+        "ndcg@5": 0.6992
+      },
+      "citation_metrics": {
+        "citation_precision": 1.0,
+        "citation_recall": 0.3333,
+        "cited_chunks_count": 2,
+        "target_chunks_count": 6,
+        "citation_source_precision": 1.0,
+        "citation_source_recall": 0.6667
+      }
+    },
+    {
+      "id": "Q13",
+      "category": "Tool Ergonomics, Posture & Body Mechanics",
+      "query": "Can foam rubber handle interventions reduce hand-arm vibration and tool noise for carvers?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0006::doc0001::0000",
+        "WBC-0051::doc0031::0000",
+        "WBC-0051::doc0030::0000",
+        "WBC-0032::doc0001::0000",
+        "WBC-0023::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0006",
+        "WBC-0051",
+        "WBC-0051",
+        "WBC-0032",
+        "WBC-0023"
+      ],
+      "target_chunk_ids": [
+        "WBC-0006::doc0001::0000",
+        "WBC-0006::doc0003::0000",
+        "WBC-0016::doc0001::0000",
+        "WBC-0016::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0006",
+        "WBC-0016"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0006",
+          "chunk_id": "WBC-0006::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Assessment of Low-Cost Intervention (Foam Rubber) Among Wood Carvers Exposed to Hand-Arm Vibration and Noise."
+        },
+        {
+          "source_id": "WBC-0051",
+          "chunk_id": "WBC-0051::doc0031::0000",
+          "evidence_level": "E3",
+          "quote": "Combination of rubber and polyurethane foam has been proven to be effective material for tool handle to reduce contact pressure [106]."
+        },
+        {
+          "source_id": "WBC-0006",
+          "chunk_id": "WBC-0006::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Repository annotation (not source text): Directly measures HAV and noise exposure (mean Lex,8h of 93.17 dB(A), exceeding safe limits) among Indian wood carvers using hand carving tools, and tests a low-cost foam-rubber handle intervention showing ~20% vibration reduction — closely matching the baria/ulli hand-tool use documented for Udayagiri artisans."
+        }
+      ],
+      "answer_preview": "Assessment of Low-Cost Intervention (Foam Rubber) Among Wood Carvers Exposed to Hand-Arm Vibration and Noise. [WBC-0006 | E3] Combination of rubber and polyurethane foam has been p",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.25,
+        "ndcg@1": 1.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.25,
+        "ndcg@3": 0.4693,
+        "precision@5": 0.2,
+        "recall@5": 0.25,
+        "ndcg@5": 0.3904
+      },
+      "citation_metrics": {
+        "citation_precision": 0.5,
+        "citation_recall": 0.25,
+        "cited_chunks_count": 2,
+        "target_chunks_count": 4,
+        "citation_source_precision": 0.5,
+        "citation_source_recall": 0.5
+      }
+    },
+    {
+      "id": "Q14",
+      "category": "Tool Ergonomics, Posture & Body Mechanics",
+      "query": "How do gender-specific differences in hand dimensions affect hand tool design?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0051::doc0011::0000",
+        "WBC-0051::doc0010::0000",
+        "WBC-0046::doc0003::0000",
+        "WBC-0003::doc0001::0000",
+        "WBC-0048::doc0003::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0051",
+        "WBC-0051",
+        "WBC-0046",
+        "WBC-0003",
+        "WBC-0048"
+      ],
+      "target_chunk_ids": [
+        "WBC-0052::doc0001::0000",
+        "WBC-0052::doc0002::0000",
+        "WBC-0051::doc0001::0000",
+        "WBC-0051::doc0002::0000",
+        "WBC-0051::doc0003::0000",
+        "WBC-0051::doc0004::0000",
+        "WBC-0051::doc0005::0000",
+        "WBC-0051::doc0006::0000",
+        "WBC-0051::doc0007::0000",
+        "WBC-0051::doc0008::0000",
+        "WBC-0051::doc0009::0000",
+        "WBC-0051::doc0010::0000",
+        "WBC-0051::doc0011::0000",
+        "WBC-0051::doc0012::0000",
+        "WBC-0051::doc0013::0000",
+        "WBC-0051::doc0014::0000",
+        "WBC-0051::doc0015::0000",
+        "WBC-0051::doc0016::0000",
+        "WBC-0051::doc0017::0000",
+        "WBC-0051::doc0018::0000",
+        "WBC-0051::doc0019::0000",
+        "WBC-0051::doc0020::0000",
+        "WBC-0051::doc0021::0000",
+        "WBC-0051::doc0022::0000",
+        "WBC-0051::doc0023::0000",
+        "WBC-0051::doc0024::0000",
+        "WBC-0051::doc0025::0000",
+        "WBC-0051::doc0026::0000",
+        "WBC-0051::doc0027::0000",
+        "WBC-0051::doc0028::0000",
+        "WBC-0051::doc0029::0000",
+        "WBC-0051::doc0030::0000",
+        "WBC-0051::doc0031::0000",
+        "WBC-0051::doc0032::0000",
+        "WBC-0051::doc0033::0000",
+        "WBC-0051::doc0034::0000",
+        "WBC-0051::doc0035::0000",
+        "WBC-0051::doc0036::0000",
+        "WBC-0051::doc0037::0000",
+        "WBC-0051::doc0038::0000",
+        "WBC-0051::doc0039::0000",
+        "WBC-0051::doc0040::0000",
+        "WBC-0051::doc0041::0000",
+        "WBC-0051::doc0042::0000",
+        "WBC-0051::doc0043::0000",
+        "WBC-0051::doc0044::0000",
+        "WBC-0051::doc0045::0000",
+        "WBC-0051::doc0046::0000",
+        "WBC-0051::doc0047::0000",
+        "WBC-0051::doc0048::0000",
+        "WBC-0051::doc0049::0000",
+        "WBC-0051::doc0050::0000",
+        "WBC-0051::doc0051::0000",
+        "WBC-0051::doc0052::0000",
+        "WBC-0051::doc0053::0000",
+        "WBC-0051::doc0054::0000",
+        "WBC-0051::doc0055::0000",
+        "WBC-0051::doc0056::0000",
+        "WBC-0051::doc0057::0000",
+        "WBC-0051::doc0058::0000",
+        "WBC-0051::doc0059::0000",
+        "WBC-0051::doc0060::0000",
+        "WBC-0051::doc0061::0000",
+        "WBC-0051::doc0062::0000",
+        "WBC-0051::doc0063::0000",
+        "WBC-0051::doc0064::0000",
+        "WBC-0051::doc0065::0000",
+        "WBC-0051::doc0066::0000",
+        "WBC-0051::doc0067::0000",
+        "WBC-0051::doc0068::0000",
+        "WBC-0051::doc0069::0000",
+        "WBC-0051::doc0070::0000",
+        "WBC-0051::doc0071::0000",
+        "WBC-0051::doc0072::0000",
+        "WBC-0051::doc0073::0000",
+        "WBC-0051::doc0074::0000",
+        "WBC-0051::doc0075::0000",
+        "WBC-0051::doc0076::0000",
+        "WBC-0051::doc0077::0000",
+        "WBC-0051::doc0078::0000",
+        "WBC-0051::doc0079::0000",
+        "WBC-0051::doc0080::0000",
+        "WBC-0051::doc0081::0000",
+        "WBC-0051::doc0082::0000",
+        "WBC-0051::doc0083::0000",
+        "WBC-0051::doc0084::0000",
+        "WBC-0051::doc0085::0000",
+        "WBC-0051::doc0086::0000",
+        "WBC-0051::doc0087::0000",
+        "WBC-0051::doc0088::0000",
+        "WBC-0051::doc0089::0000",
+        "WBC-0051::doc0090::0000",
+        "WBC-0051::doc0091::0000",
+        "WBC-0051::doc0092::0000",
+        "WBC-0051::doc0093::0000",
+        "WBC-0051::doc0094::0000",
+        "WBC-0051::doc0095::0000",
+        "WBC-0051::doc0096::0000",
+        "WBC-0051::doc0097::0000",
+        "WBC-0051::doc0098::0000",
+        "WBC-0051::doc0099::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0052",
+        "WBC-0051"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0051",
+          "chunk_id": "WBC-0051::doc0011::0000",
+          "evidence_level": "E3",
+          "quote": "design of hand tools [41], [42]."
+        },
+        {
+          "source_id": "WBC-0003",
+          "chunk_id": "WBC-0003::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "The Influence of Hand Tool Design on Hand Grip Strength: A Review."
+        }
+      ],
+      "answer_preview": "design of hand tools [41], [42]. [WBC-0051 | E3] The Influence of Hand Tool Design on Hand Grip Strength: A Review. [WBC-0003 | E3]",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.0099,
+        "ndcg@1": 1.0,
+        "precision@3": 0.6667,
+        "recall@3": 0.0198,
+        "ndcg@3": 0.7654,
+        "precision@5": 0.4,
+        "recall@5": 0.0198,
+        "ndcg@5": 0.5531
+      },
+      "citation_metrics": {
+        "citation_precision": 0.5,
+        "citation_recall": 0.0099,
+        "cited_chunks_count": 2,
+        "target_chunks_count": 101,
+        "citation_source_precision": 0.5,
+        "citation_source_recall": 0.5
+      }
+    },
+    {
+      "id": "Q15",
+      "category": "Tool Ergonomics, Posture & Body Mechanics",
+      "query": "How does kinematic variability in repetitive manual carving tasks relate to neuromuscular fatigue?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0062::doc0001::0000",
+        "WBC-0022::doc0001::0000",
+        "WBC-0041::doc0001::0000",
+        "WBC-2016::doc0009::0000",
+        "WBC-2016::doc0064::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0062",
+        "WBC-0022",
+        "WBC-0041",
+        "WBC-2016",
+        "WBC-2016"
+      ],
+      "target_chunk_ids": [
+        "WBC-0022::doc0001::0000",
+        "WBC-0022::doc0003::0000",
+        "WBC-0062::doc0001::0000",
+        "WBC-0062::doc0002::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0022",
+        "WBC-0062"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0062",
+          "chunk_id": "WBC-0062::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Exploring the Role of Task on Kinematic Variability and Assessing Consistency in Individual Responses Across Repetitive Manual Tasks."
+        },
+        {
+          "source_id": "WBC-0022",
+          "chunk_id": "WBC-0022::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Confirms motor variability is an inherent, measurable feature of human repetitive manual precision tasks, providing a scientific basis for the report's observation of symmetry inconsistency across repeated hand-carved designs."
+        },
+        {
+          "source_id": "WBC-0041",
+          "chunk_id": "WBC-0041::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Confirms motor variability is an inherent, measurable feature of human repetitive manual precision tasks, providing a scientific basis for the report's own observation that manual skill-dependent cutting leads to variation in design, shapes and rejection, and supporting the case for CNC-assisted micro-cutting."
+        }
+      ],
+      "answer_preview": "Exploring the Role of Task on Kinematic Variability and Assessing Consistency in Individual Responses Across Repetitive Manual Tasks. [WBC-0062 | E3] Confirms motor variability is ",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.25,
+        "ndcg@1": 1.0,
+        "precision@3": 0.6667,
+        "recall@3": 0.5,
+        "ndcg@3": 0.7654,
+        "precision@5": 0.4,
+        "recall@5": 0.5,
+        "ndcg@5": 0.6367
+      },
+      "citation_metrics": {
+        "citation_precision": 0.6667,
+        "citation_recall": 0.5,
+        "cited_chunks_count": 3,
+        "target_chunks_count": 4,
+        "citation_source_precision": 0.6667,
+        "citation_source_recall": 1.0
+      }
+    },
+    {
+      "id": "Q16",
+      "category": "Adhesives, Finishing & Preservation",
+      "query": "What indirect food additive regulations apply to adhesives used in wooden cutlery?",
+      "expected_abstention": false,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0068::0000",
+        "WBC-0011::doc0001::0000",
+        "WBC-0037::doc0003::0000",
+        "WBC-0039::doc0003::0000",
+        "WBC-0038::doc0003::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0068",
+        "WBC-0011",
+        "WBC-0037",
+        "WBC-0039",
+        "WBC-0038"
+      ],
+      "target_chunk_ids": [
+        "WBC-0011::doc0001::0000",
+        "WBC-0011::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0011"
+      ],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "retrieval_metrics": {
+        "mrr": 0.5,
+        "precision@1": 0.0,
+        "recall@1": 0.0,
+        "ndcg@1": 0.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.5,
+        "ndcg@3": 0.3869,
+        "precision@5": 0.2,
+        "recall@5": 0.5,
+        "ndcg@5": 0.3869
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 0,
+        "target_chunks_count": 2,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q17",
+      "category": "Adhesives, Finishing & Preservation",
+      "query": "How effective are shellac-based varnishes in protecting wooden artefacts from termites and fungi?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0068::0000",
+        "WBC-0050::doc0001::0000",
+        "WBC-0063::doc0001::0000",
+        "WBC-0024::doc0001::0000",
+        "WBC-0033::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0068",
+        "WBC-0050",
+        "WBC-0063",
+        "WBC-0024",
+        "WBC-0033"
+      ],
+      "target_chunk_ids": [
+        "WBC-0063::doc0001::0000",
+        "WBC-0063::doc0002::0000",
+        "WBC-0033::doc0001::0000",
+        "WBC-0033::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0063",
+        "WBC-0033"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0050",
+          "chunk_id": "WBC-0050::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "An Indian Institute of Wood Science study found shellac-based varnishes gave up to 100% termite resistance for 6 months and improved resistance to borers and fungal decay, directly supporting the report's own statement that Mansion Polish protects the wood from termites and insects and improves longevity."
+        }
+      ],
+      "answer_preview": "An Indian Institute of Wood Science study found shellac-based varnishes gave up to 100% termite resistance for 6 months and improved resistance to borers and fungal decay, directly",
+      "retrieval_metrics": {
+        "mrr": 0.3333333333333333,
+        "precision@1": 0.0,
+        "recall@1": 0.0,
+        "ndcg@1": 0.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.25,
+        "ndcg@3": 0.2346,
+        "precision@5": 0.4,
+        "recall@5": 0.5,
+        "ndcg@5": 0.3462
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 1,
+        "target_chunks_count": 4,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q18",
+      "category": "Adhesives, Finishing & Preservation",
+      "query": "What is the oxidative stability of virgin coconut oil applied as a natural wood finish?",
+      "expected_abstention": false,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0014::doc0001::0000",
+        "WBC-0059::doc0002::0000",
+        "WBC-0058::doc0002::0000",
+        "WBC-0063::doc0001::0000",
+        "WBC-0052::doc0002::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0014",
+        "WBC-0059",
+        "WBC-0058",
+        "WBC-0063",
+        "WBC-0052"
+      ],
+      "target_chunk_ids": [
+        "WBC-0014::doc0001::0000",
+        "WBC-0014::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0014"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0014",
+          "chunk_id": "WBC-0014::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "A Study on Monitoring of Frying Performance and Oxidative Stability of Virgin Coconut Oil (VCO) During Continuous/Prolonged Deep Fat Frying Process Using Chemical and FTIR Spectroscopy."
+        },
+        {
+          "source_id": "WBC-0014",
+          "chunk_id": "WBC-0014::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Repository annotation (not source text): Directly measures that virgin coconut oil's free fatty acid content and peroxide value increase significantly with prolonged heat/time exposure, evidencing progressive oxidative degradation — supporting the report's caution that coconut oil's performance as a wood finish on food-contact Udayagiri products (repeated washing, storage, use) requires separate testing rather than assumption from its edibility."
+        }
+      ],
+      "answer_preview": "A Study on Monitoring of Frying Performance and Oxidative Stability of Virgin Coconut Oil (VCO) During Continuous/Prolonged Deep Fat Frying Process Using Chemical and FTIR Spectros",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.5,
+        "ndcg@1": 1.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.5,
+        "ndcg@3": 0.6131,
+        "precision@5": 0.2,
+        "recall@5": 0.5,
+        "ndcg@5": 0.6131
+      },
+      "citation_metrics": {
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "cited_chunks_count": 1,
+        "target_chunks_count": 2,
+        "citation_source_precision": 1.0,
+        "citation_source_recall": 1.0
+      }
+    },
+    {
+      "id": "Q19",
+      "category": "Adhesives, Finishing & Preservation",
+      "query": "How can the bonding strength of polyvinyl acetate (PVAc) emulsion on wood be improved?",
+      "expected_abstention": false,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0048::doc0001::0000",
+        "WBC-0061::doc0001::0000",
+        "WBC-0051::doc0052::0000",
+        "WBC-0033::doc0001::0000",
+        "WBC-0051::doc0005::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0048",
+        "WBC-0061",
+        "WBC-0051",
+        "WBC-0033",
+        "WBC-0051"
+      ],
+      "target_chunk_ids": [
+        "WBC-0061::doc0001::0000",
+        "WBC-0061::doc0002::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0061"
+      ],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "retrieval_metrics": {
+        "mrr": 0.5,
+        "precision@1": 0.0,
+        "recall@1": 0.0,
+        "ndcg@1": 0.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.5,
+        "ndcg@3": 0.3869,
+        "precision@5": 0.2,
+        "recall@5": 0.5,
+        "ndcg@5": 0.3869
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 0,
+        "target_chunks_count": 2,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q20",
+      "category": "Multi-Source Craft Process Synthesis",
+      "query": "How do orthogonal cutting force mechanics and chisel sharpening angles determine tool selection between rough and fine carving?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-2001::0000",
+        "WBC-2017::0000",
+        "WBC-0043::doc0001::0000",
+        "WBC-0047::doc0001::0000",
+        "WBC-0030::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-2001",
+        "WBC-2017",
+        "WBC-0043",
+        "WBC-0047",
+        "WBC-0030"
+      ],
+      "target_chunk_ids": [
+        "WBC-2001::0000",
+        "WBC-2017::0000",
+        "WBC-2018::0000"
+      ],
+      "target_source_ids": [
+        "WBC-2001",
+        "WBC-2017",
+        "WBC-2018"
+      ],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.3333,
+        "ndcg@1": 1.0,
+        "precision@3": 0.6667,
+        "recall@3": 0.6667,
+        "ndcg@3": 0.7654,
+        "precision@5": 0.4,
+        "recall@5": 0.6667,
+        "ndcg@5": 0.7654
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 0,
+        "target_chunks_count": 3,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q21",
+      "category": "Multi-Source Craft Process Synthesis",
+      "query": "What combined effects of floor-sitting posture, tool handle grip diameter, and tool vibration lead to artisan fatigue?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0051::doc0009::0000",
+        "WBC-0051::doc0014::0000",
+        "WBC-0025::doc0001::0000",
+        "WBC-0003::doc0001::0000",
+        "WBC-0045::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0051",
+        "WBC-0051",
+        "WBC-0025",
+        "WBC-0003",
+        "WBC-0045"
+      ],
+      "target_chunk_ids": [
+        "WBC-0051::doc0001::0000",
+        "WBC-0051::doc0002::0000",
+        "WBC-0051::doc0003::0000",
+        "WBC-0051::doc0004::0000",
+        "WBC-0051::doc0005::0000",
+        "WBC-0051::doc0006::0000",
+        "WBC-0051::doc0007::0000",
+        "WBC-0051::doc0008::0000",
+        "WBC-0051::doc0009::0000",
+        "WBC-0051::doc0010::0000",
+        "WBC-0051::doc0011::0000",
+        "WBC-0051::doc0012::0000",
+        "WBC-0051::doc0013::0000",
+        "WBC-0051::doc0014::0000",
+        "WBC-0051::doc0015::0000",
+        "WBC-0051::doc0016::0000",
+        "WBC-0051::doc0017::0000",
+        "WBC-0051::doc0018::0000",
+        "WBC-0051::doc0019::0000",
+        "WBC-0051::doc0020::0000",
+        "WBC-0051::doc0021::0000",
+        "WBC-0051::doc0022::0000",
+        "WBC-0051::doc0023::0000",
+        "WBC-0051::doc0024::0000",
+        "WBC-0051::doc0025::0000",
+        "WBC-0051::doc0026::0000",
+        "WBC-0051::doc0027::0000",
+        "WBC-0051::doc0028::0000",
+        "WBC-0051::doc0029::0000",
+        "WBC-0051::doc0030::0000",
+        "WBC-0051::doc0031::0000",
+        "WBC-0051::doc0032::0000",
+        "WBC-0051::doc0033::0000",
+        "WBC-0051::doc0034::0000",
+        "WBC-0051::doc0035::0000",
+        "WBC-0051::doc0036::0000",
+        "WBC-0051::doc0037::0000",
+        "WBC-0051::doc0038::0000",
+        "WBC-0051::doc0039::0000",
+        "WBC-0051::doc0040::0000",
+        "WBC-0051::doc0041::0000",
+        "WBC-0051::doc0042::0000",
+        "WBC-0051::doc0043::0000",
+        "WBC-0051::doc0044::0000",
+        "WBC-0051::doc0045::0000",
+        "WBC-0051::doc0046::0000",
+        "WBC-0051::doc0047::0000",
+        "WBC-0051::doc0048::0000",
+        "WBC-0051::doc0049::0000",
+        "WBC-0051::doc0050::0000",
+        "WBC-0051::doc0051::0000",
+        "WBC-0051::doc0052::0000",
+        "WBC-0051::doc0053::0000",
+        "WBC-0051::doc0054::0000",
+        "WBC-0051::doc0055::0000",
+        "WBC-0051::doc0056::0000",
+        "WBC-0051::doc0057::0000",
+        "WBC-0051::doc0058::0000",
+        "WBC-0051::doc0059::0000",
+        "WBC-0051::doc0060::0000",
+        "WBC-0051::doc0061::0000",
+        "WBC-0051::doc0062::0000",
+        "WBC-0051::doc0063::0000",
+        "WBC-0051::doc0064::0000",
+        "WBC-0051::doc0065::0000",
+        "WBC-0051::doc0066::0000",
+        "WBC-0051::doc0067::0000",
+        "WBC-0051::doc0068::0000",
+        "WBC-0051::doc0069::0000",
+        "WBC-0051::doc0070::0000",
+        "WBC-0051::doc0071::0000",
+        "WBC-0051::doc0072::0000",
+        "WBC-0051::doc0073::0000",
+        "WBC-0051::doc0074::0000",
+        "WBC-0051::doc0075::0000",
+        "WBC-0051::doc0076::0000",
+        "WBC-0051::doc0077::0000",
+        "WBC-0051::doc0078::0000",
+        "WBC-0051::doc0079::0000",
+        "WBC-0051::doc0080::0000",
+        "WBC-0051::doc0081::0000",
+        "WBC-0051::doc0082::0000",
+        "WBC-0051::doc0083::0000",
+        "WBC-0051::doc0084::0000",
+        "WBC-0051::doc0085::0000",
+        "WBC-0051::doc0086::0000",
+        "WBC-0051::doc0087::0000",
+        "WBC-0051::doc0088::0000",
+        "WBC-0051::doc0089::0000",
+        "WBC-0051::doc0090::0000",
+        "WBC-0051::doc0091::0000",
+        "WBC-0051::doc0092::0000",
+        "WBC-0051::doc0093::0000",
+        "WBC-0051::doc0094::0000",
+        "WBC-0051::doc0095::0000",
+        "WBC-0051::doc0096::0000",
+        "WBC-0051::doc0097::0000",
+        "WBC-0051::doc0098::0000",
+        "WBC-0051::doc0099::0000",
+        "WBC-0006::doc0001::0000",
+        "WBC-0006::doc0003::0000",
+        "WBC-0007::doc0001::0000",
+        "WBC-0007::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0051",
+        "WBC-0006",
+        "WBC-0007"
+      ],
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0025",
+          "chunk_id": "WBC-0025::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Confirms handle diameter is among the most significant hand-tool design factors affecting grip strength and fatigue, directly supporting the report's own recommendation to increase handle diameter on small finishing tools to shift artisans from a fatiguing pinch grip to a stable power grip."
+        }
+      ],
+      "answer_preview": "Confirms handle diameter is among the most significant hand-tool design factors affecting grip strength and fatigue, directly supporting the report's own recommendation to increase",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.0097,
+        "ndcg@1": 1.0,
+        "precision@3": 0.6667,
+        "recall@3": 0.0194,
+        "ndcg@3": 0.7654,
+        "precision@5": 0.4,
+        "recall@5": 0.0194,
+        "ndcg@5": 0.5531
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 1,
+        "target_chunks_count": 103,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q22",
+      "category": "Multi-Source Craft Process Synthesis",
+      "query": "Why is moisture content control and wood seasoning required before applying PVAc adhesives and food-safe indirect coatings?",
+      "expected_abstention": false,
+      "multi_source": true,
+      "retrieved_chunk_ids": [
+        "WBC-0011::doc0001::0000",
+        "WBC-0037::doc0001::0000",
+        "WBC-0049::doc0001::0000",
+        "WBC-0018::doc0001::0000",
+        "WBC-0065::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0011",
+        "WBC-0037",
+        "WBC-0049",
+        "WBC-0018",
+        "WBC-0065"
+      ],
+      "target_chunk_ids": [
+        "WBC-0018::doc0001::0000",
+        "WBC-0018::doc0003::0000",
+        "WBC-0061::doc0001::0000",
+        "WBC-0061::doc0002::0000",
+        "WBC-0011::doc0001::0000",
+        "WBC-0011::doc0003::0000"
+      ],
+      "target_source_ids": [
+        "WBC-0018",
+        "WBC-0061",
+        "WBC-0011"
+      ],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "retrieval_metrics": {
+        "mrr": 1.0,
+        "precision@1": 1.0,
+        "recall@1": 0.1667,
+        "ndcg@1": 1.0,
+        "precision@3": 0.3333,
+        "recall@3": 0.1667,
+        "ndcg@3": 0.4693,
+        "precision@5": 0.4,
+        "recall@5": 0.3333,
+        "ndcg@5": 0.4852
+      },
+      "citation_metrics": {
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "cited_chunks_count": 0,
+        "target_chunks_count": 6,
+        "citation_source_precision": 0.0,
+        "citation_source_recall": 0.0
+      }
+    },
+    {
+      "id": "Q23",
+      "category": "Insufficient Evidence & Out-of-Domain Probes",
+      "query": "What is the tensile strength of carbon nanotubes in aerospace fuselages?",
+      "expected_abstention": true,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0051::doc0005::0000",
+        "WBC-0051::doc0052::0000",
+        "WBC-0048::doc0003::0000",
+        "WBC-0040::doc0001::0000",
+        "WBC-0044::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0051",
+        "WBC-0051",
+        "WBC-0048",
+        "WBC-0040",
+        "WBC-0044"
+      ],
+      "target_chunk_ids": [],
+      "target_source_ids": [],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "correct_abstention": true
+    },
+    {
+      "id": "Q24",
+      "category": "Insufficient Evidence & Out-of-Domain Probes",
+      "query": "How does cryogenic tempering affect titanium alloy cutting inserts in CNC milling?",
+      "expected_abstention": true,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0042::doc0001::0000",
+        "WBC-2001::0000",
+        "WBC-2002::0000",
+        "WBC-2003::0000",
+        "WBC-0002::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0042",
+        "WBC-2001",
+        "WBC-2002",
+        "WBC-2003",
+        "WBC-0002"
+      ],
+      "target_chunk_ids": [],
+      "target_source_ids": [],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "correct_abstention": true
+    },
+    {
+      "id": "Q25",
+      "category": "Insufficient Evidence & Out-of-Domain Probes",
+      "query": "What are the polymerization curing kinetics of UV-activated dental composite resins?",
+      "expected_abstention": true,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0004::doc0003::0000",
+        "WBC-0039::doc0003::0000",
+        "WBC-0017::doc0003::0000",
+        "WBC-0031::doc0003::0000",
+        "WBC-0019::doc0003::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0004",
+        "WBC-0039",
+        "WBC-0017",
+        "WBC-0031",
+        "WBC-0019"
+      ],
+      "target_chunk_ids": [],
+      "target_source_ids": [],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "correct_abstention": true
+    },
+    {
+      "id": "Q26",
+      "category": "Hallucination & Adversarial Probes",
+      "query": "Which synthetic polymer epoxy adhesive was documented in 12th-century Chola bronze casting?",
+      "expected_abstention": true,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0011::doc0001::0000",
+        "WBC-0012::doc0001::0000",
+        "WBC-0044::doc0001::0000",
+        "WBC-0024::doc0001::0000",
+        "WBC-0039::doc0003::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0011",
+        "WBC-0012",
+        "WBC-0044",
+        "WBC-0024",
+        "WBC-0039"
+      ],
+      "target_chunk_ids": [],
+      "target_source_ids": [],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "correct_abstention": true
+    },
+    {
+      "id": "Q27",
+      "category": "Hallucination & Adversarial Probes",
+      "query": "How does neodymium magnet levitation stabilize hand chisels in Saharanpur wood carving?",
+      "expected_abstention": true,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-2018::0000",
+        "WBC-0064::doc0002::0000",
+        "WBC-0022::doc0003::0000",
+        "WBC-0067::0000",
+        "WBC-2017::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-2018",
+        "WBC-0064",
+        "WBC-0022",
+        "WBC-0067",
+        "WBC-2017"
+      ],
+      "target_chunk_ids": [],
+      "target_source_ids": [],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "correct_abstention": true
+    },
+    {
+      "id": "Q28",
+      "category": "Hallucination & Adversarial Probes",
+      "query": "Why do Udayagiri artisans boil cutlery in concentrated hydrochloric acid before food application?",
+      "expected_abstention": true,
+      "multi_source": false,
+      "retrieved_chunk_ids": [
+        "WBC-0068::0000",
+        "WBC-0037::doc0003::0000",
+        "WBC-0014::doc0001::0000",
+        "WBC-2007::0000",
+        "WBC-0006::doc0001::0000"
+      ],
+      "retrieved_source_ids": [
+        "WBC-0068",
+        "WBC-0037",
+        "WBC-0014",
+        "WBC-2007",
+        "WBC-0006"
+      ],
+      "target_chunk_ids": [],
+      "target_source_ids": [],
+      "abstained": true,
+      "citations": [],
+      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "correct_abstention": true
+    }
+  ]
+}

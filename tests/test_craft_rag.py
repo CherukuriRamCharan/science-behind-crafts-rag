@@ -4,9 +4,11 @@ from __future__ import annotations
 import builtins
 import csv
 import json
+import sys
 import threading
 from pathlib import Path
 from urllib.request import Request, urlopen
+from urllib.error import URLError
 
 import pytest
 
@@ -360,6 +362,222 @@ def test_optional_model_backends_fail_with_setup_guidance(monkeypatch):
         GroundedGenerator({"generator": {"backend": "transformers", "model_name": "local-model"}})
 
 
+def test_transformers_backend_load_failure_is_actionable(monkeypatch):
+    import types
+
+    class BrokenTokenizer:
+        @classmethod
+        def from_pretrained(cls, *args, **kwargs):
+            raise OSError("model files are unavailable")
+
+    fake_transformers = types.ModuleType("transformers")
+    fake_transformers.AutoTokenizer = BrokenTokenizer
+    fake_transformers.AutoModelForCausalLM = object
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+
+    with pytest.raises(RuntimeError, match="Could not load generator model") as error:
+        GroundedGenerator({"generator": {"backend": "transformers", "model_name": "missing-model"}})
+    assert isinstance(error.value.__cause__, OSError)
+
+
+def test_extractive_backend_runs_without_importing_transformers(monkeypatch):
+    original_import = builtins.__import__
+
+    def reject_transformers(name, *args, **kwargs):
+        if name == "transformers":
+            raise AssertionError("extractive mode must not import Transformers")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", reject_transformers)
+    generator = GroundedGenerator({"generator": {"backend": "extractive"}})
+    passage = {
+        "source_id": "WBC-0001", "evidence_level": "E3",
+        "text_chunk": "Bamboo age affects fibre strength.",
+        "metadata": {"record_type": "full_paper_chunk", "evidence_eligible": True},
+    }
+
+    assert "[WBC-0001 | E3]" in generator.answer(
+        "How does bamboo age affect fibre strength?", [passage]
+    )
+
+
+def test_transformers_backend_generates_and_rejects_invalid_citations(monkeypatch):
+    import types
+
+    class FakeInputs(dict):
+        input_ids = types.SimpleNamespace(shape=(1, 4))
+
+        def to(self, _device):
+            return self
+
+    class FakeTokenizer:
+        @classmethod
+        def from_pretrained(cls, model_name, **kwargs):
+            assert model_name == "test-model"
+            return cls()
+
+        def apply_chat_template(self, messages, **kwargs):
+            assert messages[0]["role"] == "system"
+            return "prompt"
+
+        def __call__(self, prompt, **kwargs):
+            return FakeInputs(input_ids="input-ids")
+
+        def decode(self, _tokens, **kwargs):
+            return self.answer
+
+    class FakeModel:
+        device = "cpu"
+
+        def generate(self, **kwargs):
+            self.generated_with = kwargs
+            return ["generated-sequence"]
+
+    tokenizer = FakeTokenizer()
+    model = FakeModel()
+
+    class TokenizerFactory:
+        @staticmethod
+        def from_pretrained(*args, **kwargs):
+            return tokenizer
+
+    class ModelFactory:
+        @staticmethod
+        def from_pretrained(*args, **kwargs):
+            return model
+
+    fake_transformers = types.ModuleType("transformers")
+    fake_transformers.AutoTokenizer = TokenizerFactory
+    fake_transformers.AutoModelForCausalLM = ModelFactory
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+    passage = {
+        "source_id": "WBC-0001", "evidence_level": "E3",
+        "text_chunk": "Bamboo age affects fibre strength and material selection.",
+        "metadata": {"record_type": "full_paper_chunk", "evidence_eligible": True},
+    }
+    generator = GroundedGenerator({"generator": {"backend": "transformers", "model_name": "test-model"}})
+
+    tokenizer.answer = json.dumps({
+        "answer": "Bamboo age affects fibre strength.",
+        "citations": [{"sentence": "Bamboo age affects fibre strength.", "source_id": "WBC-0001"}],
+        "confidence": 0.9,
+    })
+    answer = generator.answer("How does bamboo age affect fibre strength?", [passage])
+    assert answer == "Bamboo age affects fibre strength. [WBC-0001 | E3]"
+    assert model.generated_with["max_new_tokens"] == 220
+
+    tokenizer.answer = json.dumps({
+        "answer": "Unsupported claim.",
+        "citations": [{"sentence": "Unsupported claim.", "source_id": "OTHER-SOURCE"}],
+        "confidence": 0.9,
+    })
+    answer = generator.answer("How does bamboo age affect fibre strength?", [passage])
+    assert "Bamboo age affects fibre strength and material selection." in answer
+    assert "[WBC-0001 | E3]" in answer
+    structured = generator.generate_structured("How does bamboo age affect fibre strength?", [passage])
+    assert structured["answer_mode"] == "fallback"
+    assert structured["abstained"] is False
+
+
+@pytest.mark.parametrize(
+    ("raw_json", "expected_mode", "expected_reason"),
+    [
+        ('{"answer": "Bamboo age affects fibre strength.", "citations": [{"sentence": "Bamboo age affects fibre strength.", "source_id": "WBC-0001"}], "confidence": 0.9}', "generated", None),
+        ('{"answer": "Bamboo cures illness.", "citations": [{"sentence": "Bamboo cures illness.", "source_id": "WBC-0001"}], "confidence": 0.9}', "fallback", "unsupported"),
+        ('{"answer": "Bamboo age affects fibre strength. It cures illness.", "citations": [{"sentence": "Bamboo age affects fibre strength.", "source_id": "WBC-0001"}], "confidence": 0.9}', "fallback", "citation"),
+        ('{"answer": "Bamboo age affects fibre strength.", "citations": [{"sentence": "Bamboo age affects fibre strength.", "source_id": "WBC-0001"}], "confidence": 0.9, "extra": true}', "fallback", "schema"),
+        ("not json", "fallback", "malformed"),
+    ],
+)
+def test_h2_transformers_json_grounding_and_fallback(raw_json, expected_mode, expected_reason):
+    from types import SimpleNamespace
+
+    class Inputs(dict):
+        input_ids = SimpleNamespace(shape=(1, 1))
+
+        def to(self, _device):
+            return self
+
+    class Tokenizer:
+        def __call__(self, *_args, **_kwargs):
+            return Inputs()
+
+        def decode(self, *_args, **_kwargs):
+            return raw_json
+
+    class Model:
+        device = "cpu"
+
+        def generate(self, **_kwargs):
+            return ["generated"]
+
+    generator = GroundedGenerator({"generator": {"backend": "extractive", "minimum_results": 1}})
+    generator.model = Model()
+    generator.tokenizer = Tokenizer()
+    passage = {
+        "source_id": "WBC-0001", "chunk_id": "WBC-0001-chunk-1", "evidence_level": "E3",
+        "text_chunk": "Bamboo age affects fibre strength and material selection.",
+        "metadata": {"record_type": "full_paper_chunk", "evidence_eligible": True},
+    }
+    result = generator.generate_structured("How does bamboo age affect fibre strength?", [passage])
+    assert result["answer_mode"] == expected_mode
+    assert result["confidence"] is not None
+    if expected_mode == "generated":
+        assert result["fallback_reason"] is None
+        assert result["citations"][0]["quote"] == passage["text_chunk"]
+        assert "[WBC-0001 | E3]" in result["answer"]
+    else:
+        assert expected_reason in result["fallback_reason"].lower()
+        assert result["citations"]
+
+
+def test_h2_extractive_strips_page_prefix_and_returns_confidence():
+    generator = GroundedGenerator({"generator": {"backend": "extractive", "minimum_results": 1}})
+    documents = [json.loads(line) for line in (ROOT / "data/extracted/documents.jsonl").read_text(encoding="utf-8").splitlines()]
+    card = next(document for document in documents if "WBC-0005" in document["file_name"])
+    passage = {
+        "source_id": "WBC-0005", "chunk_id": card["document_key"], "evidence_level": "E3",
+        "text_chunk": card["text"],
+        "metadata": {"record_type": "source_document", "evidence_eligible": True},
+    }
+    result = generator.generate_structured("Why does sanding generate airborne wood dust?", [passage])
+    assert result["answer_mode"] == "extractive"
+    assert result["confidence"] is not None
+    assert "[Page 1]" not in result["answer"]
+
+
+def test_h2_confidence_is_present_for_abstention():
+    generator = GroundedGenerator({"generator": {"backend": "extractive", "minimum_results": 1}})
+    result = generator.generate_structured("What is unsupported?", [])
+    assert result["answer_mode"] == "abstained"
+    assert result["confidence"] == 0.0
+
+
+def test_e5_embeddings_use_query_and_passage_prefixes(tmp_path):
+    from craft_rag.pipeline.embed_text import TextEmbedder
+
+    embedder = object.__new__(TextEmbedder)
+    embedder.backend = "sentence-transformers"
+    embedder.model_name = "intfloat/multilingual-e5-small"
+    embedder.batch_size = 32
+    embedder.cache_dir = tmp_path
+
+    class FakeModel:
+        def __init__(self):
+            self.inputs = []
+
+        def encode(self, texts, **kwargs):
+            self.inputs.append(texts)
+            return [[1.0, 0.0] for _ in texts]
+
+    model = FakeModel()
+    embedder.model = model
+    embedder.encode(["paper excerpt"], input_type="document")
+    embedder.encode(["research question"], input_type="query")
+
+    assert model.inputs == [["passage: paper excerpt"], ["query: research question"]]
+
+
 def test_local_server_status_and_query_api(monkeypatch):
     passage = {
         "source_id": "WBC-0001",
@@ -377,16 +595,26 @@ def test_local_server_status_and_query_api(monkeypatch):
 
     class FakeRetriever:
         def retrieve(self, question, filters=None):
+            if "capital of france" in question.casefold():
+                return []
             return [passage]
 
     class FakeGenerator:
         def answer(self, question, passages):
+            if not passages:
+                return "Insufficient evidence in the retrieved corpus to answer this question."
             return "Retrieved evidence: Bamboo maturity [WBC-0001 | E3]"
 
     app = {
         "record_count": 2,
         "quality_issue_count": 0,
-        "index": {"backend_info": {"embedding": "hashing"}, "chunks": []},
+        "index": {
+            "backend_info": {"embedding": "hashing"},
+            "chunks": [
+                {"craft_cluster": "Wood carving"},
+                {"craft_cluster": "Bamboo carving"},
+            ],
+        },
         "retriever": FakeRetriever(),
         "generator": FakeGenerator(),
     }
@@ -396,20 +624,37 @@ def test_local_server_status_and_query_api(monkeypatch):
     thread.start()
     try:
         base = f"http://127.0.0.1:{http_server.server_port}"
-        with urlopen(f"{base}/api/status") as response:
-            status = json.load(response)
-        request = Request(
-            f"{base}/api/query",
-            data=json.dumps({"question": "How does bamboo maturity affect fibres?"}).encode(),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urlopen(request) as response:
-            body = json.load(response)
+        try:
+            with urlopen(f"{base}/api/status") as response:
+                status = json.load(response)
+            with urlopen(f"{base}/api/filters") as response:
+                filters = json.load(response)
+            request = Request(
+                f"{base}/api/query",
+                data=json.dumps({"question": "How does bamboo maturity affect fibres?"}).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urlopen(request) as response:
+                body = json.load(response)
+            unsupported_request = Request(
+                f"{base}/api/query",
+                data=json.dumps({"question": "What is the capital of France?"}).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urlopen(unsupported_request) as response:
+                unsupported_body = json.load(response)
+        except URLError as exc:
+            if isinstance(exc.reason, PermissionError):
+                pytest.skip(f"Loopback sockets are blocked by this environment: {exc.reason}")
+            raise
         assert status["status"] == "ready"
+        assert {"Wood carving", "Bamboo carving"} <= set(filters["craft_clusters"])
         assert body["sources"][0]["source_id"] == "WBC-0001"
         assert body["sources"][0]["source_url"] == "https://example.org/bamboo"
         assert "[WBC-0001 | E3]" in body["answer"]
+        assert unsupported_body["sources"] == []
         assert server.DEFAULT_HOST == "127.0.0.1"
     finally:
         http_server.shutdown()

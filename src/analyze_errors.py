@@ -1,141 +1,169 @@
-"""Error analysis script to classify all evaluation failures.
-
-Categories:
-1. retrieval_deduplication_drop: Gold chunk ranked high in BM25/Dense but was dropped by Hybrid (source_id, title) deduplication.
-2. retrieval_vocabulary_mismatch: Pure dense hashing baseline failed due to lack of lexical overlap / low dimension.
-3. generation_abstention_failure: Generator failed to abstain on unanswerable question due to loose token-overlap threshold.
-4. citation_imprecision: Generator cited all top-3 retrieved passages instead of only relevant evidence.
-5. bad_gold_label_fixed: Mislabeled gold chunk in preliminary dataset (corrected and logged).
-"""
+"""Classify evaluation failures from measured retrieval ranks and answers."""
 from __future__ import annotations
 
 import csv
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
-# Ensure repository root is on sys.path so modules can be imported without PYTHONPATH
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+RETRIEVER_ALIASES = {
+    "bm25": "bm25",
+    "dense (hashing baseline)": "dense",
+    "dense": "dense",
+    "hybrid (no dedup)": "hybrid_no_dedup",
+    "hybrid (pipeline with dedup)": "hybrid_pipeline",
+    "hybrid": "hybrid_pipeline",
+}
+TOP_K = 5
 
-def run_error_analysis():
-    with open("data/eval/eval_questions.jsonl", "r", encoding="utf-8") as f:
+
+def _measured_rank(row: dict[str, Any]) -> int | None:
+    """Read the explicit rank, with MRR fallback for legacy result CSVs."""
+    raw_rank = row.get("gold_rank")
+    if raw_rank not in (None, "", "None"):
+        return int(raw_rank)
+    mrr = float(row.get("MRR") or 0)
+    return round(1 / mrr) if mrr > 0 else None
+
+
+def _embedding_dimension() -> tuple[int | None, str]:
+    """Measure output width from the configured embedder used by the pipeline."""
+    try:
+        from craft_rag.pipeline.common import load_config
+        from craft_rag.pipeline.embed_text import TextEmbedder
+
+        embedder = TextEmbedder(load_config())
+        vectors = embedder.encode(["dimension probe"])
+        return int(vectors.shape[1]), embedder.backend
+    except (ImportError, OSError, RuntimeError, ValueError, KeyError, TypeError):
+        return None, "configured embedding backend"
+
+
+def run_error_analysis(results_dir: str | Path = "data/eval/results",
+                       dataset_path: str | Path = "data/eval/eval_questions_v2.jsonl"):
+    results_dir = Path(results_dir)
+    with Path(dataset_path).open("r", encoding="utf-8") as f:
         questions = {q["qid"]: q for q in (json.loads(line) for line in f if line.strip())}
 
-    with open("data/eval/results/retrieval_per_question.csv", "r", encoding="utf-8-sig") as f:
+    with (results_dir / "retrieval_per_question.csv").open("r", encoding="utf-8-sig") as f:
         retrieval_rows = list(csv.DictReader(f))
 
-    with open("data/eval/results/generation_per_question.csv", "r", encoding="utf-8") as f:
+    with (results_dir / "generation_per_question.csv").open("r", encoding="utf-8-sig") as f:
         generation_rows = list(csv.DictReader(f))
 
-    with open("data/eval/results/gold_label_fixes.json", "r", encoding="utf-8") as f:
-        label_fixes = json.load(f)
+    ranks: dict[str, dict[str, int | None]] = {}
+    for row in retrieval_rows:
+        system = RETRIEVER_ALIASES.get(row.get("retriever", ""))
+        if system is not None:
+            ranks.setdefault(row["qid"], {})[system] = _measured_rank(row)
 
-    # Classify each question failure
     failures = []
+    dimension, backend = _embedding_dimension()
+    dimension_label = f"{dimension}-dim {backend}" if dimension is not None else backend
 
-    # 1. Retrieval failures in Hybrid (top-5)
-    for r in retrieval_rows:
-        if r["retriever"] in ("hybrid (pipeline with dedup)", "hybrid") and float(r["HitRate@5"]) == 0.0:
-            qid = r["qid"]
-            q = questions[qid]
+    for qid, systems in ranks.items():
+        q = questions.get(qid)
+        if q is None:
+            continue
+        if q.get("question_type") == "unanswerable":
+            continue
+        ordered_systems = ("bm25", "dense", "hybrid_no_dedup", "hybrid_pipeline")
+        measured = {name: systems.get(name) for name in ordered_systems}
+        rank_text = ", ".join(
+            f"{name}={'miss' if rank is None else rank}"
+            for name, rank in measured.items()
+        )
+        category = None
+        description = ""
+        remedy = ""
+
+        top_hits = {
+            name: rank if rank is not None and rank <= TOP_K else None
+            for name, rank in measured.items()
+        }
+        if all(rank is None for rank in top_hits.values()):
+            category = "retrieval_miss_all_systems"
+            description = f"No gold record was retrieved by any evaluated system (ranks: {rank_text})."
+            remedy = "Review corpus coverage, chunking, and the question's gold evidence mapping."
+        elif (top_hits["hybrid_no_dedup"] is not None
+              and top_hits["hybrid_pipeline"] is None):
+            category = "retrieval_deduplication_drop"
+            description = (
+                f"Gold ranked within top {TOP_K} before deduplication but not in the pipeline result "
+                f"(ranks: {rank_text})."
+            )
+            remedy = "Inspect the deduplication decision for the measured gold record and its competing records."
+        elif top_hits["bm25"] is not None and top_hits["dense"] is None:
+            category = "dense_embedding_miss"
+            description = (
+                f"BM25 retrieved gold at rank {measured['bm25']} while dense retrieval missed it "
+                f"using the measured {dimension_label} configuration (ranks: {rank_text})."
+            )
+            remedy = "Review the embedding model, corpus representation, and query-document similarity."
+
+        if category:
             failures.append({
                 "qid": qid,
-                "category": "retrieval_deduplication_drop",
+                "category": category,
                 "component": "retriever",
-                "question": q["question"],
-                "question_type": q["question_type"],
-                "document_type": q["document_type"],
-                "gold_ids": q["gold_record_ids"],
-                "gold_quote": q["gold_evidence_quote"],
-                "severity": "high",
-                "description": (
-                    f"Hybrid retriever failed to include gold chunk in top 5 (HitRate@5 = 0.0). "
-                    f"Gold chunk was ranked high in BM25/Dense, but teammate's deduplication on "
-                    f"(source_id, title) dropped subsequent chunks from the same document."
-                ),
-                "remedy": (
-                    "Deduplicate by chunk_id or record_id instead of (source_id, title) when retrieving "
-                    "from multi-chunk papers (e.g. WBC-2016, WBC-0051)."
-                )
+                "question": q.get("question", ""),
+                "question_type": q.get("question_type", ""),
+                "document_type": q.get("document_type", ""),
+                "gold_ids": q.get("gold_record_ids", []),
+                "gold_quote": q.get("gold_evidence_quote", ""),
+                "severity": "high" if category != "dense_embedding_miss" else "medium",
+                "description": description,
+                "remedy": remedy,
+                "measured_ranks": measured,
             })
 
-    # 2. Generation abstention failures on unanswerable questions
-    for g in generation_rows:
-        is_ans = str(g.get("is_answerable", "")).lower() == "true"
-        abstained = str(g.get("abstained", "")).lower() == "true"
-        if g["retriever"] in ("hybrid (pipeline with dedup)", "hybrid") and not is_ans and not abstained:
-            qid = g["qid"]
-            q = questions[qid]
+    for row in generation_rows:
+        is_answerable = str(row.get("is_answerable", "")).lower() == "true"
+        abstained = str(row.get("abstained", "")).lower() == "true"
+        if (row.get("retriever") in ("hybrid (pipeline with dedup)", "hybrid")
+                and not is_answerable and not abstained):
+            qid = row.get("qid")
+            q = questions.get(qid, {})
             failures.append({
                 "qid": qid,
                 "category": "generation_abstention_failure",
                 "component": "generator",
-                "question": q["question"],
-                "question_type": q["question_type"],
-                "document_type": q["document_type"],
+                "question": q.get("question", ""),
+                "question_type": q.get("question_type", ""),
+                "document_type": q.get("document_type", ""),
                 "gold_ids": [],
                 "gold_quote": "",
                 "severity": "medium",
-                "description": (
-                    f"Generator failed to abstain on unanswerable question '{q['question']}'. "
-                    f"Retriever returned craft passages with incidental word overlap, passing the "
-                    f"len(query_tokens & content) / len(query_tokens) >= 0.08 heuristic check."
-                ),
-                "remedy": (
-                    "Implement a confidence score threshold, neural entailment/NLI check, or LLM-based "
-                    "verification before generating an answer from retrieved passages."
-                )
+                "description": f"Generator did not abstain for unanswerable question {qid}.",
+                "remedy": "Review evidence sufficiency and abstention threshold calibration.",
             })
 
-    # 3. Dense hashing baseline failures
-    for r in retrieval_rows:
-        if r["retriever"] == "dense (hashing baseline)" and float(r["HitRate@5"]) == 0.0:
-            qid = r["qid"]
-            q = questions[qid]
-            failures.append({
-                "qid": qid,
-                "category": "dense_hashing_capacity_limit",
-                "component": "dense_embedder",
-                "question": q["question"],
-                "question_type": q["question_type"],
-                "document_type": q["document_type"],
-                "gold_ids": q["gold_record_ids"],
-                "gold_quote": q["gold_evidence_quote"],
-                "severity": "low",
-                "description": (
-                    f"Dense 128-dim hashing baseline failed to retrieve gold chunk in top 5 for '{q['question']}' "
-                    f"(HitRate@5 = 0.0), while BM25 retrieved it at rank 1."
-                ),
-                "remedy": (
-                    "Replace 128-dim word hash baseline with a real pre-trained semantic embedding model "
-                    "(e.g. BGE-small-en-v1.5 or E5-small)."
-                )
-            })
-
-    out_file = Path("data/eval/results/error_analysis.json")
+    out_file = results_dir / "error_analysis.json"
     with out_file.open("w", encoding="utf-8") as f:
         json.dump(failures, f, indent=2)
 
-    # Save summary csv of errors by category
-    category_counts = {}
-    for f in failures:
-        category_counts[f["category"]] = category_counts.get(f["category"], 0) + 1
+    category_counts: dict[str, int] = {}
+    components: dict[str, str] = {}
+    for failure in failures:
+        category = failure["category"]
+        category_counts[category] = category_counts.get(category, 0) + 1
+        components[category] = failure["component"]
 
-    summary_file = Path("data/eval/results/error_summary.csv")
+    summary_file = results_dir / "error_summary.csv"
     with summary_file.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["error_category", "component", "count"])
-        for cat, cnt in category_counts.items():
-            comp = [f["component"] for f in failures if f["category"] == cat][0]
-            writer.writerow([cat, comp, cnt])
+        for category, count in category_counts.items():
+            writer.writerow([category, components[category], count])
 
     print("Error analysis complete:")
-    for cat, cnt in category_counts.items():
-        print(f"  {cat}: {cnt}")
-
+    for category, count in category_counts.items():
+        print(f"  {category}: {count}")
     return failures
 
 

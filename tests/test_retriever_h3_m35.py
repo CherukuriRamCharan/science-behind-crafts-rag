@@ -154,15 +154,15 @@ def test_invalid_arguments_raise(bad):
 # ---- M35: deterministic ties ----------------------------------------------------------------
 
 def test_exact_ties_are_broken_by_chunk_id_not_input_order():
-    rows = [{"chunk_id": cid, "source_id": cid, "text_chunk": "identical text for every chunk"}
-            for cid in ["c", "a", "d", "b", "e"]]  # deliberately unsorted
+    rows = [{"chunk_id": cid, "source_id": cid, "text_chunk": "identical text for every chunk " + "!" * i}
+            for i, cid in enumerate(["c", "a", "d", "b", "e"])]  # deliberately unsorted
     retriever = HybridRetriever(make_index(rows), CONFIG)
     found = ids(retriever.retrieve("identical text", top_k=5, max_per_source=None))
     assert found == ["a", "b", "c", "d", "e"]
 
 
 def test_results_identical_when_corpus_order_is_shuffled():
-    rows = [{"chunk_id": f"c{i:02d}", "source_id": f"s{i:02d}", "text_chunk": "same words here"}
+    rows = [{"chunk_id": f"c{i:02d}", "source_id": f"s{i:02d}", "text_chunk": "same words here " + "!" * i}
             for i in range(12)]
     forward = ids(HybridRetriever(make_index(rows), CONFIG).retrieve("same words", top_k=6))
     backward = ids(HybridRetriever(make_index(rows[::-1]), CONFIG).retrieve("same words", top_k=6))
