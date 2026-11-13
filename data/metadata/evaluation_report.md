@@ -41,6 +41,17 @@ Paired bootstrap/sign-flip comparisons on matched qids (v1 minus v2 MRR, N=33): 
 
 Live API checks for the 2022 World Cup winner, the capital of France, glass annealing, and sourdough all returned `answer_mode=abstained`, `abstained=true`, and no sources. This was with the extractive backend; it does not verify Transformers generation. The high v2 false-abstention rate is a measured limitation after wording changes.
 
+On the rerun after H2 grounding changes, hybrid v2 remained at 25/33 false abstentions (75.8%) and 12/12 correct unanswerable abstentions (100%). Inspecting those 25 questions against the shared retriever and generator attributed all 25 to the generator sentence relevance gate; minimum-score caused 0, minimum-dense-similarity caused 0, and other causes accounted for 0. The configured `minimum_dense_similarity: 0.25` is not applied by the active shared retriever, so it did not cause these outcomes. No threshold was changed. The four live abstention prompts remained abstained after the rerun.
+
+| Measured cause | False abstentions |
+|---|---:|
+| Generator sentence relevance gate | 25 |
+| `minimum_dense_similarity` | 0 (not applied in this path) |
+| `minimum_score` | 0 |
+| Other | 0 |
+
+H2 now requires strict JSON from the Transformers path (`answer`, sentence-linked `citations`, and numeric `confidence`), verifies each cited answer sentence against its retrieved passage (at least 50% content-token overlap or a contiguous six-token match), and falls back to extractive output with a reason if parsing, citation, or support validation fails. Extractive, fallback, and abstained responses also carry confidence values. Real Transformers loading and generation remain unverified: PyTorch/Transformers are absent and Hugging Face is unreachable in the current environment. No LLM-based benchmark metrics are reported.
+
 ## Validation and reproducibility
 
 - `python -c "from src.validate_eval_dataset import validate; raise SystemExit(0 if validate('data/eval/eval_questions_v2.jsonl') else 1)"` - passed with 0 errors.
@@ -50,4 +61,4 @@ Live API checks for the 2022 World Cup winner, the capital of France, glass anne
 
 ## Limitations and remaining work
 
-The sample is small (N=33 answerable, N=12 unanswerable), lexical matching influences retrieval, and annotations have a single annotator. The configured dense backend is hashing, not a real sentence-embedding model, so embedding-threshold calibration was not done. An isolated Python 3.12.10 runtime was provisioned for verification. The complete suite is blocked by a Windows FAISS `_swigfaiss` DLL initialization failure (faiss-cpu 1.16.0); excluding the FAISS test file and the FAISS-dependent integration/index-build tests, 133 tests passed, 1 skipped, and 3 were deselected. Regenerate these results after human review and when real embeddings are available.
+The sample is small (N=33 answerable, N=12 unanswerable), lexical matching influences retrieval, and annotations have a single annotator. The configured dense backend is hashing, not a real sentence-embedding model, so embedding-threshold calibration was not done. Current verification used Python 3.13.7. The selected evaluation, generator, and server regression tests passed; the full-suite result is reported in the closure report. Real Transformers and E5 model execution could not be verified because the required dependencies are absent and Hugging Face did not resolve from this environment. Regenerate these results after human review and when real embeddings are available.

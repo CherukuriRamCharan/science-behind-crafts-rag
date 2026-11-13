@@ -128,15 +128,9 @@ print(answer)
 
 ## 6. LLM Details and API Keys
 
-- **Default Backend**: **`extractive`** (`craft_rag/pipeline/generate.py`).
-  - No LLM is invoked.
-  - Requires **no API keys** (offline, deterministic, fast).
-  - Selects up to 3 evidence-eligible passages and concatenates them with formatted source citations:
-    `"Retrieved evidence: {passage_text} [{source_id} | {evidence_level}] ..."`
-- **Optional LLM Backend**: **`transformers`** with `Qwen/Qwen2.5-3B-Instruct`.
-  - Runs locally via PyTorch / HuggingFace `transformers`.
-  - Requires **no commercial API keys** (e.g. OpenAI / Anthropic / Google Gemini).
-  - Disabled by default (`backend: extractive`). Requires downloading a ~6 GB checkpoint if opted in.
+- **Default Backend**: `extractive` (`craft_rag/pipeline/generate.py`). It runs without Transformers dependencies and selects question-matched sentences from evidence-eligible retrieved passages.
+- **Optional Backend**: `transformers`, configured with `Qwen/Qwen2.5-3B-Instruct`. It runs locally and requires PyTorch, Hugging Face Transformers, and model weights; no commercial API key is required.
+- **Execution status**: Real Transformers model loading and generation have not been verified in the current environment. PyTorch and Transformers are not installed there, and the Hugging Face host did not resolve. No LLM benchmark results are claimed.
 - **External API Keys**: None configured or required across the repository.
 
 ---
@@ -144,14 +138,12 @@ print(answer)
 ## 7. Prompt Template and Generation Logic
 
 When the `transformers` backend is active in `craft_rag/pipeline/generate.py`:
-- **System Prompt**:
-  > `"Answer only from the supplied source passages. Cite factual statements inline as [Source ID | Evidence Level]. If sources do not support an answer, say 'Insufficient evidence.' Preserve cautions and never present placeholder data as fact."`
+- **System Prompt**: Return strict JSON with `answer`, `citations` (one source-linked entry per factual sentence), and numeric `confidence` from 0 to 1. Answer only from supplied passages and preserve cautions.
 - **User Prompt**:
   > `"Source passages:\n{context}\n\nQuestion: {question}"`
   Where `{context}` concatenates eligible passages:
   `"[{source_id} | {evidence_level}] {text_chunk} Caution: {caution}\n\n..."`
-- **Abstention Response**:
-  If evidence count is below `minimum_results` (1), or token overlap between question and evidence is below threshold ($< 8\%$), the generator outputs:
+- **Abstention Response**: If eligible evidence is below `minimum_results` or no question-matched source sentence passes the current sentence relevance gate, the generator outputs:
   > `"Insufficient evidence in the retrieved corpus to answer this question."`
 
 ---
@@ -160,9 +152,8 @@ When the `transformers` backend is active in `craft_rag/pipeline/generate.py`:
 
 - **Inline Citation Syntax**: `[{source_id} | {evidence_level}]`
   - Example: `[WBC-0051 | E3]` or `[WBC-0001 | E5]`.
-- **Validation in Generation**:
-  - The generator validates that cited source IDs in the generated text form a non-empty subset of the retrieved eligible passages:
-    `cited.issubset(valid)`. If invalid or missing, it falls back to the extractive response.
+- **Validation in Generation**: Each generated answer sentence must map to a citation for a retrieved evidence passage. Support is verified against that passage using at least 50% content-token overlap or a contiguous six-token match. The returned `quote` contains the supporting source sentence rather than a fixed-length passage prefix. Invalid JSON, missing citations, or unsupported claims trigger an explicit extractive fallback with `fallback_reason`.
+- **Structured Response Fields**: `answer_mode` is `extractive`, `generated`, `fallback`, or `abstained`; all modes carry numeric `confidence` (0 for abstentions, model confidence after validation, and 1 for selected extractive evidence). The HTTP response exposes `answer_mode`, `fallback_reason`, and `confidence`, and the UI displays the mode and fallback reason.
 - **Retrieved Chunk Metadata**:
   - In `src/retrieval`, `RetrievedChunk` carries:
     - `chunk_id`: unique chunk record identifier

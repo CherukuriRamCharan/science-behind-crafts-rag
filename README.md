@@ -169,6 +169,8 @@ Paired tests compare identical qids across versions; because the wording changed
 
 **Extractive generation on v2:** abstention accuracy was 12/12 (100%) for BM25, dense and hybrid. False-abstention rates among answerable questions were 27/33 (81.8%) BM25, 26/33 (78.8%) dense hashing, and 25/33 (75.8%) hybrid. Dense retrieval is the configured 384-dimensional deterministic token-hashing baseline, not a real sentence-embedding model. No LLM metrics are reported.
 
+The measured hybrid v2 false-abstentions all came from the generator sentence-relevance gate (25/33); minimum-score, minimum-dense-similarity, and other causes each accounted for 0. The configured dense-similarity minimum is not applied in the active shared retriever. The Transformers path now parses strict JSON and validates sentence citations against passage spans before returning generated output; invalid output produces an explicit extractive fallback. Real Transformers execution remains unverified in this environment because PyTorch is absent and the Hugging Face host could not be resolved.
+
 Validate v2 with:
 
 ```bash
