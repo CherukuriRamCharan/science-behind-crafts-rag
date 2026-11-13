@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import logging
+import json
 import math
 import re
 
-from .common import is_evidence_eligible, tokens
+from .common import STOP_WORDS, is_evidence_eligible, tokens
 
 
 def _is_evidence(passage):
@@ -34,6 +35,45 @@ def _resolve_chunk_id(passage: dict) -> str:
             if prov.get("document_key"):
                 return str(prov["document_key"])
     return ""
+
+
+def _clean_display_sentence(sentence: str) -> str:
+    """Remove page labels that belong to card layout, not source prose."""
+    return re.sub(r"^\s*\[Page\s+\d+\]\s*", "", sentence, flags=re.IGNORECASE).strip()
+
+
+def _citation_support(answer_sentence: str, passage: dict) -> tuple[float, str]:
+    """Return content-token overlap and the best source sentence supporting a claim."""
+    answer_tokens = [token for token in tokens(answer_sentence) if token not in STOP_WORDS]
+    if not answer_tokens:
+        return 0.0, ""
+    best_ratio, best_span = 0.0, ""
+    text = str(passage.get("text_chunk", ""))
+    for source_sentence in re.split(r"(?<=[.!?])\s+|[\r\n]+", text):
+        source_sentence = _clean_display_sentence(source_sentence)
+        source_tokens = [token for token in tokens(source_sentence) if token not in STOP_WORDS]
+        if not source_tokens:
+            continue
+        ratio = len(set(answer_tokens) & set(source_tokens)) / len(set(answer_tokens))
+        contiguous = any(
+            answer_tokens[index:index + 6] == source_tokens[start:start + 6]
+            for index in range(max(0, len(answer_tokens) - 5))
+            for start in range(max(0, len(source_tokens) - 5))
+        ) if len(answer_tokens) >= 6 else False
+        if ratio > best_ratio:
+            best_ratio, best_span = ratio, source_sentence
+        if contiguous:
+            return max(ratio, 0.5), source_sentence
+    return best_ratio, best_span if best_ratio >= 0.5 else ""
+
+
+def _answer_sentences(answer: str) -> list[str]:
+    answer = re.sub(r"\s*\[[^\]]+\s*\|\s*E[1-5]\]", "", answer)
+    return [_clean_display_sentence(part) for part in re.split(r"(?<=[.!?])\s+", answer.strip()) if part.strip()]
+
+
+def _normalize_sentence(sentence: str) -> str:
+    return " ".join(sentence.casefold().split()).strip(" .!?\t")
 
 
 class GroundedGenerator:
@@ -122,6 +162,7 @@ class GroundedGenerator:
                 "abstained": True,
                 "answer_mode": "abstained",
                 "fallback_reason": self.fallback_reason,
+                "confidence": 0.0,
                 "citations": [],
                 "retrieved_chunk_ids": retrieved_chunk_ids,
             }
@@ -134,6 +175,7 @@ class GroundedGenerator:
                 "abstained": True,
                 "answer_mode": "abstained",
                 "fallback_reason": self.fallback_reason,
+                "confidence": 0.0,
                 "citations": [],
                 "retrieved_chunk_ids": retrieved_chunk_ids,
             }
@@ -145,9 +187,11 @@ class GroundedGenerator:
                 for passage in evidence
             )
             system = (
-                "Answer only from the supplied source passages. Cite factual statements inline as "
-                "[Source ID | Evidence Level]. If sources do not support an answer, say "
-                "'Insufficient evidence.' Preserve cautions and never present placeholder data as fact."
+                "Answer only from the supplied source passages. Return only strict JSON with exactly "
+                "the keys answer (string), citations (array of objects with sentence and source_id), "
+                "and confidence (number from 0 to 1). Give a citation object for every factual sentence. "
+                "If sources do not support the answer, use an empty answer and empty citations. Preserve "
+                "cautions and never present placeholder data as fact."
             )
             user = f"Source passages:\n{context}\n\nQuestion: {question}"
             if hasattr(self.tokenizer, "apply_chat_template"):
@@ -168,35 +212,54 @@ class GroundedGenerator:
                 output[0][inputs.input_ids.shape[1]:],
                 skip_special_tokens=True,
             ).strip()
-            valid = {passage["source_id"] for passage in evidence}
-            cited = {citation.strip() for citation in re.findall(r"\[([^\]|]+)\s*\|\s*E[1-5]\]", model_answer)}
-            if model_answer and cited and cited.issubset(valid) and not model_answer.startswith("Insufficient evidence"):
-                # Model succeeded with valid citations
-                model_citations = []
-                for sid in cited:
-                    for passage in evidence:
-                        if passage.get("source_id") == sid:
-                            model_citations.append({
-                                "source_id": sid,
-                                "chunk_id": _resolve_chunk_id(passage),
-                                "evidence_level": str(passage.get("evidence_level") or "E5"),
-                                "quote": str(passage.get("text_chunk", ""))[:200],
-                            })
-                            break
+            try:
+                payload = json.loads(model_answer)
+                answer = payload["answer"]
+                raw_citations = payload["citations"]
+                confidence = payload["confidence"]
+                if (not isinstance(answer, str) or not answer.strip()
+                        or not isinstance(raw_citations, list)
+                        or isinstance(confidence, bool) or not isinstance(confidence, (int, float))
+                        or not math.isfinite(confidence) or not 0 <= confidence <= 1):
+                    raise ValueError("JSON does not match the required answer/citations/confidence schema")
+                sentences = _answer_sentences(answer)
+                mapped_citations = []
+                rendered_sentences = []
+                for sentence in sentences:
+                    citation = next((item for item in raw_citations
+                                     if isinstance(item, dict)
+                                     and _normalize_sentence(str(item.get("sentence", ""))) == _normalize_sentence(sentence)), None)
+                    passage = next((item for item in evidence
+                                    if citation and item.get("source_id") == citation.get("source_id")), None)
+                    if passage is None:
+                        raise ValueError("A generated sentence has no citation to a retrieved passage")
+                    support, quote = _citation_support(sentence, passage)
+                    if support < 0.5 or not quote:
+                        raise ValueError("A generated sentence is unsupported by its cited passage")
+                    source_id = str(passage.get("source_id") or "UNKNOWN")
+                    evidence_level = str(passage.get("evidence_level") or "E5")
+                    mapped_citations.append({
+                        "source_id": source_id,
+                        "chunk_id": _resolve_chunk_id(passage),
+                        "evidence_level": evidence_level,
+                        "quote": quote,
+                    })
+                    rendered_sentences.append(f"{sentence} [{source_id} | {evidence_level}]")
+                if not sentences or len(mapped_citations) != len(sentences):
+                    raise ValueError("Generated answer has no citation for every sentence")
                 return {
                     "question": question,
-                    "answer": model_answer,
+                    "answer": " ".join(rendered_sentences),
                     "abstained": False,
                     "answer_mode": "generated",
                     "fallback_reason": None,
-                    "citations": model_citations,
+                    "confidence": float(confidence),
+                    "citations": mapped_citations,
                     "retrieved_chunk_ids": retrieved_chunk_ids,
                 }
-
-            self.fallback_reason = (
-                "The configured Transformers model returned no fully valid citations; "
-                "an extractive answer was used instead."
-            )
+            except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+                reason = "malformed JSON" if isinstance(exc, json.JSONDecodeError) else str(exc)
+                self.fallback_reason = f"Transformers output rejected ({reason}); an extractive answer was used instead."
 
         # Extractive path
         answer_text, citations = self._extractive_structured(evidence, question, ranked_sentences)
@@ -207,6 +270,7 @@ class GroundedGenerator:
                 "abstained": True,
                 "answer_mode": "abstained",
                 "fallback_reason": self.fallback_reason,
+                "confidence": 0.0,
                 "citations": [],
                 "retrieved_chunk_ids": retrieved_chunk_ids,
             }
@@ -216,6 +280,7 @@ class GroundedGenerator:
             "abstained": False,
             "answer_mode": "fallback" if self.fallback_reason else "extractive",
             "fallback_reason": self.fallback_reason,
+            "confidence": 1.0,
             "citations": citations,
             "retrieved_chunk_ids": retrieved_chunk_ids,
         }
@@ -236,7 +301,7 @@ class GroundedGenerator:
             ]
             for text, annotation in text_fields:
                 for sentence in re.split(r"(?<=[.!?])\s+|[\r\n]+", text):
-                    sentence = sentence.strip(" \t-")
+                    sentence = _clean_display_sentence(sentence.strip(" \t-"))
                     if not sentence or re.match(
                         r"^(title|source id|source type|link|questions answered|why theme|"
                         r"process stage|evidence level|craft applicability)\s*:",

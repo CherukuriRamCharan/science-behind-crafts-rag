@@ -61,6 +61,7 @@ def test_server_query_response_structure(monkeypatch: pytest.MonkeyPatch) -> Non
                 "answer": "Bamboo splits cleanly [WBC-0001 | E3]",
                 "abstained": False,
                 "answer_mode": "fallback",
+                "confidence": 1.0,
                 "citations": [
                     {
                         "source_id": "WBC-0001",
@@ -112,6 +113,7 @@ def test_server_query_response_structure(monkeypatch: pytest.MonkeyPatch) -> Non
     assert payload["answer"] == "Bamboo splits cleanly [WBC-0001 | E3]"
     assert payload["abstained"] is False
     assert payload["answer_mode"] == "fallback"
+    assert payload["confidence"] == 1.0
     assert len(payload["citations"]) == 1
     assert payload["citations"][0]["chunk_id"] == "WBC-0001::0000"
     assert payload["citations"][0]["source_id"] == "WBC-0001"
