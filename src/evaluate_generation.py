@@ -268,7 +268,8 @@ def run_generation_evaluation(
         writer.writerows(per_question_rows)
 
     from src.run_manifest import write_run_manifest
-    write_run_manifest(out_dir, config=config, corpus_chunks=index_data.get("all_chunks", index_data["chunks"]))
+    corpus_chunks = index_data.get("all_chunks") or index_data.get("chunks")
+    write_run_manifest(out_dir, config=config, corpus_chunks=corpus_chunks)
 
     return summary, per_question_rows
 

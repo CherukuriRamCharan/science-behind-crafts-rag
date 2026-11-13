@@ -322,7 +322,8 @@ def evaluate_retrieval(
                 writer.writerows(rows)
 
     from src.run_manifest import write_run_manifest
-    write_run_manifest(out_dir, config=cfg, corpus_chunks=index_data.get("all_chunks", index_data["chunks"]))
+    corpus_chunks = index_data.get("all_chunks") or index_data.get("chunks")
+    write_run_manifest(out_dir, config=cfg, corpus_chunks=corpus_chunks)
 
     print(f"Saved retrieval results to {per_q_path} and {summary_path}")
     return {
