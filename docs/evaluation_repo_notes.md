@@ -46,7 +46,7 @@ The `science-behind-crafts-rag` repository contains two main subsystems for retr
 
 2. **`craft_rag`**:
    - Configured backend (`config.yaml`): `embedding.backend: hashing` (default).
-   - Hashing backend: deterministic offline 128-dimensional projection using word token hashes (`TextEmbedder` in `embed_text.py`). Requires **no network access or model downloads**.
+   - Hashing backend: deterministic offline 384-dimensional projection using word token hashes (`TextEmbedder` in `embed_text.py`). Requires **no network access or model downloads**.
    - Optional backend: `sentence-transformers` with `intfloat/multilingual-e5-small` (384-dimensional). Model downloads require explicit configuration `embedding.allow_download: true`.
 
 ---

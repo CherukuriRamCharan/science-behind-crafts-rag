@@ -17,7 +17,7 @@ The 45 benchmark questions were auto-drafted from extracted corpus cards and obs
 
 ### Essential Evaluation Caveats:
 1. **Sample Size & Statistical Significance ($N=33$)**: With $N=33$ answerable questions, differences between retrievers may be within noise (no significance test was run, N=33). BM25 achieved Hit@5 = 90.91% (30/33) and Hybrid Pipeline achieved Hit@5 = 87.88% (29/33), a margin of only a single question. **No retriever is claimed as an absolute winner.**
-2. **Dense Retriever is a Hashing Baseline**: In `craft_rag/config.yaml`, `embedding.backend: hashing` denotes an offline 128-dimensional random hashing baseline, not a pre-trained semantic neural model. It provides a low-dimensional offline baseline; no general conclusions about neural dense retrieval are drawn.
+2. **Dense Retriever is a Hashing Baseline**: In `craft_rag/config.yaml`, `embedding.backend: hashing` denotes an offline 384-dimensional deterministic token-hashing baseline, not a pre-trained semantic neural model. It provides an offline baseline; no general conclusions about neural dense retrieval are drawn.
 3. **High Lexical Overlap**: High lexical overlap between questions and gold quotes (average 58.84%, with 22 of 33 answerable questions exceeding 50%) likely favors BM25; retrieval scores may be optimistic.
 4. **Offline Extractive Generator Limitations**: Generation metrics evaluate only the fallback extractive summarizer (`--skip-llm`), which concatenates raw text chunks. These metrics cannot be generalized to an LLM-based generator.
 5. **Teammate Deduplication Effect**: The teammate retriever in `craft_rag/pipeline/retrieve.py` enforces deduplication on `(source_id, title)`. BM25 and Dense do not use this filter. To enable a fair comparison, both `hybrid (no dedup)` and `hybrid (pipeline with dedup)` are evaluated.
@@ -110,7 +110,7 @@ where $T = \{w \in \text{tokens} : w \notin \text{STOPWORDS} \land \text{len}(w)
 ### 3.1 Code Paths Disclosed
 
 - **`bm25`**: Direct BM25 candidate scoring without title deduplication (`retrieve_bm25`).
-- **`dense (hashing baseline)`**: Direct 128-dim hash vector scoring without title deduplication (`retrieve_dense`).
+- **`dense (hashing baseline)`**: Direct 384-dim hash vector scoring without title deduplication (`retrieve_dense`).
 - **`hybrid (pipeline with dedup)`**: Calls teammate `craft_rag.pipeline.retrieve.HybridRetriever.retrieve()`, which drops all subsequent chunks sharing `(source_id, title)`.
 - **`hybrid (no dedup)`**: Direct Reciprocal Rank Fusion on BM25 + Dense without title suppression, establishing a fair like-for-like comparison.
 
@@ -192,7 +192,7 @@ Generation was evaluated using `craft_rag.pipeline.generate.GroundedGenerator` i
 2. **Citation Validity is 100% by Construction**: The extractive generator constructs answers strictly by formatting strings from retrieved passage objects: `f"{text} [{source_id} | {level}]"`. It has no autoregressive decoder, so hallucinating a non-existent citation ID is structurally impossible.
 3. **Evidence-Status Leakage (0/5) is Uninformative**: With $N=5$ process observation questions and an extractive concatenator, the system does not generate free-form text.
 4. **Low Token F1 Reflects Chunk Length, Not Answer Quality**: Token F1 (~0.08) is low because the extractive summarizer pastes up to 3 long raw passages (200–500 words), while reference gold answers are concise 1–2 sentence factual summaries.
-5. **Abstention Cannot Be Compared Across Retrievers**: Dense achieved 50% abstention on unanswerables solely because its 128-dim hash vectors retrieved poor chunks that failed the 8% query token overlap check. It abstains more because it retrieves worse, not because it possesses superior epistemic confidence.
+5. **Abstention Cannot Be Compared Across Retrievers**: Dense achieved 50% abstention on unanswerables solely because its 384-dim hash vectors retrieved poor chunks that failed the 8% query token overlap check. It abstains more because it retrieves worse, not because it possesses superior epistemic confidence.
 6. **Zero Generalization to LLMs**: None of these generation numbers can be extrapolated to a generative LLM backend (e.g. Qwen or Llama).
 
 ---
@@ -230,7 +230,7 @@ All 23 failure instances across the pipeline were mapped and classified into thr
    - **Root Cause**: On near-domain unanswerable queries (e.g., questions asking about Udayagiri wood soaking duration or teak steam bending radii not present in the corpus), retrieved craft chunks contained incidental word matches (e.g., "wood", "carving", "bamboo") that exceeded the simple heuristic overlap threshold ($|T_{\text{query}} \cap T_{\text{passage}}| / |T_{\text{query}}| \ge 0.08$). Consequently, the extractive generator pasted irrelevant passages rather than abstaining with *"Insufficient evidence"*.
 
 3. **`dense_hashing_capacity_limit`** (**9 questions**: `q004`, `q006`, `q008`, `q010`, `q018`, `q023`, `q026`, `q031`, `q032`):
-   - **Root Cause**: The 128-dimensional offline token-hashing baseline (`TextEmbedder`) lacks the semantic representational capacity to bridge query terminology and passage phrasing without exact lexical matches or within crowded hash projections, causing the gold chunk to fall outside the top 5 candidates.
+   - **Root Cause**: The 384-dimensional offline token-hashing baseline (`TextEmbedder`) lacks the semantic representational capacity to bridge query terminology and passage phrasing without exact lexical matches or within crowded hash projections, causing the gold chunk to fall outside the top 5 candidates.
 
 ---
 

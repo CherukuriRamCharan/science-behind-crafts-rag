@@ -6,6 +6,7 @@ functions in src/eval_metrics.py produce exact, mathematically sound outputs.
 from __future__ import annotations
 
 import importlib
+import ast
 import inspect
 import json
 from pathlib import Path
@@ -895,3 +896,89 @@ def test_m33_overlap_constraint_is_strictly_below_half():
 
 
 # ===========================================================================
+
+def test_h5_categories_follow_q023_q025_q026_q031_measured_ranks(tmp_path):
+    import csv
+    from src.analyze_errors import run_error_analysis
+
+    dataset = tmp_path / "questions.jsonl"
+    source_questions = {
+        q["qid"]: q for q in (
+            json.loads(line)
+            for line in Path("data/eval/eval_questions.jsonl").read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+    }
+    qids = ("q023", "q025", "q026", "q031")
+    dataset.write_text("\n".join(json.dumps(source_questions[qid]) for qid in qids) + "\n", encoding="utf-8")
+    results = tmp_path / "results"
+    results.mkdir()
+    reciprocal_ranks = {
+        "q023": {"bm25": 1 / 9, "dense (hashing baseline)": 1 / 21, "hybrid (no dedup)": 1 / 11, "hybrid (pipeline with dedup)": 0},
+        "q025": {"bm25": 1, "dense (hashing baseline)": 1 / 4, "hybrid (no dedup)": 1 / 2, "hybrid (pipeline with dedup)": 0},
+        "q026": {"bm25": 1 / 2, "dense (hashing baseline)": 0, "hybrid (no dedup)": 1 / 17, "hybrid (pipeline with dedup)": 0},
+        "q031": {"bm25": 0, "dense (hashing baseline)": 0, "hybrid (no dedup)": 0, "hybrid (pipeline with dedup)": 0},
+    }
+    with (results / "retrieval_per_question.csv").open("w", newline="", encoding="utf-8") as stream:
+        fields = ["qid", "retriever", "MRR"]
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        for qid, systems in reciprocal_ranks.items():
+            for retriever, reciprocal_rank in systems.items():
+                writer.writerow({"qid": qid, "retriever": retriever, "MRR": f"{reciprocal_rank:.4f}"})
+    (results / "generation_per_question.csv").write_text(
+        "qid,retriever,is_answerable,abstained\n", encoding="utf-8"
+    )
+
+    failures = run_error_analysis(results, dataset)
+    categories = {failure["qid"]: failure["category"] for failure in failures}
+    assert categories == {
+        "q023": "retrieval_miss_all_systems",
+        "q025": "retrieval_deduplication_drop",
+        "q026": "dense_embedding_miss",
+        "q031": "retrieval_miss_all_systems",
+    }
+    assert failures[0]["measured_ranks"]["bm25"] == 9
+
+def test_h5_no_128dim_in_error_descriptions():
+    """H5: '128-dim' must not appear in analyze_errors.py.
+    Currently FAILS because the string is present in a hard-coded description.
+    """
+    src = Path("src/analyze_errors.py").read_text(encoding="utf-8")
+    assert "128-dim" not in src, "'128-dim' must be removed from error descriptions (H5)"
+
+
+def test_h5_label_fixes_not_loaded_unused():
+    """H5: label_fixes is loaded but never used — remove the load or use it.
+    Currently FAILS because the variable is assigned but has zero Load uses.
+    """
+    src = Path("src/analyze_errors.py").read_text(encoding="utf-8")
+    tree = ast.parse(src)
+
+    assigned = any(
+        isinstance(t, ast.Name) and t.id == "label_fixes"
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Assign)
+        for t in node.targets
+    )
+    if assigned:
+        load_uses = sum(
+            1 for node in ast.walk(tree)
+            if isinstance(node, ast.Name)
+            and node.id == "label_fixes"
+            and isinstance(node.ctx, ast.Load)
+        )
+        assert load_uses > 0, (
+            "'label_fixes' is assigned but never used — remove the load or use it (H5)"
+        )
+
+
+def test_h5_dedup_drop_derived_from_no_dedup_comparison():
+    """H5: retrieval_deduplication_drop must be detected by comparing
+    no-dedup vs pipeline ranks, not by checking pipeline HitRate@5 alone.
+    Currently FAILS because the source only checks the pipeline retriever.
+    """
+    src = Path("src/analyze_errors.py").read_text(encoding="utf-8")
+    assert "no dedup" in src.lower() or "no_dedup" in src.lower(), (
+        "dedup drop detection must compare no-dedup vs pipeline ranks (H5)"
+    )

@@ -199,6 +199,10 @@ def evaluate_retrieval(
                 m_prec = {k: precision_at_k(collapsed, k) for k in K_VALUES}
                 m_ndcg = {k: ndcg_at_k(collapsed, k, n_relevant=n_rel) for k in K_VALUES}
                 q_mrr = mrr(collapsed)
+                gold_rank = next(
+                    (rank for rank, (_, group_index) in enumerate(collapsed, 1) if group_index is not None),
+                    None,
+                )
 
                 # Check for zero hits at k=10
                 if m_hit[10] == 0.0:
@@ -216,6 +220,7 @@ def evaluate_retrieval(
                     "retriever": mode_name,
                     "question_type": q_type,
                     "document_type": doc_type,
+                    "gold_rank": gold_rank,
                     "MRR": round(q_mrr, 4),
                     "HitRate@1": round(m_hit[1], 4),
                     "HitRate@3": round(m_hit[3], 4),
