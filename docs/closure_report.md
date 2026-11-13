@@ -1,8 +1,8 @@
 # Evaluation and Generation Closure Report
 
-**Date:** 2026-11-13  
-**Branch:** `codex/m30-m33-runner-validator`  
-**Current committed implementation:** `f6aea4e`  
+**Date:** 2026-11-13
+**Branch:** `codex/m30-m33-runner-validator`
+**Current committed implementation:** `f6aea4e`
 **Dataset:** approved v2, 45 questions (33 answerable, 12 unanswerable); original v1 retained.
 
 ## Finding closure table
