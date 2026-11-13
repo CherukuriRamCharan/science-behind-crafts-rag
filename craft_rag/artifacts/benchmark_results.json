@@ -5,24 +5,24 @@
     "abstention_queries": 6,
     "top_k": 5,
     "max_per_source": 2,
-    "benchmark_file": "C:\\Users\\cheru\\OneDrive\\Documents\\GitHub\\science-behind-crafts-rag\\craft_rag\\data\\eval\\craft_ground_truth_eval.json"
+    "benchmark_file": "C:\\Users\\SAMA\\Projects\\NPTEL Project\\science-behind-crafts-rag\\craft_rag\\data\\eval\\craft_ground_truth_eval.json"
   },
   "overall_metrics": {
     "retrieval": {
-      "precision@1": 0.8182,
-      "precision@3": 0.4697,
-      "precision@5": 0.3182,
-      "recall@1": 0.2324,
-      "recall@3": 0.3592,
-      "recall@5": 0.4013,
+      "precision@1": 0.7727,
+      "precision@3": 0.4848,
+      "precision@5": 0.3364,
+      "recall@1": 0.2097,
+      "recall@3": 0.3815,
+      "recall@5": 0.4421,
       "mrr": 0.8788,
-      "ndcg@1": 0.8182,
-      "ndcg@3": 0.5859,
-      "ndcg@5": 0.5433,
-      "citation_precision": 0.5,
-      "citation_recall": 0.1827,
-      "citation_source_precision": 0.5,
-      "citation_source_recall": 0.3712
+      "ndcg@1": 0.7727,
+      "ndcg@3": 0.5919,
+      "ndcg@5": 0.5553,
+      "citation_precision": 0.4318,
+      "citation_recall": 0.1903,
+      "citation_source_precision": 0.4318,
+      "citation_source_recall": 0.3864
     },
     "abstention_accuracy": 1.0
   },
@@ -31,21 +31,21 @@
       "total_queries": 4,
       "precision@1": 0.25,
       "precision@3": 0.3333,
-      "precision@5": 0.2,
-      "recall@5": 0.4375,
+      "precision@5": 0.25,
+      "recall@5": 0.5,
       "mrr": 0.5833,
-      "ndcg@5": 0.3955,
+      "ndcg@5": 0.4333,
       "citation_precision": 0.25,
       "citation_recall": 0.125
     },
     "Bamboo Structural & Splitting Mechanics": {
       "total_queries": 5,
-      "precision@1": 1.0,
+      "precision@1": 0.8,
       "precision@3": 0.4,
       "precision@5": 0.28,
       "recall@5": 0.5667,
-      "mrr": 1.0,
-      "ndcg@5": 0.6317,
+      "mrr": 0.9,
+      "ndcg@5": 0.5864,
       "citation_precision": 0.5,
       "citation_recall": 0.2167
     },
@@ -64,29 +64,29 @@
       "precision@5": 0.4,
       "recall@5": 0.3398,
       "mrr": 1.0,
-      "ndcg@5": 0.5963,
+      "ndcg@5": 0.6012,
       "citation_precision": 0.0,
       "citation_recall": 0.0
     },
     "Tool Ergonomics, Posture & Body Mechanics": {
       "total_queries": 5,
       "precision@1": 1.0,
-      "precision@3": 0.6667,
-      "precision@5": 0.44,
-      "recall@5": 0.2285,
+      "precision@3": 0.6,
+      "precision@5": 0.4,
+      "recall@5": 0.2579,
       "mrr": 1.0,
-      "ndcg@5": 0.6004,
-      "citation_precision": 0.9,
-      "citation_recall": 0.1873
+      "ndcg@5": 0.5665,
+      "citation_precision": 0.6,
+      "citation_recall": 0.2206
     },
     "Wood Carving Mechanics & Species Properties": {
       "total_queries": 5,
       "precision@1": 0.8,
-      "precision@3": 0.4,
-      "precision@5": 0.28,
-      "recall@5": 0.4167,
-      "mrr": 0.8,
-      "ndcg@5": 0.4843,
+      "precision@3": 0.5333,
+      "precision@5": 0.36,
+      "recall@5": 0.5167,
+      "mrr": 0.9,
+      "ndcg@5": 0.5829,
       "citation_precision": 0.6,
       "citation_recall": 0.3
     }
@@ -100,16 +100,16 @@
       "multi_source": true,
       "retrieved_chunk_ids": [
         "WBC-2001::0000",
-        "WBC-2002::0000",
         "WBC-2003::0000",
         "WBC-0009::doc0001::0000",
+        "WBC-2002::0000",
         "WBC-2004::0000"
       ],
       "retrieved_source_ids": [
         "WBC-2001",
-        "WBC-2002",
         "WBC-2003",
         "WBC-0009",
+        "WBC-2002",
         "WBC-2004"
       ],
       "target_chunk_ids": [
@@ -150,12 +150,12 @@
         "precision@1": 1.0,
         "recall@1": 0.25,
         "ndcg@1": 1.0,
-        "precision@3": 0.6667,
-        "recall@3": 0.5,
-        "ndcg@3": 0.7039,
+        "precision@3": 1.0,
+        "recall@3": 0.75,
+        "ndcg@3": 1.0,
         "precision@5": 0.6,
         "recall@5": 0.75,
-        "ndcg@5": 0.7537
+        "ndcg@5": 0.8319
       },
       "citation_metrics": {
         "citation_precision": 1.0,
@@ -174,17 +174,17 @@
       "multi_source": true,
       "retrieved_chunk_ids": [
         "WBC-0037::doc0001::0000",
+        "WBC-0018::doc0001::0000",
         "WBC-0049::doc0001::0000",
-        "WBC-0038::doc0001::0000",
-        "WBC-0020::doc0001::0000",
-        "WBC-0039::doc0001::0000"
+        "WBC-0065::doc0001::0000",
+        "WBC-0038::doc0001::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0037",
+        "WBC-0018",
         "WBC-0049",
-        "WBC-0038",
-        "WBC-0020",
-        "WBC-0039"
+        "WBC-0065",
+        "WBC-0038"
       ],
       "target_chunk_ids": [
         "WBC-0018::doc0001::0000",
@@ -219,16 +219,16 @@
       ],
       "answer_preview": "Drying and Control of Moisture Content and Dimensional Changes. [WBC-0037 | E3] Explains that wood continuously exchanges moisture with its environment and that inadequate seasonin",
       "retrieval_metrics": {
-        "mrr": 0.0,
+        "mrr": 0.5,
         "precision@1": 0.0,
         "recall@1": 0.0,
         "ndcg@1": 0.0,
-        "precision@3": 0.0,
-        "recall@3": 0.0,
-        "ndcg@3": 0.0,
-        "precision@5": 0.0,
-        "recall@5": 0.0,
-        "ndcg@5": 0.0
+        "precision@3": 0.3333,
+        "recall@3": 0.25,
+        "ndcg@3": 0.2961,
+        "precision@5": 0.4,
+        "recall@5": 0.5,
+        "ndcg@5": 0.4144
       },
       "citation_metrics": {
         "citation_precision": 0.0,
@@ -363,14 +363,14 @@
         "WBC-0028::doc0001::0000",
         "WBC-0054::doc0001::0000",
         "WBC-2004::0000",
-        "WBC-0039::doc0001::0000",
+        "WBC-2011::0000",
         "WBC-2001::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0028",
         "WBC-0054",
         "WBC-2004",
-        "WBC-0039",
+        "WBC-2011",
         "WBC-2001"
       ],
       "target_chunk_ids": [
@@ -421,15 +421,15 @@
         "WBC-0059::doc0001::0000",
         "WBC-0060::doc0002::0000",
         "WBC-0007::doc0003::0000",
-        "WBC-2009::0000",
-        "WBC-0002::doc0003::0000"
+        "WBC-0002::doc0003::0000",
+        "WBC-2009::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0059",
         "WBC-0060",
         "WBC-0007",
-        "WBC-2009",
-        "WBC-0002"
+        "WBC-0002",
+        "WBC-2009"
       ],
       "target_chunk_ids": [
         "WBC-0059::doc0001::0000",
@@ -478,16 +478,16 @@
       "expected_abstention": false,
       "multi_source": true,
       "retrieved_chunk_ids": [
+        "WBC-2015::0000",
         "WBC-2010::0000",
         "WBC-2008::0000",
-        "WBC-2015::0000",
         "WBC-2009::0000",
         "WBC-2021::0000"
       ],
       "retrieved_source_ids": [
+        "WBC-2015",
         "WBC-2010",
         "WBC-2008",
-        "WBC-2015",
         "WBC-2009",
         "WBC-2021"
       ],
@@ -503,16 +503,16 @@
       "citations": [],
       "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
       "retrieval_metrics": {
-        "mrr": 1.0,
-        "precision@1": 1.0,
-        "recall@1": 0.5,
-        "ndcg@1": 1.0,
+        "mrr": 0.5,
+        "precision@1": 0.0,
+        "recall@1": 0.0,
+        "ndcg@1": 0.0,
         "precision@3": 0.3333,
         "recall@3": 0.5,
-        "ndcg@3": 0.6131,
+        "ndcg@3": 0.3869,
         "precision@5": 0.4,
         "recall@5": 1.0,
-        "ndcg@5": 0.8772
+        "ndcg@5": 0.6509
       },
       "citation_metrics": {
         "citation_precision": 0.0,
@@ -531,17 +531,17 @@
       "multi_source": false,
       "retrieved_chunk_ids": [
         "WBC-0060::doc0001::0000",
-        "WBC-0050::doc0001::0000",
         "WBC-0063::doc0001::0000",
+        "WBC-0050::doc0001::0000",
         "WBC-0033::doc0001::0000",
-        "WBC-2009::0000"
+        "WBC-0006::doc0003::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0060",
-        "WBC-0050",
         "WBC-0063",
+        "WBC-0050",
         "WBC-0033",
-        "WBC-2009"
+        "WBC-0006"
       ],
       "target_chunk_ids": [
         "WBC-0060::doc0001::0000",
@@ -595,17 +595,17 @@
       "multi_source": false,
       "retrieved_chunk_ids": [
         "WBC-0064::doc0001::0000",
-        "WBC-2031::0000",
-        "WBC-0011::doc0001::0000",
         "WBC-2015::0000",
-        "WBC-2032::0000"
+        "WBC-0011::doc0001::0000",
+        "WBC-2031::0000",
+        "WBC-0026::doc0003::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0064",
-        "WBC-2031",
-        "WBC-0011",
         "WBC-2015",
-        "WBC-2032"
+        "WBC-0011",
+        "WBC-2031",
+        "WBC-0026"
       ],
       "target_chunk_ids": [
         "WBC-0064::doc0001::0000",
@@ -714,14 +714,16 @@
       "retrieved_chunk_ids": [
         "WBC-0051::doc0087::0000",
         "WBC-0051::doc0088::0000",
-        "WBC-2026::0000",
-        "WBC-2027::0000"
+        "WBC-0003::doc0001::0000",
+        "WBC-0044::doc0001::0000",
+        "WBC-0025::doc0001::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0051",
         "WBC-0051",
-        "WBC-2026",
-        "WBC-2027"
+        "WBC-0003",
+        "WBC-0044",
+        "WBC-0025"
       ],
       "target_chunk_ids": [
         "WBC-0051::doc0001::0000",
@@ -838,27 +840,39 @@
           "chunk_id": "WBC-0051::doc0087::0000",
           "evidence_level": "E3",
           "quote": "Hand strength: the influence of grip span and grip type."
+        },
+        {
+          "source_id": "WBC-0003",
+          "chunk_id": "WBC-0003::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "The Influence of Hand Tool Design on Hand Grip Strength: A Review."
+        },
+        {
+          "source_id": "WBC-0044",
+          "chunk_id": "WBC-0044::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Confirms handle diameter, material and surface texture are significant hand-tool design factors affecting grip strength, directly explaining the artisan-made Tagi Batali handle wrap documented in the tool annexure as improving grip during rough shaping."
         }
       ],
-      "answer_preview": "Hand strength: the influence of grip span and grip type. [WBC-0051 | E3]",
+      "answer_preview": "Hand strength: the influence of grip span and grip type. [WBC-0051 | E3] The Influence of Hand Tool Design on Hand Grip Strength: A Review. [WBC-0003 | E3] Confirms handle diameter",
       "retrieval_metrics": {
         "mrr": 1.0,
         "precision@1": 1.0,
         "recall@1": 0.0099,
         "ndcg@1": 1.0,
-        "precision@3": 1.0,
-        "recall@3": 0.0297,
-        "ndcg@3": 1.0,
-        "precision@5": 0.8,
-        "recall@5": 0.0396,
-        "ndcg@5": 0.8688
+        "precision@3": 0.6667,
+        "recall@3": 0.0198,
+        "ndcg@3": 0.7654,
+        "precision@5": 0.4,
+        "recall@5": 0.0198,
+        "ndcg@5": 0.5531
       },
       "citation_metrics": {
-        "citation_precision": 1.0,
+        "citation_precision": 0.3333,
         "citation_recall": 0.0099,
-        "cited_chunks_count": 1,
+        "cited_chunks_count": 3,
         "target_chunks_count": 101,
-        "citation_source_precision": 1.0,
+        "citation_source_precision": 0.3333,
         "citation_source_recall": 0.3333
       }
     },
@@ -869,18 +883,18 @@
       "expected_abstention": false,
       "multi_source": true,
       "retrieved_chunk_ids": [
-        "WBC-0007::doc0001::0000",
         "WBC-0015::doc0001::0000",
-        "WBC-0055::doc0001::0000",
-        "WBC-0051::doc0092::0000",
-        "WBC-0051::doc0057::0000"
+        "WBC-0007::doc0001::0000",
+        "WBC-0034::doc0001::0000",
+        "WBC-0026::doc0001::0000",
+        "WBC-0053::doc0001::0000"
       ],
       "retrieved_source_ids": [
-        "WBC-0007",
         "WBC-0015",
-        "WBC-0055",
-        "WBC-0051",
-        "WBC-0051"
+        "WBC-0007",
+        "WBC-0034",
+        "WBC-0026",
+        "WBC-0053"
       ],
       "target_chunk_ids": [
         "WBC-0007::doc0001::0000",
@@ -898,8 +912,8 @@
       "abstained": false,
       "citations": [
         {
-          "source_id": "WBC-0007",
-          "chunk_id": "WBC-0007::doc0001::0000",
+          "source_id": "WBC-0015",
+          "chunk_id": "WBC-0015::doc0001::0000",
           "evidence_level": "E3",
           "quote": "Risk Factors Associated with Work-Related Musculoskeletal Disorders Among Floor-Sitting Precision Handicraft Workers."
         },
@@ -907,10 +921,10 @@
           "source_id": "WBC-0007",
           "chunk_id": "WBC-0007::doc0001::0000",
           "evidence_level": "E3",
-          "quote": "Repository annotation (not source text): Confirms high MSD prevalence (neck 61.6%, lower back 74.8%, knee 54.7%) among floor-sitting Indian precision handicraft workers, and identifies sustained awkward posture, prolonged hours, and lack of breaks as key risk factors — directly applicable to the close, seated hand-carving posture documented for Udayagiri artisans."
+          "quote": "Confirms high MSD prevalence (neck 61.6%, lower back 74.8%, knee 54.7%) among floor-sitting Indian precision handicraft workers, and identifies sustained awkward posture, prolonged hours, and lack of breaks as key risk factors — directly applicable to the close, seated hand-carving posture documented for Udayagiri artisans."
         }
       ],
-      "answer_preview": "Risk Factors Associated with Work-Related Musculoskeletal Disorders Among Floor-Sitting Precision Handicraft Workers. [WBC-0007 | E3] Repository annotation (not source text): Confi",
+      "answer_preview": "Risk Factors Associated with Work-Related Musculoskeletal Disorders Among Floor-Sitting Precision Handicraft Workers. [WBC-0015 | E3] Confirms high MSD prevalence (neck 61.6%, lowe",
       "retrieval_metrics": {
         "mrr": 1.0,
         "precision@1": 1.0,
@@ -919,17 +933,17 @@
         "precision@3": 0.6667,
         "recall@3": 0.3333,
         "ndcg@3": 0.7654,
-        "precision@5": 0.4,
-        "recall@5": 0.3333,
-        "ndcg@5": 0.5531
+        "precision@5": 0.6,
+        "recall@5": 0.5,
+        "ndcg@5": 0.6992
       },
       "citation_metrics": {
         "citation_precision": 1.0,
-        "citation_recall": 0.1667,
-        "cited_chunks_count": 1,
+        "citation_recall": 0.3333,
+        "cited_chunks_count": 2,
         "target_chunks_count": 6,
         "citation_source_precision": 1.0,
-        "citation_source_recall": 0.3333
+        "citation_source_recall": 0.6667
       }
     },
     {
@@ -1015,14 +1029,14 @@
         "WBC-0051::doc0011::0000",
         "WBC-0051::doc0010::0000",
         "WBC-0046::doc0003::0000",
-        "WBC-2016::doc0060::0000",
+        "WBC-0003::doc0001::0000",
         "WBC-0048::doc0003::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0051",
         "WBC-0051",
         "WBC-0046",
-        "WBC-2016",
+        "WBC-0003",
         "WBC-0048"
       ],
       "target_chunk_ids": [
@@ -1139,9 +1153,15 @@
           "chunk_id": "WBC-0051::doc0011::0000",
           "evidence_level": "E3",
           "quote": "design of hand tools [41], [42]."
+        },
+        {
+          "source_id": "WBC-0003",
+          "chunk_id": "WBC-0003::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "The Influence of Hand Tool Design on Hand Grip Strength: A Review."
         }
       ],
-      "answer_preview": "design of hand tools [41], [42]. [WBC-0051 | E3]",
+      "answer_preview": "design of hand tools [41], [42]. [WBC-0051 | E3] The Influence of Hand Tool Design on Hand Grip Strength: A Review. [WBC-0003 | E3]",
       "retrieval_metrics": {
         "mrr": 1.0,
         "precision@1": 1.0,
@@ -1155,11 +1175,11 @@
         "ndcg@5": 0.5531
       },
       "citation_metrics": {
-        "citation_precision": 1.0,
+        "citation_precision": 0.5,
         "citation_recall": 0.0099,
-        "cited_chunks_count": 1,
+        "cited_chunks_count": 2,
         "target_chunks_count": 101,
-        "citation_source_precision": 1.0,
+        "citation_source_precision": 0.5,
         "citation_source_recall": 0.5
       }
     },
@@ -1172,16 +1192,16 @@
       "retrieved_chunk_ids": [
         "WBC-0062::doc0001::0000",
         "WBC-0022::doc0001::0000",
-        "WBC-2016::doc0010::0000",
-        "WBC-2016::doc0065::0000",
-        "WBC-0050::doc0003::0000"
+        "WBC-0041::doc0001::0000",
+        "WBC-2016::doc0009::0000",
+        "WBC-2016::doc0064::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0062",
         "WBC-0022",
+        "WBC-0041",
         "WBC-2016",
-        "WBC-2016",
-        "WBC-0050"
+        "WBC-2016"
       ],
       "target_chunk_ids": [
         "WBC-0022::doc0001::0000",
@@ -1208,10 +1228,10 @@
           "quote": "Confirms motor variability is an inherent, measurable feature of human repetitive manual precision tasks, providing a scientific basis for the report's observation of symmetry inconsistency across repeated hand-carved designs."
         },
         {
-          "source_id": "WBC-0062",
-          "chunk_id": "WBC-0062::doc0001::0000",
+          "source_id": "WBC-0041",
+          "chunk_id": "WBC-0041::doc0001::0000",
           "evidence_level": "E3",
-          "quote": "Repository annotation (not source text): Confirms motor variability is an inherent, measurable feature of human repetitive manual precision tasks, providing a scientific basis for why the report singles out eye-carving as the most critical and control-demanding stage of the entire process."
+          "quote": "Confirms motor variability is an inherent, measurable feature of human repetitive manual precision tasks, providing a scientific basis for the report's own observation that manual skill-dependent cutting leads to variation in design, shapes and rejection, and supporting the case for CNC-assisted micro-cutting."
         }
       ],
       "answer_preview": "Exploring the Role of Task on Kinematic Variability and Assessing Consistency in Individual Responses Across Repetitive Manual Tasks. [WBC-0062 | E3] Confirms motor variability is ",
@@ -1228,11 +1248,11 @@
         "ndcg@5": 0.6367
       },
       "citation_metrics": {
-        "citation_precision": 1.0,
+        "citation_precision": 0.6667,
         "citation_recall": 0.5,
-        "cited_chunks_count": 2,
+        "cited_chunks_count": 3,
         "target_chunks_count": 4,
-        "citation_source_precision": 1.0,
+        "citation_source_precision": 0.6667,
         "citation_source_recall": 1.0
       }
     },
@@ -1246,15 +1266,15 @@
         "WBC-0068::0000",
         "WBC-0011::doc0001::0000",
         "WBC-0037::doc0003::0000",
-        "WBC-0038::doc0003::0000",
-        "WBC-0039::doc0003::0000"
+        "WBC-0039::doc0003::0000",
+        "WBC-0038::doc0003::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0068",
         "WBC-0011",
         "WBC-0037",
-        "WBC-0038",
-        "WBC-0039"
+        "WBC-0039",
+        "WBC-0038"
       ],
       "target_chunk_ids": [
         "WBC-0011::doc0001::0000",
@@ -1294,18 +1314,18 @@
       "expected_abstention": false,
       "multi_source": true,
       "retrieved_chunk_ids": [
-        "WBC-0050::doc0001::0000",
         "WBC-0068::0000",
+        "WBC-0050::doc0001::0000",
         "WBC-0063::doc0001::0000",
-        "WBC-0028::doc0003::0000",
-        "WBC-0024::doc0001::0000"
+        "WBC-0024::doc0001::0000",
+        "WBC-0033::doc0001::0000"
       ],
       "retrieved_source_ids": [
-        "WBC-0050",
         "WBC-0068",
+        "WBC-0050",
         "WBC-0063",
-        "WBC-0028",
-        "WBC-0024"
+        "WBC-0024",
+        "WBC-0033"
       ],
       "target_chunk_ids": [
         "WBC-0063::doc0001::0000",
@@ -1335,9 +1355,9 @@
         "precision@3": 0.3333,
         "recall@3": 0.25,
         "ndcg@3": 0.2346,
-        "precision@5": 0.2,
-        "recall@5": 0.25,
-        "ndcg@5": 0.1952
+        "precision@5": 0.4,
+        "recall@5": 0.5,
+        "ndcg@5": 0.3462
       },
       "citation_metrics": {
         "citation_precision": 0.0,
@@ -1423,14 +1443,14 @@
         "WBC-0061::doc0001::0000",
         "WBC-0051::doc0052::0000",
         "WBC-0033::doc0001::0000",
-        "WBC-0044::doc0001::0000"
+        "WBC-0051::doc0005::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0048",
         "WBC-0061",
         "WBC-0051",
         "WBC-0033",
-        "WBC-0044"
+        "WBC-0051"
       ],
       "target_chunk_ids": [
         "WBC-0061::doc0001::0000",
@@ -1472,16 +1492,16 @@
       "retrieved_chunk_ids": [
         "WBC-2001::0000",
         "WBC-2017::0000",
+        "WBC-0043::doc0001::0000",
         "WBC-0047::doc0001::0000",
-        "WBC-0058::doc0001::0000",
-        "WBC-2016::doc0071::0000"
+        "WBC-0030::doc0001::0000"
       ],
       "retrieved_source_ids": [
         "WBC-2001",
         "WBC-2017",
+        "WBC-0043",
         "WBC-0047",
-        "WBC-0058",
-        "WBC-2016"
+        "WBC-0030"
       ],
       "target_chunk_ids": [
         "WBC-2001::0000",
@@ -1524,18 +1544,18 @@
       "expected_abstention": false,
       "multi_source": true,
       "retrieved_chunk_ids": [
-        "WBC-0051::doc0076::0000",
         "WBC-0051::doc0009::0000",
-        "WBC-0016::doc0001::0000",
-        "WBC-0045::doc0001::0000",
-        "WBC-2016::doc0079::0000"
+        "WBC-0051::doc0014::0000",
+        "WBC-0025::doc0001::0000",
+        "WBC-0003::doc0001::0000",
+        "WBC-0045::doc0001::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0051",
         "WBC-0051",
-        "WBC-0016",
-        "WBC-0045",
-        "WBC-2016"
+        "WBC-0025",
+        "WBC-0003",
+        "WBC-0045"
       ],
       "target_chunk_ids": [
         "WBC-0051::doc0001::0000",
@@ -1647,9 +1667,16 @@
         "WBC-0006",
         "WBC-0007"
       ],
-      "abstained": true,
-      "citations": [],
-      "answer_preview": "Insufficient evidence in the retrieved corpus to answer this question.",
+      "abstained": false,
+      "citations": [
+        {
+          "source_id": "WBC-0025",
+          "chunk_id": "WBC-0025::doc0001::0000",
+          "evidence_level": "E3",
+          "quote": "Confirms handle diameter is among the most significant hand-tool design factors affecting grip strength and fatigue, directly supporting the report's own recommendation to increase handle diameter on small finishing tools to shift artisans from a fatiguing pinch grip to a stable power grip."
+        }
+      ],
+      "answer_preview": "Confirms handle diameter is among the most significant hand-tool design factors affecting grip strength and fatigue, directly supporting the report's own recommendation to increase",
       "retrieval_metrics": {
         "mrr": 1.0,
         "precision@1": 1.0,
@@ -1665,7 +1692,7 @@
       "citation_metrics": {
         "citation_precision": 0.0,
         "citation_recall": 0.0,
-        "cited_chunks_count": 0,
+        "cited_chunks_count": 1,
         "target_chunks_count": 103,
         "citation_source_precision": 0.0,
         "citation_source_recall": 0.0
@@ -1679,17 +1706,17 @@
       "multi_source": true,
       "retrieved_chunk_ids": [
         "WBC-0011::doc0001::0000",
-        "WBC-0049::doc0001::0000",
         "WBC-0037::doc0001::0000",
-        "WBC-0028::doc0001::0000",
-        "WBC-0061::doc0001::0000"
+        "WBC-0049::doc0001::0000",
+        "WBC-0018::doc0001::0000",
+        "WBC-0065::doc0001::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0011",
-        "WBC-0049",
         "WBC-0037",
-        "WBC-0028",
-        "WBC-0061"
+        "WBC-0049",
+        "WBC-0018",
+        "WBC-0065"
       ],
       "target_chunk_ids": [
         "WBC-0018::doc0001::0000",
@@ -1717,7 +1744,7 @@
         "ndcg@3": 0.4693,
         "precision@5": 0.4,
         "recall@5": 0.3333,
-        "ndcg@5": 0.4704
+        "ndcg@5": 0.4852
       },
       "citation_metrics": {
         "citation_precision": 0.0,
@@ -1738,15 +1765,15 @@
         "WBC-0051::doc0005::0000",
         "WBC-0051::doc0052::0000",
         "WBC-0048::doc0003::0000",
-        "WBC-0003::doc0003::0000",
-        "WBC-0002::doc0003::0000"
+        "WBC-0040::doc0001::0000",
+        "WBC-0044::doc0001::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0051",
         "WBC-0051",
         "WBC-0048",
-        "WBC-0003",
-        "WBC-0002"
+        "WBC-0040",
+        "WBC-0044"
       ],
       "target_chunk_ids": [],
       "target_source_ids": [],
@@ -1766,14 +1793,14 @@
         "WBC-2001::0000",
         "WBC-2002::0000",
         "WBC-2003::0000",
-        "WBC-2004::0000"
+        "WBC-0002::doc0001::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0042",
         "WBC-2001",
         "WBC-2002",
         "WBC-2003",
-        "WBC-2004"
+        "WBC-0002"
       ],
       "target_chunk_ids": [],
       "target_source_ids": [],
@@ -1789,18 +1816,18 @@
       "expected_abstention": true,
       "multi_source": false,
       "retrieved_chunk_ids": [
-        "WBC-0039::doc0003::0000",
         "WBC-0004::doc0003::0000",
+        "WBC-0039::doc0003::0000",
         "WBC-0017::doc0003::0000",
-        "WBC-0019::doc0003::0000",
-        "WBC-0029::doc0001::0000"
+        "WBC-0031::doc0003::0000",
+        "WBC-0019::doc0003::0000"
       ],
       "retrieved_source_ids": [
-        "WBC-0039",
         "WBC-0004",
+        "WBC-0039",
         "WBC-0017",
-        "WBC-0019",
-        "WBC-0029"
+        "WBC-0031",
+        "WBC-0019"
       ],
       "target_chunk_ids": [],
       "target_source_ids": [],
@@ -1872,16 +1899,16 @@
       "retrieved_chunk_ids": [
         "WBC-0068::0000",
         "WBC-0037::doc0003::0000",
+        "WBC-0014::doc0001::0000",
         "WBC-2007::0000",
-        "WBC-2020::0000",
-        "WBC-0014::doc0001::0000"
+        "WBC-0006::doc0001::0000"
       ],
       "retrieved_source_ids": [
         "WBC-0068",
         "WBC-0037",
+        "WBC-0014",
         "WBC-2007",
-        "WBC-2020",
-        "WBC-0014"
+        "WBC-0006"
       ],
       "target_chunk_ids": [],
       "target_source_ids": [],

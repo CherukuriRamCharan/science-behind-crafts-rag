@@ -7,7 +7,7 @@
 - **Out-of-Domain & Adversarial Queries**: 6 (evaluating abstention accuracy)
 - **Retrieval Cutoff (Top-K)**: 5 passages
 - **Per-Source Diversification Limit**: 2 passages per source
-- **Benchmark Source**: `C:\Users\cheru\OneDrive\Documents\GitHub\science-behind-crafts-rag\craft_rag\data\eval\craft_ground_truth_eval.json`
+- **Benchmark Source**: `C:\Users\SAMA\Projects\NPTEL Project\science-behind-crafts-rag\craft_rag\data\eval\craft_ground_truth_eval.json`
 
 ## 2. Metric Definitions & Evaluation Methodology
 
@@ -26,15 +26,15 @@
 
 | Metric | Cutoff @1 | Cutoff @3 | Cutoff @5 |
 | :--- | :---: | :---: | :---: |
-| **Precision** | 0.8182 | 0.4697 | 0.3182 |
-| **Recall** | 0.2324 | 0.3592 | 0.4013 |
-| **nDCG** | 0.8182 | 0.5859 | 0.5433 |
+| **Precision** | 0.7727 | 0.4848 | 0.3364 |
+| **Recall** | 0.2097 | 0.3815 | 0.4421 |
+| **nDCG** | 0.7727 | 0.5919 | 0.5553 |
 
 - **Mean Reciprocal Rank (MRR)**: **`0.8788`**
-- **Citation Passage Precision**: **`0.5000`**
-- **Citation Passage Recall**: **`0.1827`**
-- **Citation Source Precision**: **`0.5000`**
-- **Citation Source Recall**: **`0.3712`**
+- **Citation Passage Precision**: **`0.4318`**
+- **Citation Passage Recall**: **`0.1903`**
+- **Citation Source Precision**: **`0.4318`**
+- **Citation Source Recall**: **`0.3864`**
 
 ### B. Abstention Accuracy (Out-of-Domain & Adversarial Probes, N=6)
 
@@ -45,40 +45,40 @@
 
 | Category | Queries | P@5 | R@5 | MRR | nDCG@5 | Cit. Prec | Cit. Rec | Abstain Acc |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Adhesives, Finishing & Preservation | 4 | 0.2000 | 0.4375 | 0.5833 | 0.3955 | 0.2500 | 0.1250 | — |
-| Bamboo Structural & Splitting Mechanics | 5 | 0.2800 | 0.5667 | 1.0000 | 0.6317 | 0.5000 | 0.2167 | — |
+| Adhesives, Finishing & Preservation | 4 | 0.2500 | 0.5000 | 0.5833 | 0.4333 | 0.2500 | 0.1250 | — |
+| Bamboo Structural & Splitting Mechanics | 5 | 0.2800 | 0.5667 | 0.9000 | 0.5864 | 0.5000 | 0.2167 | — |
 | Hallucination & Adversarial Probes | 3 | — | — | — | — | — | — | 100.0% |
 | Insufficient Evidence & Out-of-Domain Probes | 3 | — | — | — | — | — | — | 100.0% |
-| Multi-Source Craft Process Synthesis | 3 | 0.4000 | 0.3398 | 1.0000 | 0.5963 | 0.0000 | 0.0000 | — |
-| Tool Ergonomics, Posture & Body Mechanics | 5 | 0.4400 | 0.2285 | 1.0000 | 0.6004 | 0.9000 | 0.1873 | — |
-| Wood Carving Mechanics & Species Properties | 5 | 0.2800 | 0.4167 | 0.8000 | 0.4843 | 0.6000 | 0.3000 | — |
+| Multi-Source Craft Process Synthesis | 3 | 0.4000 | 0.3398 | 1.0000 | 0.6012 | 0.0000 | 0.0000 | — |
+| Tool Ergonomics, Posture & Body Mechanics | 5 | 0.4000 | 0.2579 | 1.0000 | 0.5665 | 0.6000 | 0.2206 | — |
+| Wood Carving Mechanics & Species Properties | 5 | 0.3600 | 0.5167 | 0.9000 | 0.5829 | 0.6000 | 0.3000 | — |
 
 ## 5. Detailed Per-Query Results
 
 | ID | Type | Category | Target Chunks | Retrieved Chunks | P@5 | R@5 | MRR | nDCG@5 | Status |
 | :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| Q01 | Multi | Wood Carving Mechanics & Species Properties | 4 | 5 | 0.60 | 0.75 | 1.00 | 0.75 | Answered (3 cited) |
-| Q02 | Multi | Wood Carving Mechanics & Species Properties | 4 | 5 | 0.00 | 0.00 | 0.00 | 0.00 | Answered (3 cited) |
+| Q01 | Multi | Wood Carving Mechanics & Species Properties | 4 | 5 | 0.60 | 0.75 | 1.00 | 0.83 | Answered (3 cited) |
+| Q02 | Multi | Wood Carving Mechanics & Species Properties | 4 | 5 | 0.40 | 0.50 | 0.50 | 0.41 | Answered (3 cited) |
 | Q03 | Multi | Wood Carving Mechanics & Species Properties | 4 | 5 | 0.40 | 0.50 | 1.00 | 0.59 | Answered (1 cited) |
 | Q04 | Multi | Wood Carving Mechanics & Species Properties | 3 | 5 | 0.20 | 0.33 | 1.00 | 0.47 | Abstained |
 | Q05 | Single | Wood Carving Mechanics & Species Properties | 2 | 5 | 0.20 | 0.50 | 1.00 | 0.61 | Answered (1 cited) |
 | Q06 | Multi | Bamboo Structural & Splitting Mechanics | 3 | 5 | 0.20 | 0.33 | 1.00 | 0.47 | Answered (1 cited) |
-| Q07 | Multi | Bamboo Structural & Splitting Mechanics | 2 | 5 | 0.40 | 1.00 | 1.00 | 0.88 | Abstained |
+| Q07 | Multi | Bamboo Structural & Splitting Mechanics | 2 | 5 | 0.40 | 1.00 | 0.50 | 0.65 | Abstained |
 | Q08 | Single | Bamboo Structural & Splitting Mechanics | 2 | 5 | 0.20 | 0.50 | 1.00 | 0.61 | Answered (2 cited) |
 | Q09 | Single | Bamboo Structural & Splitting Mechanics | 2 | 5 | 0.20 | 0.50 | 1.00 | 0.61 | Abstained |
 | Q10 | Multi | Bamboo Structural & Splitting Mechanics | 4 | 5 | 0.40 | 0.50 | 1.00 | 0.59 | Answered (2 cited) |
-| Q11 | Multi | Tool Ergonomics, Posture & Body Mechanics | 101 | 4 | 0.80 | 0.04 | 1.00 | 0.87 | Answered (1 cited) |
-| Q12 | Multi | Tool Ergonomics, Posture & Body Mechanics | 6 | 5 | 0.40 | 0.33 | 1.00 | 0.55 | Answered (2 cited) |
+| Q11 | Multi | Tool Ergonomics, Posture & Body Mechanics | 101 | 5 | 0.40 | 0.02 | 1.00 | 0.55 | Answered (3 cited) |
+| Q12 | Multi | Tool Ergonomics, Posture & Body Mechanics | 6 | 5 | 0.60 | 0.50 | 1.00 | 0.70 | Answered (2 cited) |
 | Q13 | Multi | Tool Ergonomics, Posture & Body Mechanics | 4 | 5 | 0.20 | 0.25 | 1.00 | 0.39 | Answered (3 cited) |
-| Q14 | Multi | Tool Ergonomics, Posture & Body Mechanics | 101 | 5 | 0.40 | 0.02 | 1.00 | 0.55 | Answered (1 cited) |
+| Q14 | Multi | Tool Ergonomics, Posture & Body Mechanics | 101 | 5 | 0.40 | 0.02 | 1.00 | 0.55 | Answered (2 cited) |
 | Q15 | Multi | Tool Ergonomics, Posture & Body Mechanics | 4 | 5 | 0.40 | 0.50 | 1.00 | 0.64 | Answered (3 cited) |
 | Q16 | Single | Adhesives, Finishing & Preservation | 2 | 5 | 0.20 | 0.50 | 0.50 | 0.39 | Abstained |
-| Q17 | Multi | Adhesives, Finishing & Preservation | 4 | 5 | 0.20 | 0.25 | 0.33 | 0.20 | Answered (1 cited) |
+| Q17 | Multi | Adhesives, Finishing & Preservation | 4 | 5 | 0.40 | 0.50 | 0.33 | 0.35 | Answered (1 cited) |
 | Q18 | Single | Adhesives, Finishing & Preservation | 2 | 5 | 0.20 | 0.50 | 1.00 | 0.61 | Answered (2 cited) |
 | Q19 | Single | Adhesives, Finishing & Preservation | 2 | 5 | 0.20 | 0.50 | 0.50 | 0.39 | Abstained |
 | Q20 | Multi | Multi-Source Craft Process Synthesis | 3 | 5 | 0.40 | 0.67 | 1.00 | 0.77 | Abstained |
-| Q21 | Multi | Multi-Source Craft Process Synthesis | 103 | 5 | 0.40 | 0.02 | 1.00 | 0.55 | Abstained |
-| Q22 | Multi | Multi-Source Craft Process Synthesis | 6 | 5 | 0.40 | 0.33 | 1.00 | 0.47 | Abstained |
+| Q21 | Multi | Multi-Source Craft Process Synthesis | 103 | 5 | 0.40 | 0.02 | 1.00 | 0.55 | Answered (1 cited) |
+| Q22 | Multi | Multi-Source Craft Process Synthesis | 6 | 5 | 0.40 | 0.33 | 1.00 | 0.49 | Abstained |
 | Q23 | Abstain | Insufficient Evidence & Out-of-Domain Probes | 0 | 5 | — | — | — | — | Correct Abstention |
 | Q24 | Abstain | Insufficient Evidence & Out-of-Domain Probes | 0 | 5 | — | — | — | — | Correct Abstention |
 | Q25 | Abstain | Insufficient Evidence & Out-of-Domain Probes | 0 | 5 | — | — | — | — | Correct Abstention |
