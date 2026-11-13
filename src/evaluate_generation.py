@@ -56,18 +56,18 @@ def retrieve_dense(query: str, index_data: dict[str, Any], candidate_k: int = 5)
     faiss_index = index_data.get("faiss")
 
     if faiss_index is not None:
-        scores, ids = faiss_index.search(q_vec.reshape(1, -1), min(candidate_k, len(chunks)))
+        scores, ids = faiss_index.search(q_vec.reshape(1, -1), len(chunks))
         results = []
         for score, idx in zip(scores[0], ids[0]):
             if idx >= 0:
                 item = dict(chunks[int(idx)])
                 item["score"] = float(score)
                 results.append(item)
-        return results
+        return sorted(results, key=lambda item: (-item["score"], item["chunk_id"]))[:candidate_k]
     else:
         vectors = index_data["vectors"]
         sims = vectors @ q_vec
-        pos = np.argsort(-sims, kind="stable")[:candidate_k]
+        pos = sorted(range(len(chunks)), key=lambda p: (-float(sims[p]), chunks[p]["chunk_id"]))[:candidate_k]
         results = []
         for p in pos:
             item = dict(chunks[int(p)])
@@ -85,7 +85,7 @@ def retrieve_bm25(query: str, index_data: dict[str, Any], candidate_k: int = 5) 
 
     if bm25 is not None:
         scores = bm25.get_scores(q_tokens)
-        positions = np.argsort(-scores, kind="stable")[:candidate_k]
+        positions = sorted(range(len(chunks)), key=lambda p: (-float(scores[p]), chunks[p]["chunk_id"]))[:candidate_k]
         results = []
         for p in positions:
             item = dict(chunks[int(p)])
@@ -95,7 +95,7 @@ def retrieve_bm25(query: str, index_data: dict[str, Any], candidate_k: int = 5) 
     else:
         term_set = set(q_tokens)
         overlaps = [sum(t in term_set for t in doc) for doc in index_data["tokenized"]]
-        positions = np.argsort(-np.asarray(overlaps), kind="stable")[:candidate_k]
+        positions = sorted(range(len(chunks)), key=lambda p: (-overlaps[p], chunks[p]["chunk_id"]))[:candidate_k]
         results = []
         for p in positions:
             item = dict(chunks[int(p)])

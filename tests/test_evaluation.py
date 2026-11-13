@@ -982,3 +982,143 @@ def test_h5_dedup_drop_derived_from_no_dedup_comparison():
     assert "no dedup" in src.lower() or "no_dedup" in src.lower(), (
         "dedup drop detection must compare no-dedup vs pipeline ranks (H5)"
     )
+
+
+
+# Branch 3 — M34/M35/L41 regression tests
+def test_m35_retrieve_hybrid_no_dedup_tie_breaking_is_by_chunk_id():
+    from src.evaluate_retrieval import retrieve_hybrid_no_dedup
+    import numpy as np
+
+    class Embedder:
+        def encode(self, texts):
+            return np.asarray([[1.0, 0.0] for _ in texts])
+
+    class EqualBM25:
+        def get_scores(self, tokens):
+            return np.asarray([1.0, 1.0])
+
+    chunk_a = {
+        "chunk_id": "AAA-chunk", "source_id": "AAA", "title": "AAA title",
+        "record_id": "AAA-chunk", "record_type": "source_document",
+        "text_chunk": "bamboo fibre strength material selection craft",
+        "evidence_level": "E3",
+        "metadata": {"evidence_eligible": True, "record_type": "source_document"},
+    }
+    chunk_b = {
+        "chunk_id": "ZZZ-chunk", "source_id": "ZZZ", "title": "ZZZ title",
+        "record_id": "ZZZ-chunk", "record_type": "source_document",
+        "text_chunk": "bamboo fibre strength material selection craft",
+        "evidence_level": "E3",
+        "metadata": {"evidence_eligible": True, "record_type": "source_document"},
+    }
+
+    idx_az = {
+        "chunks": [chunk_a, chunk_b], "embedder": Embedder(),
+        "vectors": np.asarray([[1.0, 0.0], [1.0, 0.0]]),
+        "faiss": None, "bm25": EqualBM25(), "tokenized": [["bamboo"], ["bamboo"]],
+    }
+    result_az = retrieve_hybrid_no_dedup("bamboo fibre strength", idx_az, candidate_k=2)
+    idx_za = dict(idx_az, chunks=[chunk_b, chunk_a], vectors=np.asarray([[1.0, 0.0], [1.0, 0.0]]))
+    result_za = retrieve_hybrid_no_dedup("bamboo fibre strength", idx_za, candidate_k=2)
+
+    ids_az = [r["chunk_id"] for r in result_az]
+    ids_za = [r["chunk_id"] for r in result_za]
+
+    assert ids_az == ids_za, f"Ranking changed with corpus order: az={ids_az}, za={ids_za}"
+    assert ids_az[0] < ids_az[1], f"Lexicographically smaller chunk_id must rank first, got {ids_az}"
+
+@pytest.mark.parametrize(
+    ("module_name", "retriever_name"),
+    [
+        ("src.evaluate_retrieval", "retrieve_dense"),
+        ("src.evaluate_retrieval", "retrieve_bm25"),
+        ("src.evaluate_generation", "retrieve_dense"),
+        ("src.evaluate_generation", "retrieve_bm25"),
+    ],
+)
+def test_m35_primitive_retriever_ties_ignore_corpus_order(module_name, retriever_name):
+    evaluation = importlib.import_module(module_name)
+    import numpy as np
+
+    class Embedder:
+        def encode(self, texts):
+            return np.asarray([[1.0, 0.0] for _ in texts])
+
+    class EqualBM25:
+        def get_scores(self, tokens):
+            return np.asarray([1.0, 1.0])
+
+    chunks = []
+    for chunk_id in ("AAA-chunk", "ZZZ-chunk"):
+        chunks.append({
+            "chunk_id": chunk_id, "source_id": chunk_id[:3], "title": chunk_id,
+            "record_id": chunk_id, "record_type": "source_document",
+            "text_chunk": "bamboo fibre strength material selection craft",
+            "evidence_level": "E3",
+            "metadata": {"evidence_eligible": True, "record_type": "source_document"},
+        })
+    def make_index(items):
+        return {
+            "chunks": items, "embedder": Embedder(),
+            "vectors": np.asarray([[1.0, 0.0], [1.0, 0.0]]),
+            "faiss": None, "bm25": EqualBM25(), "tokenized": [["bamboo"], ["bamboo"]],
+        }
+    fn = getattr(evaluation, retriever_name)
+    first = fn("bamboo fibre strength", make_index(chunks), candidate_k=2)
+    second = fn("bamboo fibre strength", make_index(list(reversed(chunks))), candidate_k=2)
+    assert [r["chunk_id"] for r in first] == [r["chunk_id"] for r in second]
+    assert [r["chunk_id"] for r in first] == ["AAA-chunk", "ZZZ-chunk"]
+
+def test_m34_chart_sample_labels_follow_summary_data(tmp_path, monkeypatch):
+    import csv
+    import matplotlib.pyplot as plt
+    from src.generate_charts import generate_all_charts
+
+    charts = []
+    monkeypatch.setattr(
+        plt, "savefig",
+        lambda path: charts.append((plt.gcf().axes[0].get_title(), plt.gcf().axes[0].get_ylim()[0])),
+    )
+    summary = tmp_path / "retrieval_summary.csv"
+    fields = ["retriever", "slice", "n_questions", "MRR", "HitRate@5", "Recall@1", "Recall@3", "Recall@5", "Recall@10"]
+    rows = [
+        {"retriever": "bm25", "slice": "Overall", "n_questions": "8", "MRR": ".5", "HitRate@5": ".5", "Recall@1": ".2", "Recall@3": ".3", "Recall@5": ".4", "Recall@10": ".5"},
+        {"retriever": "bm25", "slice": "question_type:factual", "n_questions": "8", "MRR": ".5", "HitRate@5": ".5", "Recall@1": ".2", "Recall@3": ".3", "Recall@5": ".4", "Recall@10": ".5"},
+    ]
+    for count in (8, 9):
+        rows[0]["n_questions"] = str(count)
+        with summary.open("w", newline="", encoding="utf-8") as stream:
+            writer = csv.DictWriter(stream, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(rows)
+        generate_all_charts(str(tmp_path))
+    assert "N=8" in charts[0][0]
+    assert "N=9" in charts[3][0]
+    assert all(bottom == 0 for _, bottom in charts)
+
+def test_m34_n_answerable_not_hardcoded():
+    """L41: evaluate_retrieval must not hard-code n_answerable as len(questions) - 12.
+    Currently FAILS because the source contains exactly that expression.
+    """
+    src = Path("src/evaluate_retrieval.py").read_text(encoding="utf-8")
+    assert "len(questions) - 12" not in src, (
+        "n_answerable must not be hard-coded as len(questions) - 12 (L41)"
+    )
+
+
+def test_m34_chart_recall_yaxis_starts_at_zero():
+    """M34: the Recall@k chart y-axis must start at 0."""
+    src = Path("src/generate_charts.py").read_text(encoding="utf-8")
+    assert "ylim(0.5" not in src, (
+        "Recall@k chart y-axis must start at 0, not 0.5 (M34)"
+    )
+
+
+def test_m34_chart_n_labels_not_hardcoded():
+    """M34: chart labels must derive sample counts from results data."""
+    src = Path("src/generate_charts.py").read_text(encoding="utf-8")
+    for hard_coded in ["N=33", "N=18", "N=10", "N=5)", "N=14", "N=8)", "N=6)", "N=4)", "N=1)"]:
+        assert hard_coded not in src, (
+            f"Hard-coded label '{hard_coded}' must be replaced with data-derived count (M34)"
+        )
