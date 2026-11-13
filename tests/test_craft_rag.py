@@ -468,6 +468,31 @@ def test_transformers_backend_generates_and_rejects_invalid_citations(monkeypatc
     assert "[WBC-0001 | E3]" in answer
 
 
+def test_e5_embeddings_use_query_and_passage_prefixes(tmp_path):
+    from craft_rag.pipeline.embed_text import TextEmbedder
+
+    embedder = object.__new__(TextEmbedder)
+    embedder.backend = "sentence-transformers"
+    embedder.model_name = "intfloat/multilingual-e5-small"
+    embedder.batch_size = 32
+    embedder.cache_dir = tmp_path
+
+    class FakeModel:
+        def __init__(self):
+            self.inputs = []
+
+        def encode(self, texts, **kwargs):
+            self.inputs.append(texts)
+            return [[1.0, 0.0] for _ in texts]
+
+    model = FakeModel()
+    embedder.model = model
+    embedder.encode(["paper excerpt"], input_type="document")
+    embedder.encode(["research question"], input_type="query")
+
+    assert model.inputs == [["passage: paper excerpt"], ["query: research question"]]
+
+
 def test_local_server_status_and_query_api(monkeypatch):
     passage = {
         "source_id": "WBC-0001",
@@ -507,6 +532,8 @@ def test_local_server_status_and_query_api(monkeypatch):
         try:
             with urlopen(f"{base}/api/status") as response:
                 status = json.load(response)
+            with urlopen(f"{base}/api/filters") as response:
+                filters = json.load(response)
             request = Request(
                 f"{base}/api/query",
                 data=json.dumps({"question": "How does bamboo maturity affect fibres?"}).encode(),
@@ -515,14 +542,24 @@ def test_local_server_status_and_query_api(monkeypatch):
             )
             with urlopen(request) as response:
                 body = json.load(response)
+            unsupported_request = Request(
+                f"{base}/api/query",
+                data=json.dumps({"question": "What is the capital of France?"}).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urlopen(unsupported_request) as response:
+                unsupported_body = json.load(response)
         except URLError as exc:
             if isinstance(exc.reason, PermissionError):
                 pytest.skip(f"Loopback sockets are blocked by this environment: {exc.reason}")
             raise
         assert status["status"] == "ready"
+        assert {"Wood carving", "Bamboo carving"} <= set(filters["craft_clusters"])
         assert body["sources"][0]["source_id"] == "WBC-0001"
         assert body["sources"][0]["source_url"] == "https://example.org/bamboo"
         assert "[WBC-0001 | E3]" in body["answer"]
+        assert unsupported_body["sources"] == []
         assert server.DEFAULT_HOST == "127.0.0.1"
     finally:
         http_server.shutdown()

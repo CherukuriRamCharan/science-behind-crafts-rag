@@ -117,12 +117,29 @@ class Handler(BaseHTTPRequestHandler):
             app = get_engine()
             filters = {key: data[key] for key in ("craft_cluster", "why_theme") if data.get(key)}
             passages = app["retriever"].retrieve(question, filters=filters)
-            answer = app["generator"].answer(question, passages)
+
+            # Use structured generator if available; fallback cleanly to legacy answer()
+            generator = app["generator"]
+            if hasattr(generator, "generate_structured"):
+                structured = generator.generate_structured(question, passages)
+                answer = structured.get("answer", "")
+                abstained = bool(structured.get("abstained", False))
+                citations = structured.get("citations", [])
+            else:
+                answer = generator.answer(question, passages)
+                abstained = answer.startswith("Insufficient evidence")
+                citations = []
+
+            if abstained or answer.startswith("Insufficient evidence"):
+                passages = []
+
             sources = []
             for passage in passages:
                 meta = passage.get("metadata", {})
                 sources.append({
                     "source_id": passage.get("source_id", "UNKNOWN"),
+                    "chunk_id": passage.get("chunk_id", ""),
+                    "record_id": passage.get("record_id", meta.get("record_id", "")),
                     "title": meta.get("title", passage.get("title", "Untitled source")),
                     "evidence_level": passage.get("evidence_level", "E5"),
                     "grade": passage.get("grade", "C"),
@@ -137,8 +154,14 @@ class Handler(BaseHTTPRequestHandler):
                     "caution": passage.get("caution", ""),
                     "score": round(float(passage.get("retrieval_score", 0)), 5),
                 })
-            self.respond(200, {"question": question, "answer": answer, "sources": sources,
-                               "backends": app["index"]["backend_info"]})
+            self.respond(200, {
+                "question": question,
+                "answer": answer,
+                "abstained": abstained,
+                "citations": citations,
+                "sources": sources,
+                "backends": app["index"]["backend_info"],
+            })
         except json.JSONDecodeError:
             self.respond(400, {"error": "Request must contain valid JSON."})
         except Exception as exc:

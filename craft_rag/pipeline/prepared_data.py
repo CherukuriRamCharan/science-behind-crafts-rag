@@ -27,6 +27,21 @@ def _title_key(value: Any) -> str:
     return " ".join(re.findall(r"[a-z0-9]+", _value(value).casefold()))
 
 
+def _craft_cluster(value: str) -> str:
+    normalized = _value(value).casefold()
+    if not normalized:
+        return ""
+    has_wood = "wood" in normalized
+    has_bamboo = "bamboo" in normalized
+    if has_wood and has_bamboo or normalized in {"both", "wood/bamboo", "bamboo/wood"}:
+        return "Wood & bamboo carving"
+    if has_bamboo:
+        return "Bamboo carving"
+    if has_wood:
+        return "Wood carving"
+    return value
+
+
 def _load_jsonl(path: Path, dataset: str, issues: list[dict[str, Any]]) -> list[dict[str, Any]]:
     if not path.is_file():
         raise FileNotFoundError(f"Prepared {dataset} dataset not found: {path}")
@@ -146,7 +161,7 @@ def _make_record(
         "source_url": source_url,
         "doi": doi,
         "link": source_url or (f"https://doi.org/{doi}" if doi else ""),
-        "craft_cluster": craft,
+        "craft_cluster": _craft_cluster(craft),
         "craft": craft,
         "region": region,
         "material": material,
@@ -253,7 +268,7 @@ def load_prepared_corpus(config: dict[str, Any]) -> tuple[list[dict[str, Any]], 
         record = _make_record(
             source_id=source_id,
             title=title,
-            text=raw_text,
+            text=parsed.get("text_chunk", raw_text),
             record_id=record_id,
             record_type="source_document",
             dataset="documents",
@@ -268,8 +283,13 @@ def load_prepared_corpus(config: dict[str, Any]) -> tuple[list[dict[str, Any]], 
             primary_theme=_value(parsed.get("why_theme")) or _value(catalog.get("primary_why_theme")),
             evidence_status=_value(row.get("extraction_status")),
             review_status=_value(catalog.get("review_status")),
-            caution=_value(parsed.get("caution")) or "Extracted metadata-card text; verify claims against the linked source.",
+            caution="Annotation-card summary; verify scientific claims against the linked source.",
         )
+        record["metadata"].update({
+            "relevance_note": _value(parsed_metadata.get("relevance_note")),
+            "questions_answered": parsed.get("questions_answered", []),
+            "craft_applicability": _value(parsed.get("craft_applicability")),
+        })
         identity = (source_id.casefold(), _title_key(title))
         if identity in source_records:
             _merge_record_metadata(source_records[identity], record)
@@ -473,6 +493,30 @@ def load_prepared_corpus(config: dict[str, Any]) -> tuple[list[dict[str, Any]], 
             review_status=_value(row.get("review_status")),
             caution="Full-paper text chunk; validate scientific claims against the source.",
         ))
+
+    annotations_by_title: dict[str, dict[str, Any]] = {}
+    for record in records:
+        if record["record_type"] != "source_document":
+            continue
+        annotation = record["metadata"]
+        title_key = _title_key(record["title"])
+        if not title_key:
+            continue
+        existing = annotations_by_title.setdefault(title_key, {})
+        for field in ("relevance_note", "questions_answered", "craft_applicability"):
+            value = annotation.get(field)
+            if value and not existing.get(field):
+                existing[field] = value
+        if record.get("craft_cluster") and not existing.get("craft_cluster"):
+            existing["craft_cluster"] = record["craft_cluster"]
+        if record.get("craft") and not existing.get("craft"):
+            existing["craft"] = record["craft"]
+
+    for record in records:
+        if record["record_type"] == "full_paper_chunk":
+            annotation = annotations_by_title.get(_title_key(record["title"]), {})
+            for field, value in annotation.items():
+                record["metadata"].setdefault(field, value)
 
     report = {
         "prepared_root": str(prepared_root),

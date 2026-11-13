@@ -100,7 +100,8 @@ def _parse_card(text: str, path: Path, root: Path | None = None) -> dict[str, An
       "why_theme":fields.get("why_theme",""),"secondary_theme":fields.get("secondary_theme",""),"process_stage":fields.get("process_stage",""),
       "evidence_level":fields.get("evidence_level","E5"),"grade":fields.get("grade","C"),"questions_answered":questions,
       "text_chunk":body,"species_material":fields.get("species_material",""),"tool_treatment":fields.get("tool_treatment",""),
-      "link":fields.get("link",""),"caution":fields.get("caution",fields.get("relevance_note","Field/Entry card does not state a separate caution.")),"pages_timestamps":fields.get("pages_timestamps",""),"annotation_path":path.relative_to(root).as_posix() if root else path.name,
+      "link":fields.get("link",""),"caution":fields.get("caution","Field/Entry card does not state a separate caution."),
+      "relevance_note":fields.get("relevance_note",""),"pages_timestamps":fields.get("pages_timestamps",""),"annotation_path":path.relative_to(root).as_posix() if root else path.name,
       "craft_applicability":fields.get("craft_applicability","Both")})
 
 def _extract(path: Path) -> str:
