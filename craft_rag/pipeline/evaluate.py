@@ -348,6 +348,13 @@ def evaluate_benchmark(
         dest.mkdir(parents=True, exist_ok=True)
         (dest / "benchmark_report.md").write_text(md_report, encoding="utf-8")
         write_json(dest / "benchmark_results.json", report_payload)
+        from src.run_manifest import write_run_manifest
+        manifest_index = index if index is not None else getattr(retriever, "index", None)
+        corpus_chunks = (
+            manifest_index.get("all_chunks") or manifest_index.get("chunks")
+            if manifest_index else None
+        )
+        write_run_manifest(dest, config=cfg, corpus_chunks=corpus_chunks)
 
     return report_payload
 

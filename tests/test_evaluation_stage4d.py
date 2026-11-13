@@ -266,9 +266,11 @@ def test_end_to_end_benchmark_evaluation(
     # Verify report artifacts exist
     report_file = tmp_path / "benchmark_report.md"
     results_json = tmp_path / "benchmark_results.json"
+    manifest_file = tmp_path / "run_manifest.json"
 
     assert report_file.exists()
     assert results_json.exists()
+    assert manifest_file.exists()
 
     report_text = report_file.read_text(encoding="utf-8")
     assert "# Science Behind Crafts RAG" in report_text
@@ -277,6 +279,10 @@ def test_end_to_end_benchmark_evaluation(
 
     parsed_json = json.loads(results_json.read_text(encoding="utf-8"))
     assert len(parsed_json["query_details"]) == 28
+    parsed_manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+    assert parsed_manifest["corpus_sha256"]
+    assert "benchmark_report.md" in parsed_manifest["output_sha256"]
+    assert "benchmark_results.json" in parsed_manifest["output_sha256"]
 
     # Also verify that canonical craft_rag/artifacts/benchmark_report.md exists
     pkg_report = Path("craft_rag/artifacts/benchmark_report.md")
