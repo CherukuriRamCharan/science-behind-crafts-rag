@@ -4,6 +4,7 @@ from __future__ import annotations
 import builtins
 import csv
 import json
+import sys
 import threading
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -359,6 +360,112 @@ def test_optional_model_backends_fail_with_setup_guidance(monkeypatch):
         TextEmbedder({"embedding": {"backend": "sentence-transformers"}})
     with pytest.raises(ImportError, match="requirements-llm.txt"):
         GroundedGenerator({"generator": {"backend": "transformers", "model_name": "local-model"}})
+
+
+def test_transformers_backend_load_failure_is_actionable(monkeypatch):
+    import types
+
+    class BrokenTokenizer:
+        @classmethod
+        def from_pretrained(cls, *args, **kwargs):
+            raise OSError("model files are unavailable")
+
+    fake_transformers = types.ModuleType("transformers")
+    fake_transformers.AutoTokenizer = BrokenTokenizer
+    fake_transformers.AutoModelForCausalLM = object
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+
+    with pytest.raises(RuntimeError, match="Could not load generator model") as error:
+        GroundedGenerator({"generator": {"backend": "transformers", "model_name": "missing-model"}})
+    assert isinstance(error.value.__cause__, OSError)
+
+
+def test_extractive_backend_runs_without_importing_transformers(monkeypatch):
+    original_import = builtins.__import__
+
+    def reject_transformers(name, *args, **kwargs):
+        if name == "transformers":
+            raise AssertionError("extractive mode must not import Transformers")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", reject_transformers)
+    generator = GroundedGenerator({"generator": {"backend": "extractive"}})
+    passage = {
+        "source_id": "WBC-0001", "evidence_level": "E3",
+        "text_chunk": "Bamboo age affects fibre strength.",
+        "metadata": {"record_type": "full_paper_chunk", "evidence_eligible": True},
+    }
+
+    assert "[WBC-0001 | E3]" in generator.answer(
+        "How does bamboo age affect fibre strength?", [passage]
+    )
+
+
+def test_transformers_backend_generates_and_rejects_invalid_citations(monkeypatch):
+    import types
+
+    class FakeInputs(dict):
+        input_ids = types.SimpleNamespace(shape=(1, 4))
+
+        def to(self, _device):
+            return self
+
+    class FakeTokenizer:
+        @classmethod
+        def from_pretrained(cls, model_name, **kwargs):
+            assert model_name == "test-model"
+            return cls()
+
+        def apply_chat_template(self, messages, **kwargs):
+            assert messages[0]["role"] == "system"
+            return "prompt"
+
+        def __call__(self, prompt, **kwargs):
+            return FakeInputs(input_ids="input-ids")
+
+        def decode(self, _tokens, **kwargs):
+            return self.answer
+
+    class FakeModel:
+        device = "cpu"
+
+        def generate(self, **kwargs):
+            self.generated_with = kwargs
+            return ["generated-sequence"]
+
+    tokenizer = FakeTokenizer()
+    model = FakeModel()
+
+    class TokenizerFactory:
+        @staticmethod
+        def from_pretrained(*args, **kwargs):
+            return tokenizer
+
+    class ModelFactory:
+        @staticmethod
+        def from_pretrained(*args, **kwargs):
+            return model
+
+    fake_transformers = types.ModuleType("transformers")
+    fake_transformers.AutoTokenizer = TokenizerFactory
+    fake_transformers.AutoModelForCausalLM = ModelFactory
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+    passage = {
+        "source_id": "WBC-0001", "evidence_level": "E3",
+        "text_chunk": "Bamboo age affects fibre strength and material selection.",
+        "metadata": {"record_type": "full_paper_chunk", "evidence_eligible": True},
+    }
+    generator = GroundedGenerator({"generator": {"backend": "transformers", "model_name": "test-model"}})
+
+    tokenizer.answer = "Bamboo age affects strength. [WBC-0001 | E3]"
+    answer = generator.answer("How does bamboo age affect fibre strength?", [passage])
+    assert answer == tokenizer.answer
+    assert model.generated_with["max_new_tokens"] == 220
+
+    tokenizer.answer = "Unsupported claim. [OTHER-SOURCE | E3]"
+    answer = generator.answer("How does bamboo age affect fibre strength?", [passage])
+    assert answer.startswith("Retrieved evidence:")
+    assert "[WBC-0001 | E3]" in answer
 
 
 def test_local_server_status_and_query_api(monkeypatch):

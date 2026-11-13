@@ -107,7 +107,10 @@ class GroundedGenerator:
                 skip_special_tokens=True,
             ).strip()
             valid = {passage["source_id"] for passage in evidence}
-            cited = set(re.findall(r"\[([^\]|]+)\s*\|\s*E[1-5]\]", answer))
+            cited = {
+                citation.strip()
+                for citation in re.findall(r"\[([^\]|]+)\s*\|\s*E[1-5]\]", answer)
+            }
             if not answer or not cited or not cited.issubset(valid):
                 return self._extractive(evidence)
             return answer
