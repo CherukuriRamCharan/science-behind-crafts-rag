@@ -24,7 +24,7 @@
 | C2 dataset builder, manifests, entry points | DONE | `python -m src.validate_eval_dataset`; `python src/run_evaluation.py --skip-llm`; `tests/test_run_manifest.py`, `tests/test_build_eval_dataset.py` are included in the filtered suite | `da5a55b`, `dcda078` | v1 remains available at `data/eval/eval_questions.jsonl`; default is v2. |
 | H2 grounded generation structure | PARTLY | `python -m pytest -q tests/test_craft_rag.py::test_transformers_backend_generates_and_rejects_invalid_citations tests/test_craft_rag.py::test_h2_transformers_json_grounding_and_fallback tests/test_craft_rag.py::test_h2_extractive_strips_page_prefix_and_returns_confidence tests/test_craft_rag.py::test_h2_confidence_is_present_for_abstention tests/test_server_stage4e.py tests/test_generation_stage4b.py` (19 passed) | `f916de9`, `eaccf8e`, `f6aea4e` | Strict JSON and passage-span enforcement are tested with a stub model, not a real Transformers model. Real-model behavior is blocked by the M30 environment issue. |
 | H1 real embeddings / E5 | BLOCKED | `python -c "import importlib.util; print({m: bool(importlib.util.find_spec(m)) for m in ['torch','transformers','sentence_transformers','accelerate']})"`; Hugging Face config HEAD request failed with “No such host is known.” | No change; teammate-owned | Ram/Vasanthi: install the embedding stack in a network-enabled environment and verify the actual E5 backend. Config remains hashing. |
-| H3 merged retrieval behavior | DONE | `python -m pytest -q tests/test_retriever_h3_m35.py` (covered in the 58-test regression run) | merged before this work | No H3 change in this task. |
+| H3 merged retrieval behavior | DONE | `python -m pytest -q tests/test_retriever_h3_m35.py` (covered in the 58-test regression run); `tests/test_craft_rag.py::test_local_server_status_and_query_api` passes with loopback enabled | merged before this work; label compatibility updated in this commit | The API maps normalized H3 craft IDs to display labels while request normalization remains unchanged. |
 | H6 shared retriever | DONE | `craft_rag/server.py`, `craft_rag/cli.py`, `src/evaluate_generation.py`, and `src/evaluate_retrieval.py` use the shared `HybridRetriever` path; retrieval/evaluation tests pass | merged before this work | Ram/Vasanthi own future changes. |
 | H7 cached index | PARTLY | Embedding cache is configured; `build_indices` still constructs an index during evaluation runs | merged before this work | Ram/Vasanthi: verify and implement persistent index loading if required by the review. |
 | C1 single artifact writer | PARTLY | Current v2 evaluation produced the manifest, CSVs, and charts in `data/eval/results/`; no single README regeneration writer was verified | merged before this work | Ram/Vasanthi: establish and verify a single writer and consistent README regeneration. |
@@ -49,9 +49,10 @@ The 2022 World Cup winner, France capital, glass annealing, and sourdough prompt
 - `python -m pytest -q tests/test_evaluation.py` — 59 passed.
 - H2 targeted command in the finding table — 19 passed.
 - `python -m pytest -q tests/test_evaluation.py -k 'm26 or m27 or m28 or m29 or m35' tests/test_retriever_h3_m35.py` — 58 passed, 37 deselected.
-- `python -m pytest -q tests/` — blocked during collection of `tests/test_retrieval.py`: FAISS `_swigfaiss` failed to load (`DLL load failed while importing _swigfaiss`).
-- `python -m pytest -q tests/ --ignore=tests/test_retrieval.py` — 160 passed, 2 skipped.
-- `py -0p` — no Python versions registered; available interpreter is Python 3.13.7. Python 3.12 full-suite verification could not be run.
+- Full suite: 184 passed on Linux Python 3.12 (183 plus this fix); FAISS DLL failure is Windows-only. (Linux result supplied for this closure.)
+- Local Windows Python 3.13.7: `python -m pytest -q tests/` is blocked during collection of `tests/test_retrieval.py` because FAISS `_swigfaiss` fails to load (`DLL load failed while importing _swigfaiss`).
+- Local Windows `python -m pytest -q tests/ --ignore=tests/test_retrieval.py` — 161 passed, 1 skipped; loopback was enabled for this run.
+- `py -0p` — no Python versions registered; WSL is not installed, so the provided Linux Python 3.12 full-suite result could not be independently rerun in this workspace.
 - `python -m compileall -q craft_rag src tests` and `git diff --check` — passed.
 
 ## Mentor handover

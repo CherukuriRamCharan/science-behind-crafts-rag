@@ -595,16 +595,26 @@ def test_local_server_status_and_query_api(monkeypatch):
 
     class FakeRetriever:
         def retrieve(self, question, filters=None):
+            if "capital of france" in question.casefold():
+                return []
             return [passage]
 
     class FakeGenerator:
         def answer(self, question, passages):
+            if not passages:
+                return "Insufficient evidence in the retrieved corpus to answer this question."
             return "Retrieved evidence: Bamboo maturity [WBC-0001 | E3]"
 
     app = {
         "record_count": 2,
         "quality_issue_count": 0,
-        "index": {"backend_info": {"embedding": "hashing"}, "chunks": []},
+        "index": {
+            "backend_info": {"embedding": "hashing"},
+            "chunks": [
+                {"craft_cluster": "Wood carving"},
+                {"craft_cluster": "Bamboo carving"},
+            ],
+        },
         "retriever": FakeRetriever(),
         "generator": FakeGenerator(),
     }

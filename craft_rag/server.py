@@ -80,7 +80,16 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 app = get_engine()
                 chunks = app["index"]["chunks"]
-                return self.respond(200, facet_options(chunks))
+                options = facet_options(chunks)
+                craft_labels = {
+                    "wood": "Wood carving",
+                    "bamboo": "Bamboo carving",
+                    "both": "Wood and bamboo carving",
+                }
+                options["craft_clusters"] = [
+                    craft_labels.get(value, value) for value in options["craft_clusters"]
+                ]
+                return self.respond(200, options)
             except Exception as exc:
                 return self.respond(503, {"error": f"Could not load filters: {type(exc).__name__}: {exc}"})
         if path in ("/", "/index.html"):
