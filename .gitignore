@@ -20,3 +20,8 @@ pending_data_review.zip
 # Integrated RAG local environment and generated indexes/caches
 /craft_rag/.venv/
 /craft_rag/artifacts/
+
+# Local evaluation comparison runs
+/data/eval/h2_check/
+/data/eval/results_h3_*/
+/data/eval/results_pre_h3_same_corpus/

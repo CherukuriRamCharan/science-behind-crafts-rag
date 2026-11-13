@@ -148,26 +148,31 @@ The duplicate test file under `pending_data_review/tests/` is intentionally excl
 
 ## Evaluation Suite
 
-The repository includes a reproducible evaluation benchmark for retrieval and offline extractive generation:
+The current evaluation release is **v2** (`data/eval/eval_questions_v2.jsonl`), built from `data/eval/eval_questions_v2_spec.yaml`; v1 remains unchanged in `data/eval/eval_questions.jsonl` and `data/eval/eval_questions_v1_rebuilt.jsonl`. Each version contains 45 questions: 33 answerable and 12 unanswerable. The searchable corpus has 569 chunks.
 
-- **Benchmark Dataset**: 45 auto-drafted questions (`data/eval/eval_questions.jsonl`): 33 answerable (54.5% grounded in PDF/DOCX metadata cards) + 12 unanswerable (hard near-domain, teammate unsourced, and out-of-domain baseline).
-  - *Data Quality Warning*: Teammate corpus builder outputs: `Prepared corpus has 62 data-quality issue(s); details are included in the corpus manifest (artifacts/corpus_manifest.json)`.
-  - *Question-to-Quote Overlap*: Average 58.84% across answerable questions (metric definition: $|T_{\text{question}} \cap T_{\text{quote}}| / |T_{\text{question}}|$ with stopwords removed, len > 2), with 22 questions > 50% due to strict single-sentence QA grounding.
-  - *Limitation*: High lexical overlap between questions and gold quotes likely favors BM25; retrieval scores may be optimistic.
-- **Collapsing Rule**: Evaluates retrieval after deduplicating ranked lists by gold record groups (aliases count once; slot $k$ represents $k$ distinct records).
-- **Retrieval Performance (N=33 Answerable)**:
-  - BM25 (Sparse, direct): MRR = 0.8657, HitRate@5 = 0.9091, Recall@5 = 0.9091, nDCG@5 = 0.8716
-  - Dense (Hashing baseline): MRR = 0.6753, HitRate@5 = 0.7273, Recall@5 = 0.7273, nDCG@5 = 0.6765
-  - Hybrid (No dedup): MRR = 0.7996, HitRate@5 = 0.8485, Recall@5 = 0.8485, nDCG@5 = 0.8037
-  - Hybrid (Pipeline with dedup): MRR = 0.8081, HitRate@5 = 0.8788, Recall@5 = 0.8788, nDCG@5 = 0.8261
-  *(Note: N=33 differences between retrievers are within sampling noise; no winner claimed. Teammate title deduplication in pipeline drops relevant chunks for multi-chunk papers).*
-- **Generation & Citation Quality (`--skip-llm` Extractive Mode)**:
-  - Evaluates offline extractive text concatenation; does not generalize to neural LLM generation.
-  - Citation Validity: 100% valid by construction (only cites retrieved chunks).
-  - Evidence Leakage: 0/5 instances (artisan observations not synthesized as proven law).
-  - False Abstention: 0.0% (trivial, as extractive generator never abstains under BM25).
-- **Run Evaluation**:
-  ```bash
-  python src/run_evaluation.py --skip-llm
-  ```
-- **Evaluation Report**: See [`data/metadata/evaluation_report.md`](data/metadata/evaluation_report.md) for full breakdown, case studies, label fix before/after comparisons, and figures.
+v2 revises 24 answerable question wordings without changing gold answers or evidence. Mean question-to-gold-quote overlap fell from 58.84% in v1 (22/33 above 50%, 2/33 exactly 50%) to 32.75% in v2 (0/33 at or above 50%). **v2 reduces content overlap but adds source-name matching.** Retrieval score differences therefore measure wording sensitivity, not a retriever change.
+
+**Retrieval metrics (N=33 answerable; MRR percentile bootstrap 95% CI):**
+
+| Retriever | Version | MRR (95% CI) | Hit@5 | Recall@5 | nDCG@5 |
+|---|---|---:|---:|---:|---:|
+| BM25 | v1 | 0.7863 (0.6562-0.9015) | 0.8788 | 0.8788 | 0.8068 |
+| BM25 | v2 | 0.6059 (0.4626-0.7453) | 0.7273 | 0.7273 | 0.6257 |
+| Dense hashing | v1 | 0.7640 (0.6364-0.8864) | 0.7879 | 0.7879 | 0.7543 |
+| Dense hashing | v2 | 0.4919 (0.3621-0.6245) | 0.6667 | 0.6667 | 0.5162 |
+| Hybrid no-dedup | v1 | 0.7965 (0.6732-0.9105) | 0.9091 | 0.9091 | 0.8227 |
+| Hybrid no-dedup | v2 | 0.6361 (0.5006-0.7707) | 0.7879 | 0.7879 | 0.6619 |
+| Hybrid pipeline | v1 | 0.7680 (0.6450-0.8831) | 0.8788 | 0.8788 | 0.7926 |
+| Hybrid pipeline | v2 | 0.6165 (0.4771-0.7525) | 0.7879 | 0.7879 | 0.6546 |
+
+Paired tests compare identical qids across versions; because the wording changed, this estimates wording sensitivity. No retriever winner is claimed.
+
+**Extractive generation on v2:** abstention accuracy was 12/12 (100%) for BM25, dense and hybrid. False-abstention rates among answerable questions were 27/33 (81.8%) BM25, 26/33 (78.8%) dense hashing, and 25/33 (75.8%) hybrid. Dense retrieval is the configured 384-dimensional deterministic token-hashing baseline, not a real sentence-embedding model. No LLM metrics are reported.
+
+Validate v2 with:
+
+```bash
+python -c "from src.validate_eval_dataset import validate; raise SystemExit(0 if validate('data/eval/eval_questions_v2.jsonl') else 1)"
+```
+
+See [`data/metadata/evaluation_report.md`](data/metadata/evaluation_report.md) for results, CI details, and limitations. Run manifests, per-question tables, charts, and statistical results are in `data/eval/results_v1_final/` and `data/eval/results_v2_final/`.

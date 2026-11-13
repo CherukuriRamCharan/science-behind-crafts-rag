@@ -1,5 +1,11 @@
 # Evaluation Repository Notes: System Architecture and Retrieval/Generation Analysis
 
+## Current evaluation release (2026-11-13)
+
+The v1/v2 comparison uses 45 questions per version (33 answerable, 12 unanswerable) over 569 searchable chunks. v2 retains v1 gold answers and evidence while changing 24 approved question wordings. Mean question-to-gold-quote overlap changes from 58.84% to 32.75%; counts at or above 50% change from 24 to 0. **v2 reduces content overlap but adds source-name matching**, and retrieval changes should be read as wording sensitivity. Results, manifests, and charts are in `data/eval/results_v1_final/` and `data/eval/results_v2_final/`; see `data/metadata/evaluation_report.md` for scores and abstention rates.
+
+The active config selects `embedding.backend: hashing`; `craft_rag/pipeline/embed_text.py` creates 384-dimensional deterministic hash vectors. The configured model name is not loaded with this setting. No embedding thresholds were calibrated. The searchable reference contains 569 chunks and SHA-256 `aaa1d0ff746d99a35d8bdadd68784a4ddb0a59a1570353d27da3610bd0821489`.
+
 ## 1. Overview and Architecture
 
 The `science-behind-crafts-rag` repository contains two main subsystems for retrieval and question answering over craft-science evidence:
