@@ -312,6 +312,18 @@ def evaluate_retrieval(
             writer.writeheader()
             writer.writerows(summary_rows)
 
+    from src.eval_statistics import bootstrap_and_paired_tests
+    ci_rows, paired_rows = bootstrap_and_paired_tests(per_question_rows)
+    for filename, rows in (("retrieval_bootstrap_ci.csv", ci_rows), ("retrieval_paired_tests.csv", paired_rows)):
+        if rows:
+            with (out_dir / filename).open("w", encoding="utf-8-sig", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+                writer.writeheader()
+                writer.writerows(rows)
+
+    from src.run_manifest import write_run_manifest
+    write_run_manifest(out_dir, config=cfg, corpus_chunks=index_data.get("all_chunks", index_data["chunks"]))
+
     print(f"Saved retrieval results to {per_q_path} and {summary_path}")
     return {
         "summary": summary_rows,

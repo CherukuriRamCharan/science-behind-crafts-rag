@@ -132,6 +132,16 @@ def main():
     chart_paths = generate_all_charts(results_dir=str(results_dir))
     print(f"Generated {len(chart_paths)} figures in {results_dir / 'figures'}")
 
+    from craft_rag.pipeline.common import load_config
+    from craft_rag.pipeline.prepared_data import load_prepared_corpus
+    from craft_rag.pipeline.chunk import chunk_records
+    from src.run_manifest import write_run_manifest
+    config = load_config()
+    config["generator"]["backend"] = generator_backend
+    records, _ = load_prepared_corpus(config)
+    chunks = chunk_records(records, **config.get("chunking", {}))
+    write_run_manifest(results_dir, config=config, corpus_chunks=chunks)
+
     print("\n" + "=" * 70)
     print("EVALUATION RUN COMPLETE")
     print("=" * 70)

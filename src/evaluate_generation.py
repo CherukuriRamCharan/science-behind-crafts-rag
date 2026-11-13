@@ -267,6 +267,9 @@ def run_generation_evaluation(
         writer.writeheader()
         writer.writerows(per_question_rows)
 
+    from src.run_manifest import write_run_manifest
+    write_run_manifest(out_dir, config=config, corpus_chunks=index_data.get("all_chunks", index_data["chunks"]))
+
     return summary, per_question_rows
 
 
@@ -294,6 +297,11 @@ def evaluate_all_generation(top_k: int = 5, results_dir: str = "data/eval/result
         writer = csv.DictWriter(f, fieldnames=list(all_per_q[0].keys()))
         writer.writeheader()
         writer.writerows(all_per_q)
+
+    from src.run_manifest import write_run_manifest
+    config = load_config()
+    config["generator"]["backend"] = generator_backend
+    write_run_manifest(out_dir, config=config)
 
     return summaries
 
