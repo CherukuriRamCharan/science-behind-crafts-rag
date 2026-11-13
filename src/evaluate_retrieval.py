@@ -19,6 +19,7 @@ aliases of the same record count once (keep first occurrence) and k means k dist
 from __future__ import annotations
 
 import csv
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -47,7 +48,7 @@ from src.eval_metrics import (
 K_VALUES = (1, 3, 5, 10)
 
 
-def load_eval_dataset(eval_path: str = "data/eval/eval_questions.jsonl") -> list[dict[str, Any]]:
+def load_eval_dataset(eval_path: str = "data/eval/eval_questions_v2.jsonl") -> list[dict[str, Any]]:
     questions = []
     with open(eval_path, "r", encoding="utf-8") as f:
         for line in f:
@@ -142,7 +143,7 @@ def retrieve_hybrid_no_dedup(
 
 
 def evaluate_retrieval(
-    dataset_path: str = "data/eval/eval_questions.jsonl",
+    dataset_path: str = "data/eval/eval_questions_v2.jsonl",
     output_dir: str = "data/eval/results",
     retriever: str = "all",
     top_k: int = 40,
@@ -335,7 +336,16 @@ def evaluate_retrieval(
 
 
 if __name__ == "__main__":
-    res = evaluate_retrieval()
+    parser = argparse.ArgumentParser(description="Evaluate retrieval on a benchmark JSONL dataset.")
+    parser.add_argument("--dataset", default="data/eval/eval_questions_v2.jsonl")
+    parser.add_argument("--output_dir", default="data/eval/results")
+    parser.add_argument("--retriever", choices=["all", "hybrid", "bm25", "dense"], default="all")
+    parser.add_argument("--top_k", type=int, default=40)
+    args = parser.parse_args()
+    res = evaluate_retrieval(
+        dataset_path=args.dataset, output_dir=args.output_dir,
+        retriever=args.retriever, top_k=args.top_k,
+    )
     print("\nRETRIEVAL EVALUATION SUMMARY:")
     for r in res["summary"]:
         if r["slice"] == "Overall":

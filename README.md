@@ -172,7 +172,10 @@ Paired tests compare identical qids across versions; because the wording changed
 Validate v2 with:
 
 ```bash
-python -c "from src.validate_eval_dataset import validate; raise SystemExit(0 if validate('data/eval/eval_questions_v2.jsonl') else 1)"
+python -m src.validate_eval_dataset
+python src/run_evaluation.py --skip-llm
 ```
+
+To run the retained v1 dataset, pass `--dataset data/eval/eval_questions.jsonl` to either command.
 
 See [`data/metadata/evaluation_report.md`](data/metadata/evaluation_report.md) for results, CI details, and limitations. Run manifests, per-question tables, charts, and statistical results are in `data/eval/results_v1_final/` and `data/eval/results_v2_final/`.

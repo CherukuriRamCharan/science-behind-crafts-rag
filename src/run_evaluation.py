@@ -9,6 +9,7 @@ Unified entry point supporting:
 Usage:
   python src/run_evaluation.py --skip-llm
   python src/run_evaluation.py --skip-llm --retriever hybrid --top_k 5
+  python src/run_evaluation.py --skip-llm --dataset data/eval/eval_questions.jsonl
 """
 from __future__ import annotations
 
@@ -63,6 +64,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default="data/eval/results",
         help="Directory to save evaluation artifacts.",
     )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="data/eval/eval_questions_v2.jsonl",
+        help="Evaluation dataset JSONL (default: eval v2).",
+    )
     return parser
 
 
@@ -81,7 +88,7 @@ def main():
     # 1. Dataset Validation
     print("\n[Step 1/5] Validating evaluation dataset schema and integrity...")
     from src.validate_eval_dataset import validate
-    validation_ok = validate("data/eval/eval_questions.jsonl")
+    validation_ok = validate(args.dataset)
     if not validation_ok:
         print("ERROR: Evaluation dataset validation failed. Aborting.")
         sys.exit(1)
@@ -90,6 +97,7 @@ def main():
     print("\n[Step 2/5] Running retrieval evaluation...")
     from src.evaluate_retrieval import evaluate_retrieval
     retrieval_summaries = evaluate_retrieval(
+        dataset_path=args.dataset,
         output_dir=str(results_dir),
         retriever=args.retriever,
         top_k=args.top_k,
@@ -102,11 +110,12 @@ def main():
     if args.retriever == "all":
         gen_summaries = evaluate_all_generation(
             top_k=args.top_k, results_dir=str(results_dir),
-            generator_backend=generator_backend,
+            generator_backend=generator_backend, eval_file=args.dataset,
         )
     else:
         ret_arg = "dense" if args.retriever == "dense" else args.retriever
         s, rows = run_generation_evaluation(
+            eval_file=args.dataset,
             results_dir=str(results_dir), top_k=args.top_k, retriever_name=ret_arg,
             generator_backend=generator_backend,
         )
@@ -124,7 +133,9 @@ def main():
     # 4. Error Analysis
     print("\n[Step 4/5] Running error analysis & failure classification...")
     from src.analyze_errors import run_error_analysis
-    failures = run_error_analysis(results_dir=str(results_dir))
+    failures = run_error_analysis(
+        results_dir=str(results_dir), dataset_path=args.dataset
+    )
 
     # 5. Chart Generation
     print("\n[Step 5/5] Generating visual performance figures...")

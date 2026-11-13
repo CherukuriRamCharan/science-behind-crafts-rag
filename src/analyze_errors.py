@@ -45,7 +45,7 @@ def _embedding_dimension() -> tuple[int | None, str]:
 
 
 def run_error_analysis(results_dir: str | Path = "data/eval/results",
-                       dataset_path: str | Path = "data/eval/eval_questions.jsonl"):
+                       dataset_path: str | Path = "data/eval/eval_questions_v2.jsonl"):
     results_dir = Path(results_dir)
     with Path(dataset_path).open("r", encoding="utf-8") as f:
         questions = {q["qid"]: q for q in (json.loads(line) for line in f if line.strip())}

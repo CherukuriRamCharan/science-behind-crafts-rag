@@ -14,6 +14,7 @@ Verifies:
 from __future__ import annotations
 
 import json
+import argparse
 import re
 import sys
 from collections import Counter
@@ -292,6 +293,21 @@ def validate(dataset_path: str | Path = "data/eval/eval_questions.jsonl",
 
     return True
 
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Validate an evaluation dataset against the searchable corpus.")
+    parser.add_argument(
+        "--dataset",
+        default="data/eval/eval_questions_v2.jsonl",
+        help="Evaluation dataset JSONL (default: eval v2).",
+    )
+    parser.add_argument(
+        "--reference",
+        default="data/eval/searchable_chunks_reference.json",
+        help="Searchable corpus reference JSON.",
+    )
+    args = parser.parse_args(argv)
+    return 0 if validate(args.dataset, args.reference) else 1
+
+
 if __name__ == "__main__":
-    success = validate()
-    sys.exit(0 if success else 1)
+    sys.exit(main())

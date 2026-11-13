@@ -618,6 +618,29 @@ def test_m30_skip_llm_defaults_to_false():
     assert args_set.skip_llm is True
 
 
+def test_runner_dataset_defaults_to_v2_and_allows_v1():
+    import src.run_evaluation as runner
+
+    parser = runner._build_parser()
+    assert parser.parse_args([]).dataset == "data/eval/eval_questions_v2.jsonl"
+    assert parser.parse_args([
+        "--dataset", "data/eval/eval_questions.jsonl",
+    ]).dataset == "data/eval/eval_questions.jsonl"
+
+
+def test_validator_cli_defaults_to_v2_and_accepts_v1(monkeypatch):
+    from src import validate_eval_dataset as validator
+
+    calls = []
+    monkeypatch.setattr(validator, "validate", lambda path, reference: calls.append((path, reference)) or True)
+    assert validator.main([]) == 0
+    assert calls[-1][0] == "data/eval/eval_questions_v2.jsonl"
+    assert validator.main([
+        "--dataset", "data/eval/eval_questions.jsonl",
+    ]) == 0
+    assert calls[-1][0] == "data/eval/eval_questions.jsonl"
+
+
 @pytest.mark.parametrize(
     ("skip_flag", "expected_backend"),
     [("--skip-llm", "extractive"), ("--no-skip-llm", "transformers")],
@@ -631,11 +654,14 @@ def test_m30_runner_routes_skip_llm_mode_to_generator(
     from src import analyze_errors, generate_charts
 
     results_dir = tmp_path / "results"
+    dataset = tmp_path / "eval_v2.jsonl"
+    dataset.write_text("{}\n", encoding="utf-8")
     monkeypatch.setattr(
         sys, "argv",
-        ["run_evaluation.py", skip_flag, "--retriever", "hybrid", "--results_dir", str(results_dir)],
+        ["run_evaluation.py", skip_flag, "--dataset", str(dataset), "--retriever", "hybrid", "--results_dir", str(results_dir)],
     )
-    monkeypatch.setattr(validate_eval_dataset, "validate", lambda _path: True)
+    validation_paths = []
+    monkeypatch.setattr(validate_eval_dataset, "validate", lambda path: validation_paths.append(path) or True)
     calls = {}
     monkeypatch.setattr(
         evaluate_retrieval,
@@ -648,7 +674,10 @@ def test_m30_runner_routes_skip_llm_mode_to_generator(
         return {"retriever": "hybrid", "total_questions": 1}, [{"qid": "q001"}]
 
     monkeypatch.setattr(evaluate_generation, "run_generation_evaluation", run_generation_evaluation)
-    monkeypatch.setattr(analyze_errors, "run_error_analysis", lambda **kwargs: [])
+    monkeypatch.setattr(
+        analyze_errors, "run_error_analysis",
+        lambda **kwargs: calls.setdefault("error_analysis", kwargs) or [],
+    )
     monkeypatch.setattr(generate_charts, "generate_all_charts", lambda **kwargs: [])
     monkeypatch.setattr(runner, "compute_file_md5", lambda _path: "test-md5")
 
@@ -658,6 +687,10 @@ def test_m30_runner_routes_skip_llm_mode_to_generator(
     assert calls["generation"]["top_k"] == 5
     assert calls["retrieval"]["retriever"] == "hybrid"
     assert calls["retrieval"]["top_k"] == 5
+    assert validation_paths == [str(dataset)]
+    assert calls["retrieval"]["dataset_path"] == str(dataset)
+    assert calls["generation"]["eval_file"] == str(dataset)
+    assert calls["error_analysis"]["dataset_path"] == str(dataset)
     assert results_dir.joinpath("generation_per_question.csv").is_file()
 
 

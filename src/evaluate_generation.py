@@ -105,7 +105,7 @@ def retrieve_bm25(query: str, index_data: dict[str, Any], candidate_k: int = 5) 
 
 
 def run_generation_evaluation(
-    eval_file: str = "data/eval/eval_questions.jsonl",
+    eval_file: str = "data/eval/eval_questions_v2.jsonl",
     results_dir: str = "data/eval/results",
     top_k: int = 5,
     retriever_name: str = "hybrid",
@@ -275,12 +275,13 @@ def run_generation_evaluation(
 
 
 def evaluate_all_generation(top_k: int = 5, results_dir: str = "data/eval/results",
-                            generator_backend: str = "extractive"):
+                            generator_backend: str = "extractive",
+                            eval_file: str = "data/eval/eval_questions_v2.jsonl"):
     summaries = []
     all_per_q = []
     for ret in ["bm25", "dense", "hybrid"]:
         s, rows = run_generation_evaluation(
-            results_dir=results_dir, top_k=top_k, retriever_name=ret,
+            eval_file=eval_file, results_dir=results_dir, top_k=top_k, retriever_name=ret,
             generator_backend=generator_backend,
         )
         summaries.append(s)
@@ -311,17 +312,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate generation and citation quality.")
     parser.add_argument("--retriever", choices=["all", "hybrid", "bm25", "dense"], default="all")
     parser.add_argument("--top_k", type=int, default=5)
+    parser.add_argument("--dataset", default="data/eval/eval_questions_v2.jsonl")
     args = parser.parse_args()
 
     if args.retriever == "all":
-        summaries = evaluate_all_generation(top_k=args.top_k)
+        summaries = evaluate_all_generation(top_k=args.top_k, eval_file=args.dataset)
         print("\n" + "=" * 60)
         print("ALL GENERATION EVALUATIONS COMPLETED (--skip-llm mode)")
         print("=" * 60)
         for s in summaries:
             print(f"[{s['retriever']}] CitPrec: {s['mean_citation_precision']} | CitRec: {s['mean_citation_recall']} | AbstAcc: {s['abstention_accuracy']} | FalseAbst: {s['false_abstention_rate']}")
     else:
-        summary, rows = run_generation_evaluation(top_k=args.top_k, retriever_name=args.retriever)
+        summary, rows = run_generation_evaluation(
+            eval_file=args.dataset, top_k=args.top_k, retriever_name=args.retriever
+        )
         print("\n" + "=" * 60)
         print(f"GENERATION EVALUATION COMPLETED (--skip-llm mode, retriever={args.retriever})")
         print("=" * 60)
