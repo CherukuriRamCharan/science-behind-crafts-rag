@@ -51,7 +51,17 @@ def write_run_manifest(
     corpus_count = None
     if corpus_chunks is not None:
         canonical_chunks = [
-            {key: chunk.get(key) for key in ("chunk_id", "source_id", "record_id", "text_chunk")}
+            {
+                "chunk_id": chunk.get("chunk_id"),
+                "record_id": chunk.get("record_id"),
+                "prov_record_id": chunk.get("metadata", {}).get("provenance", {}).get("record_id"),
+                "source_id": chunk.get("source_id"),
+                "title": chunk.get("metadata", {}).get("title", ""),
+                "document_type": chunk.get("metadata", {}).get("document_type", chunk.get("record_type")),
+                "craft": chunk.get("craft_cluster", ""),
+                "evidence_level": chunk.get("evidence_level", ""),
+                "text": chunk.get("text_chunk", ""),
+            }
             for chunk in sorted(corpus_chunks, key=lambda row: str(row.get("chunk_id", "")))
         ]
         corpus_sha = _sha256(json.dumps(
