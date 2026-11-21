@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import Protocol, Sequence
 
-import faiss
 import numpy as np
 
 from .data_loader import Chunk, RetrievedChunk
@@ -65,6 +64,12 @@ class FaissRetriever:
             raise ValueError(
                 f"Embedder returned {vectors.shape[0]} vectors for {len(self._chunks)} chunks"
             )
+        try:
+            import faiss  # imported here so BM25-only users do not need faiss installed
+        except ImportError as exc:
+            raise ImportError(
+                "faiss-cpu is required for semantic search. Install it with: pip install faiss-cpu"
+            ) from exc
         self._index = faiss.IndexFlatIP(vectors.shape[1])  # exact search; fine for small corpora
         self._index.add(vectors)
 

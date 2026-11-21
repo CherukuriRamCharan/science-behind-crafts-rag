@@ -217,3 +217,7 @@ def test_real_repository_chunks_load_and_bm25_search():
     results = BM25Retriever(real).search("grip strength hand tool handle design", top_k=5)
     assert results and all(r.source_id in {"WBC-0051", "WBC-2016"} for r in results)
     assert all(r.page is None for r in results)  # real data has no page field
+def test_bm25_import_does_not_need_faiss():
+    import subprocess
+    code = "import sys; sys.modules['faiss']=None; from src.retrieval import BM25Retriever"
+    subprocess.run([sys.executable, "-c", code], cwd=ROOT, check=True)
