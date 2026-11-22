@@ -109,3 +109,11 @@ class TextEmbedder:
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             np.savez_compressed(cache_path, vectors=matrix)
         return matrix
+
+    def encode_query(self, texts):
+        """Encode search questions (adds the 'query: ' prefix for E5 models)."""
+        return self.encode(texts, input_type="query")
+
+    def encode_documents(self, texts):
+        """Encode passages to index (adds the 'passage: ' prefix for E5 models)."""
+        return self.encode(texts, input_type="document")

@@ -21,6 +21,8 @@ class FakeEmbedder:
     def encode(self, texts):
         return np.tile(self.vector, (len(texts), 1))
 
+    encode_query = encode
+
 
 def make_index(rows, vectors=None, query_vector=(1.0, 0.0)):
     """rows: dicts with chunk_id, source_id, text_chunk and optional facet fields."""

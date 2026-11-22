@@ -1027,6 +1027,8 @@ def test_m35_retrieve_hybrid_no_dedup_tie_breaking_is_by_chunk_id():
         def encode(self, texts):
             return np.asarray([[1.0, 0.0] for _ in texts])
 
+        encode_query = encode
+
     class EqualBM25:
         def get_scores(self, tokens):
             return np.asarray([1.0, 1.0])
@@ -1077,6 +1079,8 @@ def test_m35_primitive_retriever_ties_ignore_corpus_order(module_name, retriever
     class Embedder:
         def encode(self, texts):
             return np.asarray([[1.0, 0.0] for _ in texts])
+
+        encode_query = encode
 
     class EqualBM25:
         def get_scores(self, tokens):
