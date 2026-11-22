@@ -76,7 +76,7 @@ class HybridRetriever:
 
         # Exact scoring over every chunk, then mask. (FAISS cannot mask, and exact scoring keeps
         # tie order independent of the vector-search backend.)
-        query_vector = self.index["embedder"].encode([query])[0]
+        query_vector = self.index["embedder"].encode_query([query])[0]
         dense_scores = np.asarray(self.index["vectors"] @ query_vector, dtype=np.float64)
         query_tokens = tokens(query)
         if self.index["bm25"] is not None:

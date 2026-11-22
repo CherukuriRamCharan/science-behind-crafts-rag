@@ -72,7 +72,7 @@ def retrieve_dense(query: str, index_data: dict[str, Any], candidate_k: int = 40
         return []
     chunks = index_data["chunks"]
     embedder = index_data["embedder"]
-    q_vec = embedder.encode([query])[0]
+    q_vec = embedder.encode_query([query])[0]
     faiss_index = index_data.get("faiss")
 
     if faiss_index is not None:

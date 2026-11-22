@@ -45,3 +45,9 @@ def test_non_e5_model_gets_no_prefix(tmp_path):
     embedder = make_embedder(tmp_path, "sentence-transformers/all-MiniLM-L6-v2")
     embedder.encode_query(["hello"])
     assert embedder.model.seen[-1] == ["hello"]
+
+
+def test_no_query_is_encoded_as_a_document():
+    for rel in ["craft_rag/pipeline/retrieve.py", "src/evaluate_retrieval.py", "src/evaluate_generation.py"]:
+        text = (ROOT / rel).read_text(encoding="utf-8")
+        assert ".encode([query])" not in text, f"{rel} still encodes the query as a document"

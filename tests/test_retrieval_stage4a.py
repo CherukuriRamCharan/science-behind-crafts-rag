@@ -169,10 +169,11 @@ def test_synthetic_corpus_fewer_than_five_sources_and_duplicate_handling(tmp_pat
     ]
 
     import numpy as np
-
     class FakeEmbedder:
         def encode(self, texts, input_type="document"):
             return np.ones((len(texts), 4), dtype="float32")
+
+        encode_query = encode
 
     fake_index = {
         "chunks": sample_chunks,
